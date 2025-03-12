@@ -3,24 +3,34 @@ import Header from "@/components/Header";
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Header */}
       <div className="sticky top-0 z-50 bg-white dark:bg-gray-950 shadow">
         <Header />
       </div>
+
+      {/* Hero Section with Background Image */}
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section
+          className="w-full py-12 md:py-24 lg:py-32 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('https://img.freepik.com/free-photo/warehouse-industrial-building-interior-with-people-forklifts-handling-goods-storage-area_342744-1498.jpg?uid=R160018945&ga=GA1.1.1155705999.1735793162&semt=ais_hybrid')`,
+          }}
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white">
                   About Us
                 </h1>
-                <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+                <p className="mx-auto max-w-[700px] text-gray-200 md:text-xl">
                   Learn about our mission to revolutionize warehouse management.
                 </p>
               </div>
             </div>
           </div>
         </section>
+
+        {/* Content Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
@@ -41,14 +51,14 @@ export default function AboutPage() {
                 </p>
               </div>
               {/* Adding a related image */}
-              <div className="lg:col-span-2 flex justify-center">
+              {/* <div className="lg:col-span-2 flex justify-center">
                 <img
-                  src="https://images.unsplash.com/photo-1586528116311-01c1b1db7213?q=80&w=2070&auto=format&fit=crop"
+                  src="https://img.freepik.com/free-vector/illustration-business-target-icon_53876-5898.jpg?uid=R160018945&ga=GA1.1.1155705999.1735793162&semt=ais_hybrid"
                   alt="Warehouse interior"
                   className="max-w-full h-auto rounded-lg shadow-lg"
                   style={{ maxWidth: "700px" }}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

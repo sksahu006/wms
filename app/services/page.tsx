@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import { CheckCircle } from "lucide-react";
 
 export default function ServicesPage() {
@@ -14,6 +15,9 @@ export default function ServicesPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-950 shadow">
+        <Header />
+      </div>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
