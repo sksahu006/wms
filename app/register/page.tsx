@@ -1,0 +1,163 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Header from "@/components/Header";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      toast({
+        title: "Registration Successful",
+        description: "Your registration has been submitted for approval. You will be notified once approved.",
+      });
+      router.push("/register/success");
+    }, 1500);
+  };
+
+  return (
+    <div className="max-h-screen flex flex-col items-center justify-start py-4">
+      <div className="mx-auto w-full max-w-[550px] space-y-6">
+        <div className="flex flex-col space-y-2 text-center">
+          <div className="flex justify-center">
+            <Package className="h-8 w-8" />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Client Registration
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Register your company to access our warehouse management system
+          </p>
+        </div>
+
+        <Card className="overflow-auto max-h-[calc(100vh-200px)]">
+          <form onSubmit={handleSubmit}>
+            <CardHeader>
+              <CardTitle>Company Information</CardTitle>
+              <CardDescription>
+                Please provide your company details for registration
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input id="companyName" placeholder="Enter company name" required />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contactName">Contact Person</Label>
+                  <Input id="contactName" placeholder="Full name" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="position">Position</Label>
+                  <Input id="position" placeholder="Job title" required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="email@company.com" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input id="phone" placeholder="+1 (555) 123-4567" required />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">Business Address</Label>
+                <Textarea id="address" placeholder="Enter your business address" required />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="businessType">Business Type</Label>
+                  <Select required>
+                    <SelectTrigger id="businessType">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="retail">Retail</SelectItem>
+                      <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                      <SelectItem value="distribution">Distribution</SelectItem>
+                      <SelectItem value="ecommerce">E-Commerce</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="taxId">Tax ID / Business Number</Label>
+                  <Input id="taxId" placeholder="Enter tax ID" required />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="requirements">Storage Requirements</Label>
+                <Textarea
+                  id="requirements"
+                  placeholder="Briefly describe your storage needs, including estimated space requirements and duration"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Required Documents</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="businessLicense" className="text-xs">Business License</Label>
+                    <Input id="businessLicense" type="file" className="cursor-pointer"  />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxCertificate" className="text-xs">Tax Certificate</Label>
+                    <Input id="taxCertificate" type="file" className="cursor-pointer"  />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline" type="button" asChild>
+                <Link href="/">Cancel</Link>
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Submitting..." : "Submit Registration"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+
+        <p className="px-8 text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link href="/login" className="underline underline-offset-4 hover:text-primary">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
