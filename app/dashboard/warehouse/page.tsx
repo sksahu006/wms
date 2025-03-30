@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
 
 export default function WarehousePage() {
   const warehouseSpaces = [
@@ -149,13 +150,15 @@ export default function WarehousePage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Warehouse Management</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add Space
-        </Button>
+        <Link href="/dashboard/warehouse/add">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Add Space
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {warehouseStats.map((stat, index) => (
+        {warehouseStats?.map((stat, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -261,7 +264,11 @@ export default function WarehousePage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View details</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Link href={`/dashboard/warehouse/${space.id}`}>
+                                  View details
+                                </Link>
+                              </DropdownMenuItem>
                               <DropdownMenuItem>Edit space</DropdownMenuItem>
                               <DropdownMenuSeparator />
                               {space.status === "Vacant" ? (
