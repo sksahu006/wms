@@ -120,7 +120,7 @@ export default function AddWarehouseSpacePage() {
                 <Input id="location" placeholder="Building A, Floor 1" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="rate">Monthly Rate ($)</Label>
+                <Label htmlFor="rate">Monthly Rate (₹)</Label>
                 <Input id="rate" type="number" placeholder="1000" required />
               </div>
             </div>
