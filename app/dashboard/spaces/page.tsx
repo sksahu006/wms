@@ -35,7 +35,7 @@ export default function ClientSpacesPage() {
       startDate: "Jan 15, 2023",
       endDate: "Dec 31, 2023",
       utilization: 85,
-      monthlyRate: "$1,200.00",
+      monthlyRate: "₹1,200.00",
     }
   ]
   
@@ -46,14 +46,14 @@ export default function ClientSpacesPage() {
       name: "Storage Unit B-202",
       type: "Cold Storage",
       size: "300 sq ft",
-      monthlyRate: "$1,500.00",
+      monthlyRate: "₹1,500.00",
     },
     {
       id: "WH-C-302",
       name: "Storage Unit C-302",
       type: "Regular",
       size: "1000 sq ft",
-      monthlyRate: "$2,000.00",
+      monthlyRate: "₹2,000.00",
     },
   ]
   
@@ -98,7 +98,7 @@ export default function ClientSpacesPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$1,200.00</div>
+            <div className="text-2xl font-bold">₹1,200.00</div>
             <p className="text-xs text-muted-foreground">
               Total monthly payments
             </p>

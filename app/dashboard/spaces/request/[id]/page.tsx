@@ -41,8 +41,8 @@ export default function RequestSpacePage({ params }: { params: { id: string } })
       ? "Building B, Floor 2" 
       : "Building C, Floor 3",
     monthlyRate: params.id === "WH-B-202" 
-      ? "$1,500.00" 
-      : "$2,000.00",
+      ? "₹1,500.00" 
+      : "₹2,000.00",
     description: params.id === "WH-B-202"
       ? "Temperature-controlled storage unit suitable for perishable goods. Maintains temperatures between 35-40°F."
       : "Large storage unit with high ceilings, suitable for bulk storage. Easy access to loading docks.",
