@@ -32,7 +32,7 @@ export default function InvoicesPage() {
       id: "INV-001",
       client: "Acme Corporation",
       clientId: "WMS001",
-      amount: "$1,200.00",
+      amount: "₹1,200.00",
       date: "Jan 15, 2023",
       dueDate: "Feb 15, 2023",
       status: "Paid",
@@ -43,7 +43,7 @@ export default function InvoicesPage() {
       id: "INV-002",
       client: "TechSolutions Inc",
       clientId: "WMS002",
-      amount: "$950.00",
+      amount: "₹950.00",
       date: "Jan 20, 2023",
       dueDate: "Feb 20, 2023",
       status: "Paid",
@@ -54,7 +54,7 @@ export default function InvoicesPage() {
       id: "INV-003",
       client: "Manufacturing Pro",
       clientId: "WMS005",
-      amount: "$2,500.00",
+      amount: "₹2,500.00",
       date: "Feb 1, 2023",
       dueDate: "Mar 1, 2023",
       status: "Pending",
@@ -65,7 +65,7 @@ export default function InvoicesPage() {
       id: "INV-004",
       client: "Retail Enterprises",
       clientId: "WMS004",
-      amount: "$1,800.00",
+      amount: "₹1,800.00",
       date: "Feb 5, 2023",
       dueDate: "Mar 5, 2023",
       status: "Overdue",
@@ -76,7 +76,7 @@ export default function InvoicesPage() {
       id: "INV-005",
       client: "Acme Corporation",
       clientId: "WMS001",
-      amount: "$1,200.00",
+      amount: "₹1,200.00",
       date: "Feb 15, 2023",
       dueDate: "Mar 15, 2023",
       status: "Paid",
@@ -87,7 +87,7 @@ export default function InvoicesPage() {
       id: "INV-006",
       client: "TechSolutions Inc",
       clientId: "WMS002",
-      amount: "$950.00",
+      amount: "₹950.00",
       date: "Feb 20, 2023",
       dueDate: "Mar 20, 2023",
       status: "Pending",
@@ -99,22 +99,22 @@ export default function InvoicesPage() {
   const invoiceStats = [
     {
       title: "Total Invoices",
-      value: "$8,600.00",
+      value: "₹8,600.00",
       description: "All time revenue",
     },
     {
       title: "Paid",
-      value: "$4,300.00",
+      value: "₹4,300.00",
       description: "3 invoices",
     },
     {
       title: "Pending",
-      value: "$3,450.00",
+      value: "₹3,450.00",
       description: "2 invoices",
     },
     {
       title: "Overdue",
-      value: "$1,800.00",
+      value: "₹1,800.00",
       description: "1 invoice",
     },
   ]
@@ -136,7 +136,7 @@ export default function InvoicesPage() {
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-2xl font-bold"> {stat.value}</div>
               <p className="text-xs text-muted-foreground">{stat.description}</p>
             </CardContent>
           </Card>

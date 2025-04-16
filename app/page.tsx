@@ -79,6 +79,7 @@ export default function Home() {
                   <Button asChild>
                     <Link href="/login">Get Started</Link>
                   </Button>
+                  
                   <Button variant="outline" asChild>
                     <Link href="/about">Learn More</Link>
                   </Button>

@@ -43,7 +43,7 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
     invoices: [
       {
         id: "INV-001",
-        amount: "$1,200.00",
+        amount: "₹,200.00",
         date: "Jan 15, 2023",
         dueDate: "Feb 15, 2023",
         status: "Paid",
@@ -51,7 +51,7 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
       },
       {
         id: "INV-005",
-        amount: "$1,200.00",
+        amount: "₹,200.00",
         date: "Feb 15, 2023",
         dueDate: "Mar 15, 2023",
         status: "Paid",
