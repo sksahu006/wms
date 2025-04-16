@@ -23,6 +23,7 @@ const UpdateSchema = z.object({
   taxCertificate: z.string().optional(),
   isActive: z.boolean().optional(),
 });
+
 // Schema for form validation
 const RegisterSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
@@ -39,6 +40,7 @@ const RegisterSchema = z.object({
 });
 
 // Mock function to simulate file upload (replace with actual storage logic, e.g., S3)
+// For now, this function remains in case you decide to re-enable file uploads later.
 async function uploadFile(file: File): Promise<string | null> {
   // Simulate uploading file and returning a URL
   // In production, use a service like AWS S3, Supabase Storage, or Cloudinary
@@ -57,8 +59,9 @@ export async function registerUser(formData: FormData) {
     const businessType = formData.get("businessType") as string;
     const taxId = formData.get("taxId") as string;
     const requirements = formData.get("requirements") as string;
-    const businessLicenseFile = formData.get("businessLicense") as File | null;
-    const taxCertificateFile = formData.get("taxCertificate") as File | null;
+    // Commenting out file extraction for now
+    // const businessLicenseFile = formData.get("businessLicense") as File | null;
+    // const taxCertificateFile = formData.get("taxCertificate") as File | null;
 
     // Log extracted values for debugging
     console.log("Extracted form data:", {
@@ -71,8 +74,8 @@ export async function registerUser(formData: FormData) {
       businessType,
       taxId,
       requirements,
-      businessLicenseFile,
-      taxCertificateFile,
+      // businessLicenseFile,
+      // taxCertificateFile,
     });
 
     // Validate form data
@@ -92,13 +95,13 @@ export async function registerUser(formData: FormData) {
 
     // Log validated data for debugging
 
-    // Handle file uploads (replace with real storage logic)
-    const businessLicense = businessLicenseFile
-      ? await uploadFile(businessLicenseFile)
-      : null;
-    const taxCertificate = taxCertificateFile
-      ? await uploadFile(taxCertificateFile)
-      : null;
+    // Handle file uploads (commented out for now)
+    // const businessLicense = businessLicenseFile
+    //   ? await uploadFile(businessLicenseFile)
+    //   : null;
+    // const taxCertificate = taxCertificateFile
+    //   ? await uploadFile(taxCertificateFile)
+    //   : null;
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -125,8 +128,9 @@ export async function registerUser(formData: FormData) {
         businessType,
         taxId,
         requirements,
-        businessLicense,
-        taxCertificate,
+        // For now, storing null for file fields
+        businessLicense: null,
+        taxCertificate: null,
         role: "CUSTOMER",
         emailVerified: null, // Set emailVerified to null (not verified)
       },
@@ -155,9 +159,11 @@ export async function registerUser(formData: FormData) {
   }
 }
 
-
-
-export async function getClients(page: number = 1, pageSize: number = 10,status: Status = Status.ACTIVE) {
+export async function getClients(
+  page: number = 1,
+  pageSize: number = 10,
+  status: Status = Status.ACTIVE
+) {
   try {
     // Calculate the number of records to skip
     const skip = (page - 1) * pageSize;
@@ -181,7 +187,7 @@ export async function getClients(page: number = 1, pageSize: number = 10,status:
       skip,
       take: pageSize,
       orderBy: {
-        name: 'asc', 
+        name: "asc",
       },
     });
 
@@ -203,11 +209,10 @@ export async function getClients(page: number = 1, pageSize: number = 10,status:
       },
     };
   } catch (error) {
-    console.error('Error fetching clients:', error);
-    return { success: false, error: 'Failed to fetch clients' };
+    console.error("Error fetching clients:", error);
+    return { success: false, error: "Failed to fetch clients" };
   }
 }
-
 
 export async function updateUser(formData: FormData): Promise<void> {
   try {
