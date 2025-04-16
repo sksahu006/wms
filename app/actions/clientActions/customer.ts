@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { Role, Status } from "@/lib/generated/prisma";
+import { Role, Status } from "@prisma/client";
 import { sendEmail } from "@/lib/email"; // Assume you have an email sending utility
 
 // Schema for form validation
