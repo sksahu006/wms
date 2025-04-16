@@ -3,7 +3,8 @@
       "api/**/*.ts": {
         "includeFiles": [
           ".prisma/**",
-          "node_modules/.prisma/**"
+          "node_modules/.prisma/**",
+          "lib/generated/prisma/**"
         ]
       }
     }
