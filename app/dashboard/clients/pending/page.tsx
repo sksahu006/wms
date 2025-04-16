@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { getClients, updateUser } from "@/app/actions/clientActions/customer"
-import { Status } from "@/lib/generated/prisma"
 import { useRouter } from "next/navigation"
+import { Status } from "@prisma/client"
 
 // Define types for client data
 interface Client {
