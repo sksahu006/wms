@@ -6,7 +6,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../lib/generated/prisma"
+  output        = "./lib/generated/prisma"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -29,14 +29,14 @@ enum Status {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String?   @unique
-  emailVerified   DateTime?
-  password        String?
-  image           String?
-  role            Role      @default(CUSTOMER)
-  status          Status  @default(PENDING)
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role      @default(CUSTOMER)
+  status        Status    @default(PENDING)
 
   companyName     String?
   contactName     String?
@@ -46,26 +46,25 @@ model User {
   businessType    String?
   taxId           String?
   requirements    String?
-  businessLicense String?  
-  taxCertificate  String?  
+  businessLicense String?
+  taxCertificate  String?
 
-  accounts        Account[]
-  sessions        Session[]
+  accounts Account[]
+  sessions Session[]
 }
 
-
 model Account {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -89,4 +88,3 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
