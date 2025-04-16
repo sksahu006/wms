@@ -5,7 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,25 +25,55 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Header from "@/components/Header";
+import { registerUser } from "@/app/actions/clientActions/customer";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [businessType, setBusinessType] = useState(""); // Track Select value
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    // Create FormData from the form
+    const formData = new FormData(e.currentTarget);
+
+    // Append businessType (since Select isn't a native form input)
+    formData.set("businessType", businessType);
+
+    // Log form data for debugging
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ", " + pair[1]);
+    }
+
+    try {
+      const result = await registerUser(formData);
+
+      if (result.success) {
+        toast({
+          title: "Registration Successful",
+          description: result.message,
+        });
+        router.push("/register/success");
+      } else {
+        console.error(result.error);
+        toast({
+          title: "Registration Failed",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Registration Successful",
-        description: "Your registration has been submitted for approval. You will be notified once approved.",
+        title: "Registration Failed",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
       });
-      router.push("/register/success");
-    }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,40 +102,75 @@ export default function RegisterPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company Name</Label>
-                <Input id="companyName" placeholder="Enter company name" required />
+                <Input
+                  id="companyName"
+                  name="companyName"
+                  placeholder="Enter company name"
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="contactName">Contact Person</Label>
-                  <Input id="contactName" placeholder="Full name" required />
+                  <Input
+                    id="contactName"
+                    name="contactName"
+                    placeholder="Full name"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="position">Position</Label>
-                  <Input id="position" placeholder="Job title" required />
+                  <Input
+                    id="position"
+                    name="position"
+                    placeholder="Job title"
+                    required
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="email@company.com" required />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="email@company.com"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" placeholder="+1 (555) 123-4567" required />
+                  <Input
+                    id="phone"
+                    name="phone"
+                    placeholder="+1 (555) 123-4567"
+                    required
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="address">Business Address</Label>
-                <Textarea id="address" placeholder="Enter your business address" required />
+                <Textarea
+                  id="address"
+                  name="address"
+                  placeholder="Enter your business address"
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="businessType">Business Type</Label>
-                  <Select required>
+                  <Select
+                    required
+                    onValueChange={setBusinessType}
+                    value={businessType}
+                  >
                     <SelectTrigger id="businessType">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -113,7 +185,12 @@ export default function RegisterPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="taxId">Tax ID / Business Number</Label>
-                  <Input id="taxId" placeholder="Enter tax ID" required />
+                  <Input
+                    id="taxId"
+                    name="taxId"
+                    placeholder="Enter tax ID"
+                    required
+                  />
                 </div>
               </div>
 
@@ -121,6 +198,7 @@ export default function RegisterPage() {
                 <Label htmlFor="requirements">Storage Requirements</Label>
                 <Textarea
                   id="requirements"
+                  name="requirements"
                   placeholder="Briefly describe your storage needs, including estimated space requirements and duration"
                   required
                 />
@@ -130,12 +208,28 @@ export default function RegisterPage() {
                 <Label>Required Documents</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="businessLicense" className="text-xs">Business License</Label>
-                    <Input id="businessLicense" type="file" className="cursor-pointer"  />
+                    <Label htmlFor="businessLicense" className="text-xs">
+                      Business License
+                    </Label>
+                    <Input
+                      id="businessLicense"
+                      name="businessLicense"
+                      type="file"
+                      className="cursor-pointer"
+                      accept=".pdf,.jpg,.png"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="taxCertificate" className="text-xs">Tax Certificate</Label>
-                    <Input id="taxCertificate" type="file" className="cursor-pointer"  />
+                    <Label htmlFor="taxCertificate" className="text-xs">
+                      Tax Certificate
+                    </Label>
+                    <Input
+                      id="taxCertificate"
+                      name="taxCertificate"
+                      type="file"
+                      className="cursor-pointer"
+                      accept=".pdf,.jpg,.png"
+                    />
                   </div>
                 </div>
               </div>
@@ -153,7 +247,10 @@ export default function RegisterPage() {
 
         <p className="px-8 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="underline underline-offset-4 hover:text-primary">
+          <Link
+            href="/login"
+            className="underline underline-offset-4 hover:text-primary"
+          >
             Sign in
           </Link>
         </p>

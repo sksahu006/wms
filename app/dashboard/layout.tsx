@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { signOut } from "next-auth/react";
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -186,7 +186,7 @@ export default function DashboardLayout({
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>

@@ -1,64 +1,99 @@
+// app/dashboard/clients/pending/page.tsx
+
+"use client"
+
+import { useState, useEffect, FormEvent } from "react"
 import Link from "next/link"
-import { CheckCircle2, Clock, MoreHorizontal, Search, SlidersHorizontal, XCircle } from 'lucide-react'
+import {
+  CheckCircle2, Clock, MoreHorizontal, Search,
+  SlidersHorizontal, XCircle
+} from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table, TableBody, TableCell, TableHead,
+  TableHeader, TableRow
 } from "@/components/ui/table"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
+import { getClients, updateUser } from "@/app/actions/clientActions/customer"
+import { Status } from "@/lib/generated/prisma"
+import { useRouter } from "next/navigation"
+
+// Define types for client data
+interface Client {
+  id: string;
+  name?: string;
+  companyName?: string;
+  email?: string;
+  contactName?: string;
+  phone?: string;
+  status: Status;
+}
 
 export default function PendingClientsPage() {
-  const pendingClients = [
-    {
-      id: "WMS006",
-      name: "Global Logistics",
-      contact: "Robert Johnson",
-      email: "robert@globallogistics.com",
-      phone: "+1 (555) 456-7890",
-      status: "Pending",
-      submittedDate: "Mar 10, 2023",
-    },
-    {
-      id: "WMS007",
-      name: "EcoStorage Solutions",
-      contact: "Emily Chen",
-      email: "emily@ecostorage.com",
-      phone: "+1 (555) 987-6543",
-      status: "Pending",
-      submittedDate: "Apr 5, 2023",
-    },
-    {
-      id: "WMS008",
-      name: "FastTrack Shipping",
-      contact: "David Wilson",
-      email: "david@fasttrack.com",
-      phone: "+1 (555) 234-5678",
-      status: "Pending",
-      submittedDate: "Apr 12, 2023",
-    },
-  ]
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [loadingClientId, setLoadingClientId] = useState<string | null>(null)
+  const [initialLoading, setInitialLoading] = useState<boolean>(true)
+  const router = useRouter()
+
+  // Fetch clients on component mount using useEffect
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const result = await getClients(1, 10, Status.PENDING)
+        setClients(Array.isArray(result.clients) ? result.clients : [])
+      } catch (error) {
+        console.error("Error fetching clients:", error)
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+    
+    fetchClients()
+  }, [])
+
+  // Handle client status update with loading state
+  const handleUpdateUser = async (formData: FormData) => {
+    const id = formData.get("id") as string
+    const status = formData.get("status") as Status
+    
+    try {
+      setLoadingClientId(id)
+      setLoading(true)
+      
+      // Call the updateUser function
+      await updateUser(formData)
+      
+      // Refresh data after update
+      const result = await getClients(1, 10, Status.PENDING)
+      setClients(Array.isArray(result.clients) ? result.clients : [])
+      
+      // Success notification could be added here
+      
+    } catch (error) {
+      console.error("Error updating user:", error)
+      // Error notification could be added here
+    } finally {
+      setLoading(false)
+      setLoadingClientId(null)
+      // Refresh the page to ensure all server components are updated
+      router.refresh()
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Pending Approvals</h1>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Client Registration Requests</CardTitle>
@@ -83,70 +118,135 @@ export default function PendingClientsPage() {
               </Button>
             </div>
           </div>
-          
+
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Company</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead>Contact</TableHead>
+                  <TableHead>Phone</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pendingClients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.id}</TableCell>
-                    <TableCell>
-                      <div className="font-medium">{client.name}</div>
-                      <div className="text-sm text-muted-foreground">{client.email}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div>{client.contact}</div>
-                      <div className="text-sm text-muted-foreground">{client.phone}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="border-yellow-500 text-yellow-500"
-                      >
-                        <Clock className="mr-1 h-3 w-3" />
-                        {client.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{client.submittedDate}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/clients/pending/${client.id}`}>
-                              View details
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-green-600">
-                            <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Approve
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Reject
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                {initialLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-6">
+                      <div className="flex justify-center items-center">
+                        <svg className="animate-spin h-5 w-5 mr-3 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading clients...
+                      </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : clients.length > 0 ? (
+                  clients.map((client) => (
+                    <TableRow key={client.id} className={loadingClientId === client.id ? "opacity-50" : ""}>
+                      <TableCell className="font-medium">{client.companyName || client.name}</TableCell>
+                      <TableCell>{client.email}</TableCell>
+                      <TableCell>{client.contactName}</TableCell>
+                      <TableCell>{client.phone}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="border-yellow-500 text-yellow-500"
+                        >
+                          <Clock className="mr-1 h-3 w-3" />
+                          Pending
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" disabled={loading && loadingClientId === client.id}>
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/clients/pending/${client.id}`}>
+                                View details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+
+                            {/* Approve Action */}
+                            <form action={handleUpdateUser}>
+                              <input type="hidden" name="id" value={client.id} />
+                              <input type="hidden" name="email" value={client.email || ""} />
+                              <input type="hidden" name="status" value="ACTIVE" />
+                              <DropdownMenuItem asChild>
+                                <button 
+                                  type="submit" 
+                                  className="w-full text-left text-green-600"
+                                  disabled={loading && loadingClientId === client.id}
+                                >
+                                  {loading && loadingClientId === client.id ? (
+                                    <span className="inline-flex items-center">
+                                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                      Approving...
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <CheckCircle2 className="mr-2 h-4 w-4 inline" />
+                                      Approve
+                                    </>
+                                  )}
+                                </button>
+                              </DropdownMenuItem>
+                            </form>
+
+                            {/* Reject Action */}
+                            <form action={handleUpdateUser}>
+                              <input type="hidden" name="id" value={client.id} />
+                              <input type="hidden" name="email" value={client.email || ""} />
+                              <input type="hidden" name="status" value="INACTIVE" />
+                              <DropdownMenuItem asChild>
+                                <button 
+                                  type="submit" 
+                                  className="w-full text-left text-red-600"
+                                  disabled={loading && loadingClientId === client.id}
+                                >
+                                  {loading && loadingClientId === client.id ? (
+                                    <span className="inline-flex items-center">
+                                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                      Rejecting...
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <XCircle className="mr-2 h-4 w-4 inline" />
+                                      Reject
+                                    </>
+                                  )}
+                                </button>
+                              </DropdownMenuItem>
+                            </form>
+
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                      No pending client requests found.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

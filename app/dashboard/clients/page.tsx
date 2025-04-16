@@ -1,10 +1,11 @@
-import Link from "next/link"
-import { CheckCircle2, Clock, Download, MoreHorizontal, Plus, Search, SlidersHorizontal, XCircle } from "lucide-react"
+'use server';
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import Link from 'next/link';
+import { CheckCircle2, Clock, Download, MoreHorizontal, Plus, Search, SlidersHorizontal, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,73 +13,56 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
+} from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import { getClients } from '@/app/actions/clientActions/customer';
 
-export default function ClientsPage() {
-  const clients = [
-    {
-      id: "WMS001",
-      name: "Acme Corporation",
-      contact: "John Doe",
-      email: "john@acmecorp.com",
-      phone: "+1 (555) 123-4567",
-      status: "Active",
-      spaces: 3,
-      joinedDate: "Jan 15, 2023",
-    },
-    {
-      id: "WMS002",
-      name: "TechSolutions Inc",
-      contact: "Jane Smith",
-      email: "jane@techsolutions.com",
-      phone: "+1 (555) 987-6543",
-      status: "Active",
-      spaces: 2,
-      joinedDate: "Feb 22, 2023",
-    },
-    {
-      id: "WMS003",
-      name: "Global Logistics",
-      contact: "Robert Johnson",
-      email: "robert@globallogistics.com",
-      phone: "+1 (555) 456-7890",
-      status: "Pending",
-      spaces: 0,
-      joinedDate: "Mar 10, 2023",
-    },
-    {
-      id: "WMS004",
-      name: "Retail Enterprises",
-      contact: "Sarah Williams",
-      email: "sarah@retailent.com",
-      phone: "+1 (555) 789-0123",
-      status: "Inactive",
-      spaces: 1,
-      joinedDate: "Apr 5, 2023",
-    },
-    {
-      id: "WMS005",
-      name: "Manufacturing Pro",
-      contact: "Michael Brown",
-      email: "michael@manufacturingpro.com",
-      phone: "+1 (555) 234-5678",
-      status: "Active",
-      spaces: 5,
-      joinedDate: "May 18, 2023",
-    },
-  ]
+export default async function ClientsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = parseInt(searchParams.page || '1', 10);
+  const pageSize = 5; // Adjusted to show fewer rows for demo; align with UI
+  const response = await getClients(page, pageSize);
+
+  if (!response.success || !response.clients) {
+    return (
+      <div className="flex flex-col gap-4 p-4">
+        <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>Client Management</CardTitle>
+            <CardDescription>View and manage all registered clients</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-500">Error: {response.error || 'No clients found'}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { clients, pagination } = response;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
-        <Button className="flex">
+        <div className='flex gap-2'>
+        <Button asChild>
+          <Link href="/dashboard/clients/pending">
+            <Clock className="mr-2 h-4 w-4" />
+            Pending Client
+          </Link>
+        </Button>
+        <Button asChild>
           <Link href="/dashboard/clients/add">
-            {/* <Plus className="mr-2 h-4 w-4" />  */}
+            <Plus className="mr-2 h-4 w-4" />
             Add Client
           </Link>
         </Button>
+        </div>
       </div>
 
       <Card>
@@ -118,37 +102,27 @@ export default function ClientsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clients.map((client) => (
+                {clients?.map((client : any) => (
                   <TableRow key={client.id}>
                     <TableCell className="font-medium">{client.id}</TableCell>
                     <TableCell>
-                      <div className="font-medium">{client.name}</div>
-                      <div className="text-sm text-muted-foreground">{client.email}</div>
+                      <div className="font-medium">{client.companyName || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{client.email || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
-                      <div>{client.contact}</div>
-                      <div className="text-sm text-muted-foreground">{client.phone}</div>
+                      <div>{client.contactName || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{client.phone || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={
-                          client.status === "Active" ? "default" : client.status === "Pending" ? "outline" : "secondary"
-                        }
-                        className={
-                          client.status === "Active"
-                            ? "bg-green-500"
-                            : client.status === "Pending"
-                              ? "border-yellow-500 text-yellow-500"
-                              : ""
-                        }
+                        variant="default"
+                        className="bg-green-500"
                       >
-                        {client.status === "Active" && <CheckCircle2 className="mr-1 h-3 w-3" />}
-                        {client.status === "Pending" && <Clock className="mr-1 h-3 w-3" />}
-                        {client.status === "Inactive" && <XCircle className="mr-1 h-3 w-3" />}
-                        {client.status}
+                        <CheckCircle2 className="mr-1 h-3 w-3" />
+                        {client?.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{client.spaces}</TableCell>
+                    <TableCell>0</TableCell>
                     <TableCell>{client.joinedDate}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -160,7 +134,7 @@ export default function ClientsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem asChild>
                             <Link href={`/dashboard/clients/${client.id}`} className="flex w-full">
                               View details
                             </Link>
@@ -170,9 +144,9 @@ export default function ClientsPage() {
                           <DropdownMenuItem>View invoices</DropdownMenuItem>
                           <DropdownMenuItem>View agreements</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {client.status === "Pending" ? (
+                          {client.status === "PENDING" ? (
                             <DropdownMenuItem className="text-green-600">Approve client</DropdownMenuItem>
-                          ) : client.status === "Active" ? (
+                          ) : client.status === "ACTIVE" ? (
                             <DropdownMenuItem className="text-yellow-600">Deactivate client</DropdownMenuItem>
                           ) : (
                             <DropdownMenuItem className="text-green-600">Activate client</DropdownMenuItem>
@@ -185,9 +159,40 @@ export default function ClientsPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {pagination.total > 0 && (
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {(pagination.page - 1) * pagination.pageSize + 1} to{' '}
+                {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total} clients
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  disabled={pagination.page <= 1}
+                >
+                  <Link href={`?page=${pagination.page - 1}`}>
+                    Previous
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  disabled={pagination.page >= pagination.totalPages}
+                >
+                  <Link href={`?page=${pagination.page + 1}`}>
+                    Next
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
