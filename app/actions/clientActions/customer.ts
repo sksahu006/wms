@@ -150,6 +150,7 @@ export async function registerUser(formData: FormData) {
     return {
       success: false,
       error: "An unexpected error occurred during registration.",
+      details: error,
     };
   }
 }
