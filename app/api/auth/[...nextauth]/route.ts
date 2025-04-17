@@ -44,6 +44,14 @@ export const authOptions: NextAuthOptions = {
           throw new Error("This account uses a different sign-in method");
         }
 
+        if (user.status === "PENDING") {
+          throw new Error("Your account is pending verification");
+        }
+
+        if (user.status === "INACTIVE") {
+          throw new Error("Your account is inactive");
+        }
+
         const isValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValid) {
@@ -76,16 +84,13 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          // Optionally create a new user
-          // await prisma.user.create({
-          //   data: {
-          //     email: user.email,
-          //     name: user.name,
-          //     image: user.image,
-          //     role: "CUSTOMER", 
-          //   },
-          // });
           return "/login?error=AccountNotFound";
+        }
+        if(existingUser.status === "PENDING"){
+          return "/login?error=PendingVerification";
+        }
+        if(existingUser.status === "INACTIVE"){
+          return "/login?error=AccountInactive";
         }
       }
       return true; // Allow sign-in

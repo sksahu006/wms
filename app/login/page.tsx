@@ -37,8 +37,10 @@ export default function SignInPage() {
         errorMessage = "No account found. Please register first.";
       } else if (error === "NoEmail") {
         errorMessage = "No email provided by Google.";
-      } else if (error === "AccessDenied") {
-        errorMessage = "Access denied. Please try again.";
+      } else if (error === "PendingVerification") {
+        errorMessage = "Your account is pending for verification. Please check your email for further instructions.";
+      } else if (error === "AccountInactive") {
+        errorMessage = "Your account is inactive. Please contact support for further assistance.";
       }
   
       setTimeout(() => {

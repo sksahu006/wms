@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { Role, Status } from "@prisma/client";
-import { sendEmail } from "@/lib/email"; // Assume you have an email sending utility
+import { sendEmail } from "@/lib/email";
+import bcrypt from "bcryptjs";
 
 // Schema for form validation
 const UpdateSchema = z.object({
@@ -59,24 +60,10 @@ export async function registerUser(formData: FormData) {
     const businessType = formData.get("businessType") as string;
     const taxId = formData.get("taxId") as string;
     const requirements = formData.get("requirements") as string;
+    const password = formData.get("password") as string;
     // Commenting out file extraction for now
     // const businessLicenseFile = formData.get("businessLicense") as File | null;
     // const taxCertificateFile = formData.get("taxCertificate") as File | null;
-
-    // Log extracted values for debugging
-    console.log("Extracted form data:", {
-      companyName,
-      contactName,
-      position,
-      email,
-      phone,
-      address,
-      businessType,
-      taxId,
-      requirements,
-      // businessLicenseFile,
-      // taxCertificateFile,
-    });
 
     // Validate form data
     const validatedData = RegisterSchema.parse({
@@ -115,6 +102,7 @@ export async function registerUser(formData: FormData) {
       };
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     // Create user in Prisma
     await prisma.user.create({
       data: {
@@ -124,6 +112,7 @@ export async function registerUser(formData: FormData) {
         contactName,
         position,
         phone,
+        password: hashedPassword,
         address,
         businessType,
         taxId,
@@ -134,6 +123,45 @@ export async function registerUser(formData: FormData) {
         role: "CUSTOMER",
         emailVerified: null, // Set emailVerified to null (not verified)
       },
+    });
+
+    const text = `
+Hi there,
+
+Thank you for registering with us. Your account has been successfully created and is currently pending approval.
+
+You will receive an email once your account has been reviewed and verified by our team.
+
+If you have any questions in the meantime, feel free to reach out.
+
+Best regards,  
+The [Your Company Name] Team
+`;
+    const html = `
+<div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 8px;">
+  <h2 style="color: #2c3e50;">👋 Welcome to [Your Company Name]</h2>
+  <p style="font-size: 16px; color: #555;">
+    Thank you for registering with us. Your account has been <strong>successfully created</strong> and is currently <strong>pending approval</strong>.
+  </p>
+  <p style="font-size: 16px; color: #555;">
+    You’ll receive a confirmation email once our team has reviewed and verified your account.
+  </p>
+  <p style="font-size: 16px; color: #555;">
+    If you have any questions, feel free to reply to this email or contact our support team.
+  </p>
+  <hr style="margin: 20px 0;" />
+  <p style="font-size: 14px; color: #999;">
+    Best regards,<br/>
+    The [Your Company Name] Team
+  </p>
+</div>
+`;
+
+    await sendEmail({
+      to: email,
+      subject: "Your Account Will Be Verified Soon",
+      text,
+      html,
     });
 
     // Revalidate any cached paths (optional, if needed)
@@ -238,19 +266,75 @@ export async function updateUser(formData: FormData): Promise<void> {
     });
     revalidatePath("/dashboard/clients/pending");
 
+    const verifiedText = `
+Hi there,
+
+Good news! Your account has been successfully verified.
+
+You can now log in using your registered email: ${email}
+
+We're excited to have you on board. If you have any questions, feel free to reach out.
+
+Best regards,  
+The [Your Company Name] Team
+`;
+
+    const verifiedHtml = `
+<div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 8px;">
+  <h2 style="color: #2c3e50;">✅ Your Account Has Been Verified</h2>
+  <p style="font-size: 16px; color: #555;">
+    Good news! Your account has been <strong>successfully verified</strong>.
+  </p>
+  <p style="font-size: 16px; color: #555;">
+    You can now log in using your registered email: <strong>${email}</strong>
+  </p>
+  <p style="font-size: 16px; color: #555;">
+    We're excited to have you with us! If you have any questions, feel free to reply to this email.
+  </p>
+  <hr style="margin: 20px 0;" />
+  <p style="font-size: 14px; color: #999;">Best regards,<br/>The [Your Company Name] Team</p>
+</div>
+`;
+
+    const rejectedText = `
+Hi there,
+
+We appreciate your interest in joining us. However, after careful review, we regret to inform you that your account registration request has been rejected.
+
+If you believe this was a mistake or would like further clarification, feel free to contact our support team.
+
+Best regards,  
+The [Your Company Name] Team
+`;
+    const rejectedHtml = `
+<div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 8px;">
+  <h2 style="color: #e74c3c;">⚠️ Registration Request Update</h2>
+  <p style="font-size: 16px; color: #555;">
+    Thank you for your interest in joining <strong>[Your Company Name]</strong>. After careful review, we regret to inform you that your registration request has been <strong>rejected</strong>.
+  </p>
+  <p style="font-size: 16px; color: #555;">
+    If you feel this was a mistake or would like to reapply, please don't hesitate to get in touch with us.
+  </p>
+  <hr style="margin: 20px 0;" />
+  <p style="font-size: 14px; color: #999;">Best regards,<br/>The [Your Company Name] Team</p>
+</div>
+`;
+
     // Send email based on status
     if (email) {
       if (status === "ACTIVE") {
         await sendEmail({
           to: email,
           subject: "Your Account Has Been Verified",
-          text: `Your account has been verified. You can now log in using your email: ${email}`,
+          text: verifiedText,
+          html: verifiedHtml,
         });
       } else if (status === "INACTIVE") {
         await sendEmail({
           to: email,
           subject: "Your Account Registration Request",
-          text: `We regret to inform you that your account registration request has been rejected.`,
+          text: rejectedText,
+          html: rejectedHtml,
         });
       }
     }

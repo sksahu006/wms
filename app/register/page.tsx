@@ -147,10 +147,19 @@ export default function RegisterPage() {
                   <Input
                     id="phone"
                     name="phone"
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+91 "
                     required
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                />
               </div>
 
               <div className="space-y-2">

@@ -28,12 +28,13 @@ import { Status } from "@prisma/client"
 // Define types for client data
 interface Client {
   id: string;
-  name?: string;
-  companyName?: string;
-  email?: string;
-  contactName?: string;
-  phone?: string;
-  status: Status;
+  name: string | null;
+  email: string | null;
+  companyName: string | null;
+  contactName: string | null;
+  phone: string | null;
+  address: string | null;
+  businessType: string | null;
 }
 
 export default function PendingClientsPage() {
