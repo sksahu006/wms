@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider      = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -26,15 +26,30 @@ enum Status {
   INACTIVE
 }
 
+enum SpaceStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  RESERVED
+}
+
+enum SpaceType {
+  REGULAR
+  COLD
+  HAZARDOUS
+  OUTDOOR
+}
+
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String?   @unique
-  emailVerified   DateTime?
-  password        String?
-  image           String?
-  role            Role      @default(CUSTOMER)
-  status          Status  @default(PENDING)
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role      @default(CUSTOMER)
+  status        Status    @default(PENDING)
+  created       DateTime  @default(now())
 
   companyName     String?
   contactName     String?
@@ -44,26 +59,28 @@ model User {
   businessType    String?
   taxId           String?
   requirements    String?
-  businessLicense String?  
-  taxCertificate  String?  
+  businessLicense String?
+  taxCertificate  String?
 
-  accounts        Account[]
-  sessions        Session[]
+  accounts   Account[]
+  sessions   Session[]
+  warehouses Warehouse[]
+  agreements Agreement[]
+  spaces     Space[]
 }
 
-
 model Account {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -88,3 +105,53 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Warehouse {
+  id          String   @id @default(cuid())
+  code        String
+  name        String
+  location    String
+  storageType String
+  capacity    Int
+  managerId   String
+  createdAt   DateTime @default(now())
+
+  manager User    @relation(fields: [managerId], references: [id])
+  spaces  Space[]
+}
+
+model Space {
+  id          String      @id @default(cuid())
+  warehouseId String
+  spaceCode   String      @unique
+  name        String?
+  type        SpaceType   @default(REGULAR)
+  size        Float       // in sq ft
+  height      Float?      // in feet
+  location    String?
+  rate        Float?      // monthly rate
+  description String?
+  status      SpaceStatus @default(AVAILABLE)
+  features    String[]    
+  images      String[]    
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  warehouse  Warehouse   @relation(fields: [warehouseId], references: [id])
+  client     User?       @relation(fields: [clientId], references: [id])
+  clientId   String?
+  agreements Agreement[]
+}
+
+model Agreement {
+  id        String   @id @default(cuid())
+  spaceId   String
+  userId    String
+  startDate DateTime
+  endDate   DateTime
+  rent      Float
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now())
+
+  space Space @relation(fields: [spaceId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
