@@ -190,7 +190,8 @@ The [Your Company Name] Team
 export async function getClients(
   page: number = 1,
   pageSize: number = 10,
-  status: Status = Status.ACTIVE
+  status: Status = Status.ACTIVE,
+  searchTerm: string = ''
 ) {
   try {
     // Calculate the number of records to skip
@@ -201,6 +202,10 @@ export async function getClients(
       where: {
         role: Role.CUSTOMER,
         status: status,
+        name: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
       },
       select: {
         id: true,
