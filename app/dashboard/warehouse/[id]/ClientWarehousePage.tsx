@@ -14,24 +14,24 @@ import {
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getWarehouseSpaces } from "@/app/actions/spaceActions/spaceActions";
-import { SpaceStatus } from "@prisma/client";
-  import { Button } from "@/components/ui/button";
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-  import { Input } from "@/components/ui/input";
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-  import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu";
-  import { Badge } from "@/components/ui/badge";
-  import { Progress } from "@/components/ui/progress";
-  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SpaceStatus, SpaceType } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Props {
   warehouseId: string;
@@ -51,46 +51,40 @@ export default function ClientWarehousePage({
   search,
 }: Props) {
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [spaces, setSpaces] = useState<any[]>(initialSpaces?.spaces || []);
   const [stats, setStats] = useState({
-    totalSpaces: initialSpaces?.totalItems || 0,
-    occupiedSpaces: initialSpaces?.spaces.filter((s: any) => s.status === "IN_USE").length || 0,
-    vacantSpaces: initialSpaces?.spaces.filter((s: any) => s.status !== "IN_USE").length || 0,
-    coldStorageSpaces: initialSpaces?.spaces.filter((s: any) => s.type === "Cold Storage").length || 0,
+    totalSpaces: initialSpaces?.stats?.totalSpaces || 0,
+    occupiedSpaces: initialSpaces?.stats?.occupiedSpaces || 0,
+    availableSpaces: initialSpaces?.stats?.availableSpaces || 0,
+    coldStorageSpaces: initialSpaces?.stats?.coldStorageSpaces || 0,
   });
-
-  const searchParams = useSearchParams();
+  const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {
     const fetchSpaces = async () => {
       setIsLoading(true);
       try {
         let status: SpaceStatus | undefined;
+        let type: SpaceType | undefined;
         if (tab === "occupied") status = "OCCUPIED";
         if (tab === "vacant") status = "AVAILABLE";
+        if (tab === "cold") type = "COLD";
 
         const response = await getWarehouseSpaces({
           warehouseId,
           page,
           limit,
           status,
-          ...(tab === "cold" && { type: "Cold Storage" }),
+          type,
+          search: searchInput,
         });
 
         if (response.success && response.data) {
           setSpaces(response.data.spaces);
-
-          const total = response.data.totalItems;
-          const occupied = response.data.spaces.filter((s: any) => s.status === "IN_USE").length;
-          const coldStorage = response.data.spaces.filter((s: any) => s.type === "Cold Storage").length;
-
-          setStats({
-            totalSpaces: total,
-            occupiedSpaces: occupied,
-            vacantSpaces: total - occupied,
-            coldStorageSpaces: coldStorage,
-          });
+          setStats(response.data.stats);
         } else {
           toast({
             variant: "destructive",
@@ -110,12 +104,30 @@ export default function ClientWarehousePage({
     };
 
     fetchSpaces();
-  }, [warehouseId, tab, page, limit, search]);
+  }, [warehouseId, tab, page, limit, searchInput, toast]);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams);
+    if (searchInput) {
+      params.set("search", searchInput);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+    router.push(`/dashboard/warehouse/${warehouseId}?${params.toString()}`);
+  };
+
+  const handleTabChange = (newTab: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", newTab);
+    params.set("page", "1");
+    router.push(`/dashboard/warehouse/${warehouseId}?${params.toString()}`);
+  };
 
   const warehouseStats = [
     { title: "Total Spaces", value: stats.totalSpaces, icon: Warehouse, description: "All spaces in this warehouse" },
     { title: "Occupied Spaces", value: stats.occupiedSpaces, icon: Package, description: "Currently allocated spaces" },
-    { title: "Vacant Spaces", value: stats.vacantSpaces, icon: Building2, description: "Available for allocation" },
+    { title: "Available Spaces", value: stats.availableSpaces, icon: Building2, description: "Available for allocation" },
     { title: "Cold Storage", value: stats.coldStorageSpaces, icon: Snowflake, description: "Refrigerated spaces" },
   ];
 
@@ -151,7 +163,7 @@ export default function ClientWarehousePage({
           <CardDescription>Manage all warehouse spaces and their allocations</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue={tab} className="space-y-4">
+          <Tabs value={tab} onValueChange={handleTabChange} className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList>
                 <TabsTrigger value="all">All Spaces</TabsTrigger>
@@ -166,6 +178,9 @@ export default function ClientWarehousePage({
                     type="search"
                     placeholder="Search spaces..."
                     className="w-[200px] pl-8"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   />
                 </div>
                 <Button variant="outline" size="icon">
@@ -184,12 +199,7 @@ export default function ClientWarehousePage({
                 {["all", "occupied", "vacant", "cold"].map((tabKey) => (
                   <TabsContent key={tabKey} value={tabKey}>
                     <SpaceTable
-                      spaces={spaces.filter((space) => {
-                        if (tabKey === "occupied") return space.status === "IN_USE";
-                        if (tabKey === "vacant") return space.status === "AVAILABLE";
-                        if (tabKey === "cold") return space.type === "Cold Storage";
-                        return true;
-                      })}
+                      spaces={spaces}
                       warehouseId={warehouseId}
                       showClient
                       showStatus
@@ -251,10 +261,10 @@ function SpaceTable({
                 <TableCell className="font-medium">{space.spaceCode}</TableCell>
                 <TableCell>{space.spaceCode}</TableCell>
                 <TableCell>
-                  {space.type === "Cold Storage" ? (
+                  {space.type === "COLD" ? (
                     <div className="flex items-center">
                       <Snowflake className="mr-1 h-4 w-4 text-blue-500" />
-                      {space.type}
+                      Cold Storage
                     </div>
                   ) : (
                     <div className="flex items-center">
@@ -267,10 +277,10 @@ function SpaceTable({
                 {showStatus && (
                   <TableCell>
                     <Badge
-                      variant={space.status === "IN_USE" ? "default" : "outline"}
-                      className={space.status === "IN_USE" ? "bg-green-500" : "border-blue-500 text-blue-500"}
+                      variant={space.status === "OCCUPIED" ? "default" : "outline"}
+                      className={space.status === "OCCUPIED" ? "bg-green-500" : "border-blue-500 text-blue-500"}
                     >
-                      {space.status === "IN_USE" ? "Occupied" : "Vacant"}
+                      {space.status === "OCCUPIED" ? "Occupied" : space.status}
                     </Badge>
                   </TableCell>
                 )}
@@ -301,10 +311,14 @@ function SpaceTable({
                       <DropdownMenuItem>
                         <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>View details</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>Edit space</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}/edit`}>Edit space</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {space.status === "AVAILABLE" ? (
-                        <DropdownMenuItem className="text-green-600">Allocate space</DropdownMenuItem>
+                        <DropdownMenuItem className="text-green-600">
+                          <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>Allocate space</Link>
+                        </DropdownMenuItem>
                       ) : (
                         <>
                           <DropdownMenuItem>View agreement</DropdownMenuItem>

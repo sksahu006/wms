@@ -1,6 +1,6 @@
 import { getWarehouseSpaces } from "@/app/actions/spaceActions/spaceActions";
 import ClientWarehousePage from "./ClientWarehousePage";
-import { SpaceStatus } from "@prisma/client";
+import { SpaceStatus, SpaceType } from "@prisma/client";
 
 interface Params {
   params: { id: string };
@@ -16,15 +16,18 @@ export default async function WarehouseSpace({ params, searchParams }: Params) {
   const search = searchParams.search || "";
 
   let status: SpaceStatus | undefined;
+  let type: SpaceType | undefined;
   if (tab === "occupied") status = "OCCUPIED";
   if (tab === "vacant") status = "AVAILABLE";
+  if (tab === "cold") type = "COLD";
 
   const response = await getWarehouseSpaces({
     warehouseId,
     page,
     limit,
     status,
-    ...(tab === "cold" && { type: "Cold Storage" }),
+    type,
+    search,
   });
 
   const initialSpaces = response.success ? response.data : null;

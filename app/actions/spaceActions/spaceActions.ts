@@ -150,61 +150,114 @@ export async function deleteSpace(spaceId: string) {
 }
 
 // 5. Get all spaces in a warehouse with pagination
+
+// Validation schema for fetching warehouse spaces
+const getWarehouseSpacesSchema = z.object({
+  warehouseId: z.string().cuid(),
+  page: z.number().int().positive().default(1),
+  limit: z.number().int().positive().default(10),
+  status: z.nativeEnum(SpaceStatus).optional(),
+  type: z.nativeEnum(SpaceType).optional(),
+  search: z.string().optional(),
+});
+
 export async function getWarehouseSpaces({
   warehouseId,
   page = 1,
   limit = 10,
   status,
+  type,
+  search,
 }: {
   warehouseId: string;
   page?: number;
   limit?: number;
   status?: SpaceStatus;
+  type?: SpaceType;
+  search?: string;
 }) {
-  const skip = (page - 1) * limit;
-
   try {
-    const [spaces, total] = await Promise.all([
+    // Validate input
+    const validated = getWarehouseSpacesSchema.parse({
+      warehouseId,
+      page,
+      limit,
+      status,
+      type,
+      search,
+    });
+
+    const skip = (validated.page - 1) * validated.limit;
+
+    // Build where clause for spaces query
+    const where: any = { warehouseId: validated.warehouseId };
+    if (validated.status) {
+      where.status = validated.status;
+    }
+    if (validated.type) {
+      where.type = validated.type;
+    }
+    if (validated.search) {
+      where.OR = [
+        { spaceCode: { contains: validated.search, mode: "insensitive" } },
+        { name: { contains: validated.search, mode: "insensitive" } },
+      ];
+    }
+
+    // Fetch spaces and stats
+    const [spaces, total, occupiedCount, availableCount, coldStorageCount] = await Promise.all([
+      // Paginated spaces query
       prisma.space.findMany({
-        where: {
-          warehouseId,
-          status,
-        },
+        where,
         skip,
-        take: limit,
-        orderBy: {
-          createdAt: 'desc',
-        },
+        take: validated.limit,
+        orderBy: { createdAt: "desc" },
         include: {
           client: {
-            select: {
-              id: true,
-              name: true,
-            },
+            select: { id: true, name: true },
           },
         },
       }),
+      // Total count for pagination
+      prisma.space.count({ where }),
+      // Count for OCCUPIED spaces (all spaces in warehouse)
       prisma.space.count({
-        where: {
-          warehouseId,
-          status,
-        },
+        where: { warehouseId: validated.warehouseId, status: "OCCUPIED" },
+      }),
+      // Count for AVAILABLE spaces (all spaces in warehouse)
+      prisma.space.count({
+        where: { warehouseId: validated.warehouseId, status: "AVAILABLE" },
+      }),
+      // Count for COLD storage spaces (all spaces in warehouse)
+      prisma.space.count({
+        where: { warehouseId: validated.warehouseId, type: "COLD" },
       }),
     ]);
+
+    // Calculate stats
+    const totalSpaces = await prisma.space.count({
+      where: { warehouseId: validated.warehouseId },
+    });
 
     return {
       success: true,
       data: {
         spaces,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        page: validated.page,
+        limit: validated.limit,
+        totalPages: Math.ceil(total / validated.limit),
         totalItems: total,
+        stats: {
+          totalSpaces,
+          occupiedSpaces: occupiedCount,
+          availableSpaces: availableCount,
+          coldStorageSpaces: coldStorageCount,
+        },
       },
     };
   } catch (error) {
-    console.error('Get warehouse spaces error:', error);
-    return { success: false, error: 'Failed to fetch warehouse spaces' };
+    console.error("Get warehouse spaces error:", error);
+    return { success: false, error: "Failed to fetch warehouse spaces" };
   }
 }
 
