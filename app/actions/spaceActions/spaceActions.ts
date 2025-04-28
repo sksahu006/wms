@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { SpaceStatus, SpaceType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 // 1. Create a new space in a warehouse
 export async function createSpace({
@@ -229,5 +230,60 @@ export async function updateSpaceClient({
   } catch (error) {
     console.error('Update space client error:', error);
     return { success: false, error: 'Failed to update space client' };
+  }
+}
+
+const allocateSpaceSchema = z.object({
+  spaceId: z.string().cuid(),
+  clientId: z.string().cuid(),
+});
+
+export async function allocateSpace(formData: FormData) {
+  try {
+    // Parse and validate input
+    const data = allocateSpaceSchema.parse({
+      spaceId: formData.get("spaceId"),
+      clientId: formData.get("clientId"),
+    });
+
+    // Fetch space to ensure it exists and is available
+    const space = await prisma.space.findUnique({
+      where: { id: data.spaceId },
+    });
+
+    if (!space) {
+      throw new Error("Space not found");
+    }
+
+    if (space.status !== "AVAILABLE") {
+      throw new Error("Space is not available for allocation");
+    }
+
+    // Verify client exists
+    const client = await prisma.user.findUnique({
+      where: { id: data.clientId },
+    });
+
+    if (!client) {
+      throw new Error("Client not found");
+    }
+
+    // Update space with clientId and set status to OCCUPIED
+    await prisma.space.update({
+      where: { id: data.spaceId },
+      data: {
+        clientId: data.clientId,
+        status: "OCCUPIED",
+      },
+    });
+
+    revalidatePath("/dashboard/warehouse");
+    return { success: true, message: "Space allocated successfully" };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to allocate space",
+    };
   }
 }

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { Role, Status } from "@prisma/client";
+import { Prisma, Role, Status } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import bcrypt from "bcryptjs";
 
@@ -191,7 +191,7 @@ export async function getClients(
   page: number = 1,
   pageSize: number = 10,
   status: Status = Status.ACTIVE,
-  searchTerm: string = ''
+  searchTerm: string = ""
 ) {
   try {
     // Calculate the number of records to skip
@@ -204,7 +204,7 @@ export async function getClients(
         status: status,
         name: {
           contains: searchTerm,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       select: {
@@ -350,5 +350,147 @@ The [Your Company Name] Team
     }
     console.error("Update error:", error);
     throw new Error("An unexpected error occurred during update.");
+  }
+}
+
+const paginationSchema = z.object({
+  page: z.number().min(1).default(1),
+  pageSize: z.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+});
+
+export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
+  try {
+    const {
+      page: parsedPage,
+      pageSize: parsedPageSize,
+      search: parsedSearch,
+    } = paginationSchema.parse({ page, pageSize, search });
+
+    const skip = (parsedPage - 1) * parsedPageSize;
+
+    const where = parsedSearch
+      ? {
+          OR: [
+            {
+              name: {
+                contains: parsedSearch,
+                mode: "insensitive" as Prisma.QueryMode,
+              },
+            },
+            {
+              email: {
+                contains: parsedSearch,
+                mode: "insensitive" as Prisma.QueryMode,
+              },
+            },
+          ],
+          role: Role.CUSTOMER, // Changed from Role to role
+        }
+      : { role: Role.CUSTOMER }; // Ensure non-search queries also filter by role
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+        },
+        skip,
+        take: parsedPageSize,
+        orderBy: { name: "asc" },
+      }),
+      prisma.user.count({ where }), // Simple count query
+    ]);
+
+    return {
+      success: true,
+      data: users,
+      pagination: {
+        page: parsedPage,
+        pageSize: parsedPageSize,
+        total,
+        totalPages: Math.ceil(total / parsedPageSize),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: "Failed to fetch users",
+      data: [],
+      pagination: { page: 0, pageSize: 0, total: 0, totalPages: 0 },
+    };
+  }
+}
+
+export async function getSpaces({ page = 1, pageSize = 10, search = "" }) {
+  try {
+    const {
+      page: parsedPage,
+      pageSize: parsedPageSize,
+      search: parsedSearch,
+    } = paginationSchema.parse({ page, pageSize, search });
+
+    const skip = (parsedPage - 1) * parsedPageSize;
+
+    const where = parsedSearch
+      ? {
+          OR: [
+            {
+              name: {
+                contains: parsedSearch,
+                mode: "insensitive" as Prisma.QueryMode,
+              },
+            },
+            {
+              spaceCode: {
+                contains: parsedSearch,
+                mode: "insensitive" as Prisma.QueryMode,
+              },
+            },
+            {
+              description: {
+                contains: parsedSearch,
+                mode: "insensitive" as Prisma.QueryMode,
+              },
+            },
+          ],
+        }
+      : {};
+
+    const [spaces, total] = await Promise.all([
+      prisma.space.findMany({
+        where,
+        select: {
+          id: true,
+          spaceCode: true,
+          name: true,
+        },
+        skip,
+        take: parsedPageSize,
+        orderBy: { spaceCode: "asc" },
+      }),
+      prisma.space.count({ where }),
+    ]);
+
+    return {
+      success: true,
+      data: spaces,
+      pagination: {
+        page: parsedPage,
+        pageSize: parsedPageSize,
+        total,
+        totalPages: Math.ceil(total / parsedPageSize),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: "Failed to fetch spaces",
+      data: [],
+      pagination: { page: 0, pageSize: 0, total: 0, totalPages: 0 },
+    };
   }
 }

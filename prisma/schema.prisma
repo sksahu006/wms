@@ -143,14 +143,25 @@ model Space {
 }
 
 model Agreement {
-  id        String   @id @default(cuid())
-  spaceId   String
-  userId    String
-  startDate DateTime
-  endDate   DateTime
-  rent      Float
-  status    Status   @default(PENDING)
-  createdAt DateTime @default(now())
+  id                    String      @id @default(cuid())
+  spaceId               String
+  userId                String
+  clientName            String?     
+  contactPerson         String
+  spaceType             SpaceType   // Stored from Space.type
+  areaSqft              Float       // Stored from Space.size
+  monthlyRatePerSqft    Float?      // Stored from Space.rate divided by Space.size
+  monthlyRentAmount     Float       // Stored from Space.rate
+  handoverDate          DateTime?
+  rentStartDate         DateTime
+  rateEscalationDate    DateTime?
+  rateEscalationPercent Float?      // Percentage, e.g., 5.0 for 5%
+  agreementPeriod       Int?        // In months
+  electricityCharges    Float?      // Monthly charges
+  waterCharges          Float?      // Monthly charges
+  remarks               String?
+  status                Status      @default(PENDING)
+  createdAt             DateTime    @default(now())
 
   space Space @relation(fields: [spaceId], references: [id])
   user  User  @relation(fields: [userId], references: [id])
