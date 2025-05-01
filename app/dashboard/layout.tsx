@@ -1,10 +1,11 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { SessionProvider, signOut } from "next-auth/react";
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import * as React from 'react'
+import { SessionProvider, signOut } from 'next-auth/react';
+import { useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import {
   BarChart3,
   Building2,
@@ -16,8 +17,10 @@ import {
   Package,
   Settings,
   Users,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
+  Sun,
+  Moon,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   SidebarProvider,
   Sidebar,
@@ -31,8 +34,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from '@/components/ui/sidebar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +43,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu'
 
 export default function DashboardLayout({
   children,
@@ -49,79 +52,84 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const [isAdmin, setIsAdmin] = useState(true)
+  const { theme, setTheme } = useTheme()
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
 
   const adminNavItems = [
     {
-      title: "Dashboard",
-      href: "/dashboard",
+      title: 'Dashboard',
+      href: '/dashboard',
       icon: Home,
     },
     {
-      title: "Clients",
-      href: "/dashboard/clients",
+      title: 'Clients',
+      href: '/dashboard/clients',
       icon: Users,
     },
     {
-      title: "Warehouse",
-      href: "/dashboard/warehouse",
+      title: 'Warehouse',
+      href: '/dashboard/warehouse',
       icon: Building2,
     },
     {
-      title: "Invoices",
-      href: "/dashboard/invoices",
+      title: 'Invoices',
+      href: '/dashboard/invoices',
       icon: FileText,
     },
     {
-      title: "Agreements",
-      href: "/dashboard/agreements",
+      title: 'Agreements',
+      href: '/dashboard/agreements',
       icon: ClipboardList,
     },
     {
-      title: "Reports",
-      href: "/dashboard/reports",
+      title: 'Reports',
+      href: '/dashboard/reports',
       icon: BarChart3,
     },
     {
-      title: "Support",
-      href: "/dashboard/support",
+      title: 'Support',
+      href: '/dashboard/support',
       icon: LifeBuoy,
     },
     {
-      title: "Settings",
-      href: "/dashboard/settings",
+      title: 'Settings',
+      href: '/dashboard/settings',
       icon: Settings,
     },
   ]
 
   const clientNavItems = [
     {
-      title: "Dashboard",
-      href: "/dashboard",
+      title: 'Dashboard',
+      href: '/dashboard',
       icon: Home,
     },
     {
-      title: "My Spaces",
-      href: "/dashboard/spaces",
+      title: 'My Spaces',
+      href: '/dashboard/spaces',
       icon: Package,
     },
     {
-      title: "Invoices",
-      href: "/dashboard/invoices",
+      title: 'Invoices',
+      href: '/dashboard/invoices',
       icon: FileText,
     },
     {
-      title: "Agreements",
-      href: "/dashboard/agreements",
+      title: 'Agreements',
+      href: '/dashboard/agreements',
       icon: ClipboardList,
     },
     {
-      title: "Support",
-      href: "/dashboard/support",
+      title: 'Support',
+      href: '/dashboard/support',
       icon: LifeBuoy,
     },
     {
-      title: "Settings",
-      href: "/dashboard/settings",
+      title: 'Settings',
+      href: '/dashboard/settings',
       icon: Settings,
     },
   ]
@@ -138,19 +146,28 @@ export default function DashboardLayout({
                 <Package className="h-6 w-6" />
                 <span>WMS</span>
               </Link>
-              <Button variant="outline" size="icon" className="ml-auto h-8 w-8" onClick={() => setIsAdmin(!isAdmin)}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-auto h-8 w-8"
+                onClick={() => setIsAdmin(!isAdmin)}
+              >
                 <span className="sr-only">Toggle Admin/Client View</span>
                 {isAdmin ? <Users className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
               </Button>
             </SidebarHeader>
             <SidebarContent>
               <SidebarGroup>
-                <SidebarGroupLabel>{isAdmin ? "Admin" : "Client"} Navigation</SidebarGroupLabel>
+                <SidebarGroupLabel>{isAdmin ? 'Admin' : 'Client'} Navigation</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {navItems.map((item) => (
                       <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === item.href}
+                          tooltip={item.title}
+                        >
                           <Link href={item.href}>
                             <item.icon className="h-4 w-4" />
                             <span>{item.title}</span>
@@ -169,16 +186,18 @@ export default function DashboardLayout({
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                        <AvatarFallback>{isAdmin ? "AD" : "CL"}</AvatarFallback>
+                        <AvatarFallback>{isAdmin ? 'AD' : 'CL'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{isAdmin ? "Admin User" : "Client User"}</p>
+                        <p className="text-sm font-medium leading-none">
+                          {isAdmin ? 'Admin User' : 'Client User'}
+                        </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          {isAdmin ? "admin@wms.com" : "client@example.com"}
+                          {isAdmin ? 'admin@wms.com' : 'client@example.com'}
                         </p>
                       </div>
                     </DropdownMenuLabel>
@@ -187,15 +206,19 @@ export default function DashboardLayout({
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+                    <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">{isAdmin ? "Admin User" : "Client User"}</span>
-                  <span className="text-xs text-muted-foreground">{isAdmin ? "Administrator" : "Vendor: WMS001"}</span>
+                  <span className="text-sm font-medium">
+                    {isAdmin ? 'Admin User' : 'Client User'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {isAdmin ? 'Administrator' : 'Vendor: WMS001'}
+                  </span>
                 </div>
               </div>
             </SidebarFooter>
@@ -206,6 +229,20 @@ export default function DashboardLayout({
               <div className="flex-1">
                 <h1 className="text-lg font-semibold">Warehouse Management System</h1>
               </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                className="h-8 w-8"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
             </div>
             <div className="container mx-auto p-4 lg:p-6">{children}</div>
           </main>
@@ -214,4 +251,3 @@ export default function DashboardLayout({
     </SessionProvider>
   )
 }
-

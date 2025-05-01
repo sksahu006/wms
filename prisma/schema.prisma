@@ -40,6 +40,11 @@ enum SpaceType {
   OUTDOOR
 }
 
+enum InvoiceStatus {
+  PAID
+  PENDING
+  OVERDUE
+}
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -67,6 +72,7 @@ model User {
   warehouses Warehouse[]
   agreements Agreement[]
   spaces     Space[]
+  invoices   Invoice[]   @relation("InvoiceClient")
 }
 
 model Account {
@@ -125,14 +131,14 @@ model Space {
   spaceCode   String      @unique
   name        String?
   type        SpaceType   @default(REGULAR)
-  size        Float       // in sq ft
-  height      Float?      // in feet
+  size        Float // in sq ft
+  height      Float? // in feet
   location    String?
-  rate        Float?      // monthly rate
+  rate        Float? // monthly rate
   description String?
   status      SpaceStatus @default(AVAILABLE)
-  features    String[]    
-  images      String[]    
+  features    String[]
+  images      String[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -140,29 +146,47 @@ model Space {
   client     User?       @relation(fields: [clientId], references: [id])
   clientId   String?
   agreements Agreement[]
+  invoices   Invoice[]   @relation("InvoiceSpace")
 }
 
 model Agreement {
-  id                    String      @id @default(cuid())
+  id                    String    @id @default(cuid())
   spaceId               String
   userId                String
-  clientName            String?     
+  clientName            String?
   contactPerson         String
-  spaceType             SpaceType   // Stored from Space.type
-  areaSqft              Float       // Stored from Space.size
-  monthlyRatePerSqft    Float?      // Stored from Space.rate divided by Space.size
-  monthlyRentAmount     Float       // Stored from Space.rate
+  spaceType             SpaceType // Stored from Space.type
+  areaSqft              Float // Stored from Space.size
+  monthlyRatePerSqft    Float? // Stored from Space.rate divided by Space.size
+  monthlyRentAmount     Float // Stored from Space.rate
   handoverDate          DateTime?
   rentStartDate         DateTime
   rateEscalationDate    DateTime?
-  rateEscalationPercent Float?      // Percentage, e.g., 5.0 for 5%
-  agreementPeriod       Int?        // In months
-  electricityCharges    Float?      // Monthly charges
-  waterCharges          Float?      // Monthly charges
+  rateEscalationPercent Float? // Percentage, e.g., 5.0 for 5%
+  agreementPeriod       Int? // In months
+  electricityCharges    Float? // Monthly charges
+  waterCharges          Float? // Monthly charges
   remarks               String?
-  status                Status      @default(PENDING)
-  createdAt             DateTime    @default(now())
+  status                Status    @default(PENDING)
+  createdAt             DateTime  @default(now())
 
   space Space @relation(fields: [spaceId], references: [id])
   user  User  @relation(fields: [userId], references: [id])
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  clientId      String
+  spaceId       String
+  date          DateTime      @default(now())
+  amount        Float
+  tax           Float
+  totalAmount   Float
+  dueDate       DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  status        InvoiceStatus @default(PENDING)
+  client        User          @relation("InvoiceClient", fields: [clientId], references: [id])
+  space         Space         @relation("InvoiceSpace", fields: [spaceId], references: [id])
 }
