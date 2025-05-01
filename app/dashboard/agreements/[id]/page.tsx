@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react'; // Importing the Indian Rupee icon
-import { format } from 'date-fns';
 import { getAgreement } from '@/app/actions/aggrementActions/aggrements';
+import { formatToUTCISOString } from '@/lib/formatToUTCISOString';
 
 // Enable dynamic params for server-side rendering
 export const dynamicParams = true;  // Important for dynamic routes
@@ -34,7 +34,7 @@ export default async function AgreementPage({ params }: { params: { id: string }
 
   // Format dates for display
   const formatDate = (date: Date | null) =>
-    date ? format(new Date(date), 'PPP') : 'N/A';
+    date ? formatToUTCISOString(new Date(date)) : 'N/A';
 
   return (
     <div className="container mx-auto p-4">
