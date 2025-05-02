@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { getAllWarehouses } from '@/app/actions/warehouseActions/warehouseActions';
 import { SpaceStatus } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 
 type Space = {
   id: string;
@@ -44,6 +45,16 @@ export default function WarehousePage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const session = useSession();
+  
+  if (!session?.data?.user || session.data.user.role !== 'ADMIN') {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-4xl font-bold mb-4">Access Denied</h1>
+        <p className="text-lg text-gray-600">You do not have permission to access this page.</p>
+      </div>
+    );
+  }  
 
   const searchParams = useSearchParams();
   const router = useRouter();

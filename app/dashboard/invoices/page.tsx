@@ -20,20 +20,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import InvoiceSearchControls from "@/components/SearchComponent";
-import { deleteInvoice, getInvoices } from "@/app/actions/invoiceActions/invoice";
-import { format } from "path";
+import {  getInvoices } from "@/app/actions/invoiceActions/invoice";
 import { formatToUTCISOString } from "@/lib/formatToUTCISOString";
+import { getServerAuth } from "@/lib/auth";
 
 export default async function InvoicesPage({
   searchParams,
 }: {
   searchParams: { tab?: string; search?: string; page?: string };
 }) {
-  const tab = searchParams.tab || "all";
-  const search = searchParams.search || "";
-  const page = parseInt(searchParams.page || "1", 10);
+  const session = await getServerAuth()
+  const tab = searchParams?.tab || "all";
+  const search = searchParams?.search || "";
+  const page = parseInt(searchParams?.page || "1", 10);
 
   const status = tab === "all" ? undefined : tab.toUpperCase() as "PAID" | "PENDING" | "OVERDUE";
   const result = await getInvoices({ page, limit: 10, search, status });
@@ -68,25 +68,15 @@ export default async function InvoicesPage({
     },
   ];
 
-  // Handle delete action (server action wrapper)
-  // async function handleDelete(id: string) {
-  //   "use server";
-  //   const result = await deleteInvoice(id);
-  //   if (result.success) {
-  //     redirect("/dashboard/invoices?tab=" + tab);
-  //   }
-  //   return result;
-  // }
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-        <Link href="/dashboard/invoices/add">
+        {session && session.user.role === "ADMIN" && <Link href="/dashboard/invoices/add">
           <Button variant="default" size="sm">
             <Plus className="mr-2 h-4 w-4" /> Create Invoice
           </Button>
-        </Link>
+        </Link>}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -180,9 +170,9 @@ export default async function InvoicesPage({
                               <DropdownMenuItem>Download PDF</DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem asChild>
+                              {session && session.user.role === "ADMIN" && <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/invoices/edit/${invoice.id}`}>Edit invoice</Link>
-                              </DropdownMenuItem>
+                              </DropdownMenuItem>}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

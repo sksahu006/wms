@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { getServerAuth } from "@/lib/auth";
 
 
 // Schema for creating an invoice
@@ -34,16 +35,6 @@ const updateInvoiceSchema = z.object({
 // Schema for getting an invoice
 const getInvoiceSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
-});
-
-// Schema for listing invoices
-const getInvoicesSchema = z.object({
-  page: z.number().int().positive().default(1),
-  limit: z.number().int().positive().default(10),
-  clientId: z.string().cuid("Invalid client ID").optional(),
-  spaceId: z.string().cuid("Invalid space ID").optional(),
-  search: z.string().optional(),
-  status: z.enum(["PAID", "PENDING", "OVERDUE"]).optional(),
 });
 
 // Schema for deleting an invoice
@@ -149,6 +140,15 @@ export async function getInvoice(id: string) {
 }
 
 // Get a list of invoices with pagination, filters, and stats
+const getInvoicesSchema = z.object({
+  page: z.number().min(1),
+  limit: z.number().min(1).max(100),
+  clientId: z.string().optional(),
+  spaceId: z.string().optional(),
+  search: z.string().optional(),
+  status: z.enum(["PAID", "PENDING", "OVERDUE"]).optional(),
+})
+
 export async function getInvoices({
   page = 1,
   limit = 10,
@@ -157,35 +157,52 @@ export async function getInvoices({
   search,
   status,
 }: {
-  page?: number;
-  limit?: number;
-  clientId?: string;
-  spaceId?: string;
-  search?: string;
-  status?: "PAID" | "PENDING" | "OVERDUE";
+  page?: number
+  limit?: number
+  clientId?: string
+  spaceId?: string
+  search?: string
+  status?: "PAID" | "PENDING" | "OVERDUE"
 }) {
   try {
-    const validated = getInvoicesSchema.parse({ page, limit, clientId, spaceId, search, status });
-
-    const skip = (validated.page - 1) * validated.limit;
-
-    const where: any = {};
-    if (validated.clientId) {
-      where.clientId = validated.clientId;
-    }
-    if (validated.spaceId) {
-      where.spaceId = validated.spaceId;
-    }
-    if (validated.search) {
-      where.OR = [
-        { invoiceNumber: { contains: validated.search, mode: "insensitive" } },
-        { client: { name: { contains: validated.search, mode: "insensitive" } } },
-      ];
-    }
-    if (validated.status) {
-      where.status = validated.status;
+    // 1. Authenticate and authorize the request
+    const session = await getServerAuth()
+    if (!session?.user) {
+      throw new Error("Unauthorized: Please log in to access invoices")
     }
 
+    // 2. Get the user's actual role from database (never trust session alone)
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true }
+    })
+
+    if (!user) {
+      throw new Error("User not found")
+    }
+
+    // 3. Validate input
+    const validated = getInvoicesSchema.parse({ page, limit, clientId, spaceId, search, status })
+    const skip = (validated.page - 1) * validated.limit
+
+    // 4. Build secure query conditions
+    const where: any = {
+      // For customers, only show their own invoices
+      ...(user.role === 'CUSTOMER' && { clientId: user.id }),
+      // For admins, allow filtering by clientId if provided
+      ...(user.role === 'ADMIN' && validated.clientId && { clientId: validated.clientId }),
+      // Common filters
+      ...(validated.spaceId && { spaceId: validated.spaceId }),
+      ...(validated.search && {
+        OR: [
+          { invoiceNumber: { contains: validated.search, mode: "insensitive" } },
+          { client: { name: { contains: validated.search, mode: "insensitive" } } },
+        ]
+      }),
+      ...(validated.status && { status: validated.status }),
+    }
+
+    // 5. Execute queries
     const [invoices, total, stats] = await Promise.all([
       prisma.invoice.findMany({
         where,
@@ -200,32 +217,33 @@ export async function getInvoices({
       prisma.invoice.count({ where }),
       prisma.invoice.groupBy({
         by: ["status"],
+        where,
         _sum: { totalAmount: true },
         _count: { id: true },
       }),
-    ]);
+    ])
 
-    // Calculate statistics
+    // 6. Calculate statistics
     const invoiceStats = {
       total: { amount: 0, count: 0 },
       paid: { amount: 0, count: 0 },
       pending: { amount: 0, count: 0 },
       overdue: { amount: 0, count: 0 },
-    };
+    }
 
     stats.forEach((stat) => {
-      const amount = stat._sum.totalAmount || 0;
-      const count = stat._count.id || 0;
+      const amount = stat._sum.totalAmount || 0
+      const count = stat._count.id || 0
       if (stat.status === "PAID") {
-        invoiceStats.paid = { amount, count };
+        invoiceStats.paid = { amount, count }
       } else if (stat.status === "PENDING") {
-        invoiceStats.pending = { amount, count };
+        invoiceStats.pending = { amount, count }
       } else if (stat.status === "OVERDUE") {
-        invoiceStats.overdue = { amount, count };
+        invoiceStats.overdue = { amount, count }
       }
-      invoiceStats.total.amount += amount;
-      invoiceStats.total.count += count;
-    });
+      invoiceStats.total.amount += amount
+      invoiceStats.total.count += count
+    })
 
     return {
       success: true,
@@ -237,13 +255,13 @@ export async function getInvoices({
         totalItems: total,
         stats: invoiceStats,
       },
-    };
+    }
   } catch (error) {
-    console.error("Get invoices error:", error);
+    console.error("Get invoices error:", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch invoices",
-    };
+    }
   }
 }
 

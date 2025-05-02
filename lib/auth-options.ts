@@ -1,5 +1,5 @@
-// app/api/auth/[...nextauth]/route.ts
-import NextAuth, { type NextAuthOptions } from "next-auth";
+// lib/auth-options.ts
+import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role, // Include role in the returned user object
+          role: user.role,
         };
       },
     }),
@@ -84,13 +84,12 @@ export const authOptions: NextAuthOptions = {
           where: { email: user.email },
         });
         if (!existingUser) {
-          // Optionally create a new user with a default role
           await prisma.user.create({
             data: {
               email: user.email,
               name: user.name,
               image: user.image,
-              role: 'CUSTOMER', // Default role for Google users
+              role: 'CUSTOMER',
               status: 'ACTIVE',
             },
           });
@@ -108,19 +107,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role; // Add role to JWT
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
-        session.user.role = token.role; // Add role to session
+        session.user.role = token.role;
       }
       return session;
     },
   },
 };
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
