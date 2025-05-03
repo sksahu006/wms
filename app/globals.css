@@ -14,6 +14,93 @@ body {
 
 @layer base {
   :root {
+    /* Light Theme - Inverse of Dark Theme */
+    --background: 270 60% 75%;           /* Soft lavender (light version of dark bg) */
+    --foreground: 270 50% 20%;           /* Deep purple (dark version of dark fg) */
+    
+    --card: 270 50% 98%;                 /* Nearly white with purple tint */
+    --card-foreground: 270 50% 25%;       /* Slightly darker purple */
+    
+    --popover: 270 50% 98%;              /* Matches card */
+    --popover-foreground: 270 50% 25%;   /* Matches card text */
+    
+    --primary: 270 50% 50%;              /* Medium purple */
+    --primary-foreground: 45 85% 90%;     /* Light gold text */
+    
+    --secondary: 170 60% 45%;            /* Complementary teal */
+    --secondary-foreground: 0 0% 100%;   /* White text */
+    
+    --muted: 270 30% 90%;                /* Very light purple */
+    --muted-foreground: 270 30% 50%;     /* Medium muted purple */
+    
+    --accent: 330 70% 55%;               /* Rose accent */
+    --accent-foreground: 0 0% 100%;      /* White text */
+    
+    --destructive: 0 70% 50%;            /* Bright red */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 270 30% 80%;               /* Light purple borders */
+    --input: 270 30% 92%;                /* Very light purple inputs */
+    --ring: 270 50% 50%;                 /* Purple focus ring */
+    
+    /* Chart Colors */
+    --chart-1: 270 50% 50%;              /* Primary purple */
+    --chart-2: 45 85% 60%;               /* Gold */
+    --chart-3: 170 60% 45%;              /* Teal */
+    --chart-4: 330 70% 55%;              /* Rose */
+    --chart-5: 210 50% 60%;              /* Steel blue */
+    
+    /* Sidebar */
+    --sidebar-background: 270 40% 30%;    /* Light purple */
+    --sidebar-foreground: 0 0 100%;    /* Dark purple text */
+    --sidebar-primary: 270 50% 50%;       /* Medium purple */
+    --sidebar-primary-foreground: 45 85% 90%; /* Light gold text */
+    --sidebar-accent: 270 60% 45%;        /* Teal accent */
+    --sidebar-accent-foreground: 0 0% 100%; /* White text */
+    --sidebar-border: 270 30% 80%;        /* Matching border */
+    --sidebar-ring: 270 50% 50%;          /* Purple ring */
+    
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background:270 50% 10% ;
+    --foreground: 45 85% 38%;  
+    --card: 270 50% 20% ;
+    --card-foreground: 45 85% 40%;  
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 45 85% 90%; 
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 45 85% 40%; 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background:270 50% 8% ;
+    --sidebar-foreground:45 85% 45%;
+    --sidebar-primary: 45 85% 100%;  
+    --sidebar-primary-foreground: 45 85% 40%;
+    --sidebar-accent: 270 50% 18% ;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 45 85% 50%; 
+  }
+}
+
+/* @layer base {
+  :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -82,7 +169,7 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
+} */
 
 @layer base {
   * {
