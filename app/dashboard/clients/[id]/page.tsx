@@ -13,70 +13,13 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table"
+import { getClientDetails } from "@/app/actions/clientActions/customer"
+import { ClientTabs } from "./clientTabs"
 
-export default function ClientDetailsPage({ params }: { params: { id: string } }) {
-  // In a real app, you would fetch client data based on the ID
-  const client = {
-    id: params.id,
-    name: "Acme Corporation",
-    contact: "John Doe",
-    position: "Procurement Manager",
-    email: "john@acmecorp.com",
-    phone: "+1 (555) 123-4567",
-    address: "123 Business Ave, Suite 100, San Francisco, CA 94107",
-    status: "Active",
-    businessType: "Manufacturing",
-    taxId: "TAX-12345678",
-    joinedDate: "Jan 15, 2023",
-    notes: "Key client with multiple storage requirements. Prefers quarterly billing.",
-    spaces: [
-      {
-        id: "WH-A-101",
-        name: "Storage Unit A-101",
-        type: "Regular",
-        size: "500 sq ft",
-        status: "Occupied",
-        startDate: "Jan 15, 2023",
-        endDate: "Dec 31, 2023",
-      }
-    ],
-    invoices: [
-      {
-        id: "INV-001",
-        amount: "₹,200.00",
-        date: "Jan 15, 2023",
-        dueDate: "Feb 15, 2023",
-        status: "Paid",
-        period: "Jan 2023",
-      },
-      {
-        id: "INV-005",
-        amount: "₹,200.00",
-        date: "Feb 15, 2023",
-        dueDate: "Mar 15, 2023",
-        status: "Paid",
-        period: "Feb 2023",
-      }
-    ],
-    agreements: [
-      {
-        id: "AGR-001",
-        title: "Warehouse Rental Agreement - Unit A-101",
-        date: "Jan 15, 2023",
-        status: "Active",
-        expiryDate: "Dec 31, 2023",
-      }
-    ],
-    supportTickets: [
-      {
-        id: "TKT-001",
-        title: "Request for additional security",
-        date: "Feb 10, 2023",
-        status: "Resolved",
-        priority: "Medium",
-      }
-    ]
-  }
+export default async function ClientDetailsPage({ params }: { params: { id: string } }) {
+  
+  const { success, client, error } = await getClientDetails(params?.id);
+
   
   return (
     <div className="flex flex-col gap-4">
@@ -89,7 +32,7 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Client Details</h1>
         <Button variant="outline" size="sm" className="ml-auto" asChild>
-          <Link href={`/dashboard/clients/${params.id}/edit`}>
+          <Link href={`/dashboard/clients/${params?.id}/edit`}>
             <Edit className="mr-2 h-4 w-4" />
             Edit Client
           </Link>
@@ -103,53 +46,53 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
               <CardTitle>Client Information</CardTitle>
               <Badge
                 variant={
-                  client.status === "Active"
+                  client?.status === "ACTIVE"
                     ? "default"
-                    : client.status === "Pending"
+                    : client?.status === "PENDING"
                     ? "outline"
                     : "secondary"
                 }
                 className={
-                  client.status === "Active"
+                  client?.status === "ACTIVE"
                     ? "bg-green-500"
-                    : client.status === "Pending"
+                    : client?.status === "PENDING"
                     ? "border-yellow-500 text-yellow-500"
                     : ""
                 }
               >
-                {client.status}
+                {client?.status}
               </Badge>
             </div>
             <CardDescription>
-              Vendor Code: {client.id}
+              Vendor Code: {client?.id}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center text-sm">
                 <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{client.name}</span>
+                <span className="font-medium">{client?.name}</span>
               </div>
               <div className="flex items-center text-sm">
                 <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{client.contact}</span>
-                <span className="text-muted-foreground ml-1">({client.position})</span>
+                <span>{client?.contact}</span>
+                <span className="text-muted-foreground ml-1">({client?.position})</span>
               </div>
               <div className="flex items-center text-sm">
                 <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{client.email}</span>
+                <span>{client?.email}</span>
               </div>
               <div className="flex items-center text-sm">
                 <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{client.phone}</span>
+                <span>{client?.phone}</span>
               </div>
               <div className="flex items-start text-sm">
                 <MapPin className="mr-2 h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                <span>{client.address}</span>
+                <span>{client?.address}</span>
               </div>
               <div className="flex items-center text-sm">
                 <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>Joined: {client.joinedDate}</span>
+                <span>Joined: {client?.joinedDate}</span>
               </div>
             </div>
             
@@ -158,16 +101,16 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Business Type:</span>
-                  <p>{client.businessType}</p>
+                  <p>{client?.businessType}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Tax ID:</span>
-                  <p>{client.taxId}</p>
+                  <p>{client?.taxId}</p>
                 </div>
               </div>
             </div>
             
-            {client.notes && (
+            {client?.notes && (
               <div className="pt-2">
                 <h3 className="text-sm font-medium mb-2">Notes</h3>
                 <p className="text-sm">{client.notes}</p>
@@ -175,8 +118,16 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
             )}
           </CardContent>
         </Card>
-        
         <Card className="md:col-span-4">
+          <CardHeader>
+            <CardTitle>Client Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ClientTabs clientId={params?.id} /> 
+          </CardContent>
+        </Card>
+        
+        {/* <Card className="md:col-span-4">
           <CardHeader>
             <CardTitle>Client Activity</CardTitle>
           </CardHeader>
@@ -380,7 +331,7 @@ export default function ClientDetailsPage({ params }: { params: { id: string } }
               </TabsContent>
             </Tabs>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   )
