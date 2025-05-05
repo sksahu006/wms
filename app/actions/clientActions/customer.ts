@@ -431,7 +431,7 @@ export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
   }
 }
 
-export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceStatus }: { page?: number; pageSize?: number; search?: string; SpaceStatus?: SpaceStatusString }) {
+export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceStatus,clientId }: { page?: number; pageSize?: number; search?: string; SpaceStatus?: SpaceStatusString, clientId?: string }) {
   try {
     const {
       page: parsedPage,
@@ -469,9 +469,13 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceSta
       ? { status: { equals: "AVAILABLE" as SpaceStatusString } } // Use proper typing for status
       : {};
 
+      const clientIdCondition = clientId
+      ? { clientId: { equals: clientId } }
+      : {};
       const where = {
         ...searchCondition,
         ...statusCondition,
+        ...clientIdCondition
       };
 
     const [spaces, total] = await Promise.all([

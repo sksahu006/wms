@@ -45,6 +45,14 @@ enum InvoiceStatus {
   PENDING
   OVERDUE
 }
+
+enum SupportStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -73,6 +81,7 @@ model User {
   agreements Agreement[]
   spaces     Space[]
   invoices   Invoice[]   @relation("InvoiceClient")
+  supports   Support[]
 }
 
 model Account {
@@ -147,31 +156,34 @@ model Space {
   clientId   String?
   agreements Agreement[]
   invoices   Invoice[]   @relation("InvoiceSpace")
+  supports   Support[]
 }
 
 model Agreement {
   id                    String    @id @default(cuid())
   spaceId               String
   userId                String
+  invoiceId             String?   @unique
   clientName            String?
   contactPerson         String
-  spaceType             SpaceType // Stored from Space.type
-  areaSqft              Float // Stored from Space.size
-  monthlyRatePerSqft    Float? // Stored from Space.rate divided by Space.size
-  monthlyRentAmount     Float // Stored from Space.rate
+  spaceType             SpaceType
+  areaSqft              Float
+  monthlyRatePerSqft    Float?
+  monthlyRentAmount     Float
   handoverDate          DateTime?
   rentStartDate         DateTime
   rateEscalationDate    DateTime?
-  rateEscalationPercent Float? // Percentage, e.g., 5.0 for 5%
-  agreementPeriod       Int? // In months
-  electricityCharges    Float? // Monthly charges
-  waterCharges          Float? // Monthly charges
+  rateEscalationPercent Float?
+  agreementPeriod       Int?
+  electricityCharges    Float?
+  waterCharges          Float?
   remarks               String?
   status                Status    @default(PENDING)
   createdAt             DateTime  @default(now())
 
-  space Space @relation(fields: [spaceId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  space   Space    @relation(fields: [spaceId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  invoice Invoice? @relation(name: "AgreementToInvoice", fields: [invoiceId], references: [id])
 }
 
 model Invoice {
@@ -187,6 +199,25 @@ model Invoice {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   status        InvoiceStatus @default(PENDING)
+
   client        User          @relation("InvoiceClient", fields: [clientId], references: [id])
   space         Space         @relation("InvoiceSpace", fields: [spaceId], references: [id])
+  agreement     Agreement?    @relation(name: "AgreementToInvoice") // Matches above name, no fields/references
+}
+
+model Support {
+  id        String        @id @default(cuid())
+  subject   String
+  message   String
+  status    SupportStatus @default(OPEN)
+  category  String
+  priority  String
+  spaceId   String?
+  document  String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  clientId String
+  client   User   @relation(fields: [clientId], references: [id])
+  space    Space? @relation(fields: [spaceId], references: [id])
 }
