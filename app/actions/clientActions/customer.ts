@@ -25,7 +25,7 @@ const UpdateSchema = z.object({
   taxCertificate: z.string().optional(),
   isActive: z.boolean().optional(),
   status: z.enum(["ACTIVE", "INACTIVE", "PENDING"]).optional(),
-  
+
 });
 
 // Schema for form validation
@@ -378,22 +378,22 @@ export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
 
     const where = parsedSearch
       ? {
-          OR: [
-            {
-              name: {
-                contains: parsedSearch,
-                mode: "insensitive" as Prisma.QueryMode,
-              },
+        OR: [
+          {
+            name: {
+              contains: parsedSearch,
+              mode: "insensitive" as Prisma.QueryMode,
             },
-            {
-              email: {
-                contains: parsedSearch,
-                mode: "insensitive" as Prisma.QueryMode,
-              },
+          },
+          {
+            email: {
+              contains: parsedSearch,
+              mode: "insensitive" as Prisma.QueryMode,
             },
-          ],
-          role: Role.CUSTOMER, // Changed from Role to role
-        }
+          },
+        ],
+        role: Role.CUSTOMER, // Changed from Role to role
+      }
       : { role: Role.CUSTOMER }; // Ensure non-search queries also filter by role
 
     const [users, total] = await Promise.all([
@@ -431,7 +431,7 @@ export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
   }
 }
 
-export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceStatus,clientId }: { page?: number; pageSize?: number; search?: string; SpaceStatus?: SpaceStatusString, clientId?: string }) {
+export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceStatus, clientId }: { page?: number; pageSize?: number; search?: string; SpaceStatus?: SpaceStatusString, clientId?: string }) {
   try {
     const {
       page: parsedPage,
@@ -441,42 +441,42 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceSta
 
     const skip = (parsedPage - 1) * parsedPageSize;
 
-      const searchCondition = parsedSearch
+    const searchCondition = parsedSearch
       ? {
-          OR: [
-            {
-              name: {
-                contains: parsedSearch,
-                mode: "insensitive" as Prisma.QueryMode,
-              },
+        OR: [
+          {
+            name: {
+              contains: parsedSearch,
+              mode: "insensitive" as Prisma.QueryMode,
             },
-            {
-              spaceCode: {
-                contains: parsedSearch,
-                mode: "insensitive" as Prisma.QueryMode,
-              },
+          },
+          {
+            spaceCode: {
+              contains: parsedSearch,
+              mode: "insensitive" as Prisma.QueryMode,
             },
-            {
-              description: {
-                contains: parsedSearch,
-                mode: "insensitive" as Prisma.QueryMode,
-              },
+          },
+          {
+            description: {
+              contains: parsedSearch,
+              mode: "insensitive" as Prisma.QueryMode,
             },
-          ],
-        }
+          },
+        ],
+      }
       : {};
-      const statusCondition = SpaceStatus === "AVAILABLE"
+    const statusCondition = SpaceStatus === "AVAILABLE"
       ? { status: { equals: "AVAILABLE" as SpaceStatusString } } // Use proper typing for status
       : {};
 
-      const clientIdCondition = clientId
+    const clientIdCondition = clientId
       ? { clientId: { equals: clientId } }
       : {};
-      const where = {
-        ...searchCondition,
-        ...statusCondition,
-        ...clientIdCondition
-      };
+    const where = {
+      ...searchCondition,
+      ...statusCondition,
+      ...clientIdCondition
+    };
 
     const [spaces, total] = await Promise.all([
       prisma.space.findMany({
@@ -576,7 +576,7 @@ export async function updateClient(data: {
       businessType,
       taxId,
       status,
-      
+
     } = validatedData;
 
     // Perform database update (assumes Prisma is set up with a `client` model)
@@ -592,7 +592,7 @@ export async function updateClient(data: {
         businessType,
         taxId,
         status,
-        
+
       },
     });
 
@@ -602,5 +602,20 @@ export async function updateClient(data: {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update client",
     };
+  }
+}
+
+export async function getPendingClientsCount() {
+  try {
+    const pendingClientsCount = await prisma.user.count({
+      where: {
+        role: Role.CUSTOMER,
+        status: Status.PENDING,
+      },
+    });
+    return { success: true, pendingClientsCount };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Failed to fetch pending clients count" };
   }
 }

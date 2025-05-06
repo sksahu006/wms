@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { getClients } from '@/app/actions/clientActions/customer';
+import { getClients, getPendingClientsCount } from '@/app/actions/clientActions/customer';
 
 export default async function ClientsPage({
   searchParams,
@@ -25,6 +25,7 @@ export default async function ClientsPage({
   const page = parseInt(searchParams.page || '1', 10);
   const pageSize = 5; // Adjusted to show fewer rows for demo; align with UI
   const response = await getClients(page, pageSize);
+  const { pendingClientsCount } = await getPendingClientsCount();
 
   if (!response.success || !response.clients) {
     return (
@@ -53,7 +54,7 @@ export default async function ClientsPage({
         <Button asChild>
           <Link href="/dashboard/clients/pending">
             <Clock className="mr-2 h-4 w-4" />
-            Pending Client
+            Pending Client <span className='text-red-500'> ({pendingClientsCount})</span>
           </Link>
         </Button>
         <Button asChild>
