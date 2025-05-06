@@ -7,6 +7,10 @@ import { useInView } from "react-intersection-observer";
 import { ArrowRight, Package, Truck, Users, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import homelogoimage from "../public/wmsi1.png";
+import sliderbottom from "../public/slider_bottom.png";
+import Image from "next/image";
+import bgshape from "../public/choose_bg_shape01.png";
 
 export default function Home() {
   const controls = useAnimation();
@@ -53,7 +57,7 @@ export default function Home() {
         <Header />
       </div>
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-50 dark:bg-gray-900">
+        {/* <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-50 dark:bg-gray-900">
           <div className="container px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2 items-center">
               <div className="flex flex-col items-center space-y-4 text-center lg:text-left">
@@ -100,9 +104,52 @@ export default function Home() {
               </motion.div>
             </div>
           </div>
+        </section> */}
+        <section
+          className="relative w-full min-h-screen bg-cover bg-center flex items-center justify-center"
+          style={{
+            backgroundImage: `url(${homelogoimage.src})`,
+          }}
+        >
+          {/* Overlay for dark tint */}
+          <div className="absolute inset-0 bg-black/40 z-0" />
+
+
+          {/* Animated content container */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="relative z-10 container px-4 md:px-6 text-center"
+          >
+            <div className="flex flex-col items-center space-y-6">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white">
+                Warehouse Management System
+              </h1>
+              <p className="max-w-[700px] text-lg sm:text-xl text-gray-200">
+                Streamline your warehouse operations with our cutting-edge management system designed for efficiency and scalability.
+              </p>
+              <div className="space-x-4 pt-4">
+                <Button asChild>
+                  <Link href="/login">Get Started</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/about">Learn More</Link>
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+          <div className="absolute bottom-0 left-0 w-full z-10">
+            <Image
+              src={sliderbottom}
+              alt="Slider bottom decoration"
+              className="w-full h-auto"
+              priority
+            />
+          </div>
         </section>
 
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+        <section className=" relative w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6">
             <motion.div
               ref={ref}
@@ -139,11 +186,32 @@ export default function Home() {
                 </p>
               </motion.div>
             </motion.div>
+
           </div>
+
+          <div className="hidden lg:block absolute bottom-[-50px] left-0 w-full z-0 pointer-events-none">
+            <Image
+              src={bgshape}
+              alt="Background shape top"
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+
         </section>
 
         {/* New Section: Why Choose Us */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section className=" relative w-full py-12 md:py-24 lg:py-32">
+        <div className=" hidden lg:block absolute   lg:bottom-[-70px]  left-0 w-full z-0 pointer-events-none">
+            <Image
+              src={bgshape}
+              alt="Background shape top"
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+
+
           <div className="container px-4 md:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
