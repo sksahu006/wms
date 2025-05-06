@@ -311,11 +311,11 @@ function SpaceTable({
                       <DropdownMenuItem>
                         <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>View details</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      {/* <DropdownMenuItem>
                         <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}/edit`}>Edit space</Link>
-                      </DropdownMenuItem>
+                      </DropdownMenuItem> */}
                       <DropdownMenuSeparator />
-                      {space.status === "AVAILABLE" ? (
+                      {/* {space.status === "AVAILABLE" ? (
                         <DropdownMenuItem className="text-green-600">
                           <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>Allocate space</Link>
                         </DropdownMenuItem>
@@ -326,7 +326,7 @@ function SpaceTable({
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-red-600">Terminate lease</DropdownMenuItem>
                         </>
-                      )}
+                      )} */}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

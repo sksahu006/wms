@@ -402,6 +402,7 @@ export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
         select: {
           id: true,
           name: true,
+          agreements: true,
         },
         skip,
         take: parsedPageSize,

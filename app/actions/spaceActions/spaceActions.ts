@@ -92,24 +92,45 @@ export async function getSpaceById(spaceId: string) {
 export async function updateSpace({
   spaceId,
   spaceCode,
+  name,
   type,
   size,
+  height,
+  location,
+  rate,
+  description,
   status,
+  features,
+  images,
 }: {
   spaceId: string;
   spaceCode?: string;
+  name?: string;
   type?: SpaceType;
   size?: number;
+  height?: number;
+  location?: string;
+  rate?: number;
+  description?: string;
   status?: SpaceStatus;
+  features?: string[];
+  images?: string[];
 }) {
   try {
     const updatedSpace = await prisma.space.update({
       where: { id: spaceId },
       data: {
         spaceCode,
+        name,
         type,
         size,
+        height,
+        location,
+        rate,
+        description,
         status,
+        features,
+        images,
       },
     });
 
@@ -120,6 +141,8 @@ export async function updateSpace({
     return { success: false, error: 'Failed to update space' };
   }
 }
+
+
 
 // 4. Delete a space
 export async function deleteSpace(spaceId: string) {

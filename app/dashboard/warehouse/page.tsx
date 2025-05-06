@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Warehouse } from 'lucide-react';
+import { Edit, Warehouse } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -70,6 +70,7 @@ export default function WarehousePage() {
     const fetchWarehouses = async () => {
       setIsLoading(true);
       const response = await getAllWarehouses({ page, limit, search });
+      console.log(response)
 
       if (response.success) {
         if (response.data) {
@@ -207,16 +208,23 @@ export default function WarehousePage() {
                       <TableCell>{wrh.location}</TableCell>
                       <TableCell>{wrh.spaces?.length || 0}</TableCell>
                       <TableCell>
-                        {wrh.spaces?.filter((s: any) => s.status === 'Occupied').length || 0}
+                        {/* {wrh.spaces?.filter((s: any) => s.status === 'Occupied').length || 0} */}
+                        {wrh._count.spaces  || 0}
                       </TableCell>
                       <TableCell>{wrh.manager?.name || 'N/A'}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-2">
                         <Link href={`/dashboard/warehouse/${wrh.id}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className='text-xs'>
                             View Spaces
                           </Button>
                         </Link>
+                        <Link href={`/dashboard/warehouse/edit/${wrh.id}`}>
+                          <Button variant="outline" size="sm">
+                           <Edit className='size-2 text-green-500'/> Edit
+                          </Button>
+                        </Link>
                       </TableCell>
+
                     </TableRow>
                   ))}
                 </TableBody>

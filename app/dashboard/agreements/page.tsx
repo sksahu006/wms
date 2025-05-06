@@ -105,7 +105,7 @@ export default function AgreementsPage() {
                       <TableCell>{agreement.clientName || 'N/A'}</TableCell>
                       <TableCell>{agreement.spaceType}</TableCell>
                       <TableCell>{agreement.areaSqft}</TableCell>
-                      <TableCell>${agreement.monthlyRentAmount}</TableCell>
+                      <TableCell> ₹{agreement.monthlyRentAmount}</TableCell>
                       <TableCell>{agreement.status}</TableCell>
                       <TableCell>
                         <Link href={`/dashboard/agreements/${agreement.id}`}>

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+
 import {
     Form,
     FormControl,
@@ -21,6 +23,8 @@ import { getSpaces, getUsers } from "@/app/actions/clientActions/customer";
 import { createInvoice } from "@/app/actions/invoiceActions/invoice";
 import { SearchableCombobox } from "@/components/ui/SearchableCombobox";
 import { formatToUTCISOString } from "@/lib/formatToUTCISOString";
+import { getSpacesByAgreement } from "@/app/actions/aggrementActions/aggrements";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Zod schema for form validation
 const formSchema = z.object({
@@ -30,11 +34,17 @@ const formSchema = z.object({
         .regex(/^INV-\d+$/, "Invoice number must start with 'INV-' followed by digits"),
     clientId: z.string().cuid("Please select a valid client"),
     spaceId: z.string().cuid("Please select a valid space"),
-    date: z.string().datetime({ message: "Invalid date format" }),
+    date: z
+        .string()
+        .refine(value => !isNaN(Date.parse(value)), "Invalid date format")
+        .transform(value => new Date(value).toISOString()), // Convert to proper ISO string
     amount: z.number().positive("Amount must be positive"),
     tax: z.number().nonnegative("Tax must be non-negative"),
     totalAmount: z.number().positive("Total amount must be positive"),
-    dueDate: z.string().datetime({ message: "Invalid due date format" }),
+    dueDate: z
+        .string()
+        .refine(value => !isNaN(Date.parse(value)), "Invalid due date format")
+        .transform(value => new Date(value).toISOString()), // Convert to proper ISO string
 }).refine(
     (data) => Math.abs(data.totalAmount - (data.amount + data.tax)) < 0.01,
     {
@@ -43,10 +53,22 @@ const formSchema = z.object({
     }
 );
 
+
+
+
 export default function AddInvoiceForm() {
     const router = useRouter();
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    interface Client {
+        id: string;
+        name: string;
+        agreements: { id: string; name: string }[];
+    }
+
+    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [clientAgreements, setClientAgreements] = useState<{ id: string; name: string }[]>([]);
+    const [availableSpaces, setAvailableSpaces] = useState<{ name: string | null; id: string; spaceCode: string; agreementId: string }[]>([])
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -54,35 +76,74 @@ export default function AddInvoiceForm() {
             invoiceNumber: "INV-" + Math.floor(1000 + Math.random() * 9000).toString(),
             clientId: "",
             spaceId: "",
-            date: formatToUTCISOString(new Date()),
+            date: new Date().toISOString().slice(0, 16),  // Format the date correctly here
             amount: 0,
             tax: 0,
             totalAmount: 0,
-            dueDate: formatToUTCISOString(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+            dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
         },
     });
 
+    interface UserOption {
+        id: string;
+        label: string;
+        agreements: {
+            spaceId: string;
+            status: "PENDING" | "ACTIVE" | "INACTIVE";
+            id: string;
+            createdAt: Date;
+            userId: string;
+            invoiceId: string | null;
+            clientName: string | null;
+            contactPerson: string;
+            remarks: string | null;
+        }[];
+    }
+
+    const [userOptions, setUserOptions] = useState<UserOption[]>([]);
+    const [allUserData, setAllUserData] = useState<UserOption[]>([]);
+    const [agreementId, setAgreementId] = useState<string>("");
+
+
+    // Fetch users for the combobox
     const fetchUsers = async (search: string) => {
         const usersResult = await getUsers({ page: 1, pageSize: 10, search });
+
         if (usersResult.success) {
-            return usersResult.data.map((user) => ({
+            const mapped = usersResult.data.map((user) => ({
                 id: user.id,
                 label: user.name || user.id,
+                agreements: user.agreements || [],
             }));
+            setUserOptions(mapped);
+            return mapped;
         }
         return [];
     };
 
-    const fetchSpaces = async (search: string) => {
-        const spacesResult = await getSpaces({ page: 1, pageSize: 10, search });
-        if (spacesResult.success) {
-            return spacesResult.data.map((space) => ({
-                id: space.id,
-                label: space.spaceCode || space.name || space.id,
-            }));
+
+    const fetchSpaces = async () => {
+        if (selectedClient) {
+
+            const spacesResult = await getSpacesByAgreement(selectedClient.id);
+            console.log(spacesResult)
+
+            if (spacesResult.success && spacesResult.data) {
+
+
+                setAvailableSpaces(spacesResult?.data);
+            }
         }
-        return [];
     };
+
+    // Whenever the selectedClient changes, fetch the spaces for that client
+    useEffect(() => {
+        if (selectedClient) {
+            fetchSpaces();
+        } else {
+            setAvailableSpaces([]); // Clear spaces if no client is selected
+        }
+    }, [selectedClient]);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true);
@@ -92,6 +153,7 @@ export default function AddInvoiceForm() {
                 formData.append(key, value.toString());
             });
 
+            formData.append("agreementId", agreementId);
             const result = await createInvoice(formData);
             if (result.success) {
                 toast({
@@ -115,6 +177,18 @@ export default function AddInvoiceForm() {
         } finally {
             setIsSubmitting(false);
         }
+    }
+
+    const formatDate = (date: string) => {
+        const parsedDate = new Date(date);
+        return parsedDate.toISOString().slice(0, 16);  // Strip milliseconds and timezone
+    };
+    
+
+    const handleGetAgreementId = async (spaceId: string) => {
+        const selectedSpace = availableSpaces.find(space => space.id === spaceId);
+        setAgreementId(selectedSpace?.agreementId || "");
+
     }
 
     return (
@@ -143,7 +217,24 @@ export default function AddInvoiceForm() {
                             <FormControl>
                                 <SearchableCombobox
                                     value={field.value}
-                                    onValueChange={field.onChange}
+                                    // onValueChange={field.onChange}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        const selected = userOptions.find((user: any) => user.id === value);
+                                        if (selected) {
+                                            setSelectedClient({
+                                                id: selected.id,
+                                                name: selected.label,
+                                                agreements: selected.agreements.map(agreement => ({
+                                                    id: agreement.id,
+                                                    name: agreement.clientName || agreement.id,
+                                                })),
+                                            });
+                                        } else {
+                                            setSelectedClient(null); // Reset to null if no client is selected
+                                        }
+                                    }}
+                                    // setSelectedClient(selected);
                                     placeholder="Select a client"
                                     searchPlaceholder="Search clients..."
                                     fetchData={fetchUsers}
@@ -154,25 +245,50 @@ export default function AddInvoiceForm() {
                     )}
                 />
 
-                <FormField
+                {/* {selectedClient && clientAgreements.length > 0 && (
+                    <div>
+                        <h3 className="font-semibold">Succeeded Agreements:</h3>
+                        <ul>
+                            {clientAgreements.map((agreement) => (
+                                <li key={agreement.id}>{agreement.name}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )} */}
+
+                {selectedClient && (
+                    <FormField
                     control={form.control}
                     name="spaceId"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Space</FormLabel>
-                            <FormControl>
-                                <SearchableCombobox
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Select a space"
-                                    searchPlaceholder="Search spaces..."
-                                    fetchData={fetchSpaces}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                      <FormItem>
+                        <FormLabel>Space</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              handleGetAgreementId(value)
+                            }}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a space" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableSpaces.map((space) => (
+                                <SelectItem key={space.id} value={space.id}>
+                                  {space.name} ({space.spaceCode})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                />
+                  />
+                )}
+
 
                 {/* Date & Due Date side by side */}
                 <div className="grid grid-cols-2 gap-4">
@@ -183,7 +299,11 @@ export default function AddInvoiceForm() {
                             <FormItem>
                                 <FormLabel>Date</FormLabel>
                                 <FormControl>
-                                    <Input type="datetime-local" {...field} value={field.value.split('.')[0]} />
+                                    <Input
+                                        type="datetime-local"
+                                        {...field}
+                                        value={field.value ? formatDate(field.value) : ''}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -197,13 +317,19 @@ export default function AddInvoiceForm() {
                             <FormItem>
                                 <FormLabel>Due Date</FormLabel>
                                 <FormControl>
-                                    <Input type="datetime-local" {...field} value={field.value.split('.')[0]} />
+                                    <Input
+                                        type="datetime-local"
+                                        {...field}
+                                        value={field.value ? formatDate(field.value) : ''}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
+
+
 
                 {/* Amount & Tax side by side */}
                 <div className="grid grid-cols-2 gap-4">
@@ -291,8 +417,8 @@ export default function AddInvoiceForm() {
                         Cancel
                     </Button>
                 </div>
-
             </form>
-        </Form>
+        </Form >
     );
 }
+

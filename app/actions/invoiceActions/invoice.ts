@@ -16,6 +16,7 @@ const createInvoiceSchema = z.object({
   tax: z.number().nonnegative("Tax must be non-negative"),
   totalAmount: z.number().positive("Total amount must be positive"),
   dueDate: z.string().datetime({ message: "Invalid due date format" }),
+  agreementId: z.string().cuid("Invalid agreement ID").optional(),
 });
 
 // Schema for updating an invoice
@@ -54,6 +55,7 @@ export async function createInvoice(formData: FormData) {
       tax: parseFloat(formData.get("tax") as string),
       totalAmount: parseFloat(formData.get("totalAmount") as string),
       dueDate: formData.get("dueDate"),
+      agreementId: formData.get("agreementId"), // Assuming agreementId is part of the form data
     });
 
     // Validate totalAmount
@@ -85,6 +87,18 @@ export async function createInvoice(formData: FormData) {
       throw new Error("Invoice number already exists");
     }
 
+    // Check if agreement exists (if applicable)
+    const agreement = data.agreementId
+      ? await prisma.agreement.findUnique({
+          where: { id: data.agreementId },
+        })
+      : null;
+
+    if (data.agreementId && !agreement) {
+      throw new Error("Agreement not found");
+    }
+
+    // Create the invoice and link it to the agreement (if applicable)
     const invoice = await prisma.invoice.create({
       data: {
         invoiceNumber: data.invoiceNumber,
@@ -96,8 +110,22 @@ export async function createInvoice(formData: FormData) {
         totalAmount: data.totalAmount,
         dueDate: new Date(data.dueDate),
         status: "PENDING",
+        agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined, 
       },
     });
+
+    // Optionally update the agreement or perform any other action
+    if (agreement) {
+      
+      await prisma.agreement.update({
+        where: { id: agreement.id },
+        data: {
+          invoice: {
+            connect: { id: invoice.id },
+          },
+        },
+      });
+    }
 
     revalidatePath("/dashboard/invoices");
     return {
@@ -113,6 +141,7 @@ export async function createInvoice(formData: FormData) {
     };
   }
 }
+
 
 // Get an invoice by invoiceNumber
 export async function getInvoice(id: string) {

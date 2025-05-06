@@ -69,27 +69,31 @@ export async function createAgreement(formData: FormData) {
       status: formData.get("status"),
     });
 
-    // Fetch space data with associated client
+
     const space = await prisma.space.findUnique({
       where: { id: data.spaceId },
       include: { client: true },
     });
 
     if (!space) {
-      throw new Error("Space not found");
+      throw new Error("Space not found.");
     }
 
-    // Fetch user data to verify existence
+    if (space.status !== "AVAILABLE") {
+      throw new Error("Space is not available for agreement.");
+    }
+
+   
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
     });
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("User not found.");
     }
 
-    // Calculate monthly rate per sqft
-    const monthlyRatePerSqft = space.rate && space.size ? space.rate / space.size : null;
+    const monthlyRatePerSqft =
+      space.rate && space.size ? space.rate / space.size : null;
 
     // Create the agreement
     const agreement = await prisma.agreement.create({
@@ -97,14 +101,18 @@ export async function createAgreement(formData: FormData) {
         spaceId: data.spaceId,
         userId: data.userId,
         clientName: user.name,
-        contactPerson: data.contactPerson || '',
+        contactPerson: data.contactPerson || "",
         spaceType: space.type,
         areaSqft: space.size,
         monthlyRatePerSqft,
         monthlyRentAmount: space.rate || 0,
-        handoverDate: data.handoverDate ? new Date(data.handoverDate) : null,
+        handoverDate: data.handoverDate
+          ? new Date(data.handoverDate)
+          : null,
         rentStartDate: new Date(data.rentStartDate),
-        rateEscalationDate: data.rateEscalationDate ? new Date(data.rateEscalationDate) : null,
+        rateEscalationDate: data.rateEscalationDate
+          ? new Date(data.rateEscalationDate)
+          : null,
         rateEscalationPercent: data.rateEscalationPercent,
         agreementPeriod: data.agreementPeriod,
         electricityCharges: data.electricityCharges,
@@ -114,11 +122,26 @@ export async function createAgreement(formData: FormData) {
       },
     });
 
+    // Update space status and assign client
+    await prisma.space.update({
+      where: { id: data.spaceId },
+      data: {
+        status: "OCCUPIED",
+        clientId: data.userId,
+      },
+    });
+
     revalidatePath("/agreements");
     return { success: true, agreement };
   } catch (error) {
     console.error(error);
-    return { success: false, error: error instanceof Error ? error.message : "Failed to create agreement" };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create agreement",
+    };
   }
 }
 
@@ -173,6 +196,24 @@ export async function updateAgreement(id: string, formData: FormData) {
       throw new Error("User not found");
     }
 
+    // Check if the status is being changed to INACTIVE
+    const previousAgreement = await prisma.agreement.findUnique({
+      where: { id },
+    });
+
+    const isStatusChangedToInactive = previousAgreement?.status !== 'INACTIVE' && data.status === 'INACTIVE';
+
+    if (isStatusChangedToInactive) {
+      // Mark space as available and clear clientId
+      await prisma.space.update({
+        where: { id: data.spaceId },
+        data: {
+          status: "AVAILABLE",
+          clientId: null,
+        },
+      });
+    }
+
     // Update the agreement
     const agreement = await prisma.agreement.update({
       where: { id },
@@ -204,6 +245,7 @@ export async function updateAgreement(id: string, formData: FormData) {
     return { success: false, error: error instanceof Error ? error.message : "Failed to update agreement" };
   }
 }
+
 
 // Server action to get an agreement by ID
 export async function getAgreement(id: string) {
@@ -341,3 +383,45 @@ export async function getAgreementsByUser(userId: string, take?: number, skip?: 
     };
   }
 }
+
+export const getSpacesByAgreement = async (clientId: string) => {
+  try {
+    const agreements = await prisma.agreement.findMany({
+      where: {
+        userId: clientId,
+        status: "ACTIVE",
+        invoiceId: null, // ✅ this checks if no invoice exists
+      },
+      include: {
+        space: {
+          select: {
+            id: true,
+            name: true,
+            spaceCode: true,
+           
+          },
+        },
+      },
+    });
+    console.log(agreements)
+
+    const allSpaces =  agreements.map((agreement) => ({
+      ...agreement.space,
+      agreementId: agreement.id, 
+    }));
+
+    return {
+      success: true,
+      data: allSpaces,
+    };
+  } catch (error) {
+    console.error("Error fetching spaces by agreement:", error);
+    return {
+      success: false,
+      error: "Failed to fetch spaces for client",
+    };
+  }
+};
+
+
+//₹

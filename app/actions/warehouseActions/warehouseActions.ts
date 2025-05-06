@@ -47,65 +47,74 @@ export async function createWarehouse(formData: FormData) {
 
 // 👉 Read all
 export async function getAllWarehouses({
-    page = 1,
-    limit = 10,
-    search = '',
-  }: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }) {
-    const skip = (page - 1) * limit;
-  
-    try {
-      const [warehouses, total] = await Promise.all([
-        prisma.warehouse.findMany({
-          skip,
-          take: limit,
-          where: {
-            name: {
-              contains: search,
-              mode: 'insensitive',
-            },
+  page = 1,
+  limit = 10,
+  search = '',
+}: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) {
+  const skip = (page - 1) * limit;
+
+  try {
+    const [warehouses, total] = await Promise.all([
+      prisma.warehouse.findMany({
+        skip,
+        take: limit,
+        where: {
+          name: {
+            contains: search,
+            mode: 'insensitive',
           },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          include: {
-            manager: {
-              select:{
-                name: true,
-                
-              }
-            },
-            spaces: true,
-          },
-        }),
-        prisma.warehouse.count({
-          where: {
-            name: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          },
-        }),
-      ]);
-  
-      return {
-        success: true,
-        data: {
-          warehouses,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-          totalItems: total,
         },
-      };
-    } catch (error) {
-      console.error('Pagination fetch error:', error);
-      return { success: false, error: 'Failed to fetch warehouses with pagination' };
-    }
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          manager: {
+            select: {
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              spaces: {
+                where: {
+                  status: 'OCCUPIED', 
+                },
+              },
+            },
+          },
+          spaces: true, // Optional: remove this if you don't need all space details
+        },
+      }),
+      prisma.warehouse.count({
+        where: {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      }),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        warehouses,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+      },
+    };
+  } catch (error) {
+    console.error('Pagination fetch error:', error);
+    return { success: false, error: 'Failed to fetch warehouses with pagination' };
   }
+}
+
   
 
 // 👉 Read one by ID

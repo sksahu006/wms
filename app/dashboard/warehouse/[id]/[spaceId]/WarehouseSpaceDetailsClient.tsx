@@ -50,7 +50,7 @@ const fetchUsers = async (search: string) => {
     return [];
 };
 
-export default function WarehouseSpaceDetailsClient({ space }: { space: any }) {
+export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,id :string }) {
     const router = useRouter();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -92,13 +92,14 @@ export default function WarehouseSpaceDetailsClient({ space }: { space: any }) {
                 <h1 className="text-2xl font-bold tracking-tight">Space Details</h1>
                 <div className="ml-auto space-x-2">
                     <Button variant="outline" asChild>
-                        <Link href={`/dashboard/warehouse/${space.id}/edit`}>
+                        <Link href={`/dashboard/warehouse/${id}/${space.id}/edit`}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit Space
                         </Link>
+
                     </Button>
 
-                    {space.status === "AVAILABLE" && (
+                    {/* {space.status === "AVAILABLE" && (
                         <Dialog open={isAllocateDialogOpen} onOpenChange={setIsAllocateDialogOpen}>
                             <DialogTrigger asChild>
                                 <Button>Allocate Space</Button>
@@ -156,7 +157,7 @@ export default function WarehouseSpaceDetailsClient({ space }: { space: any }) {
                                 </form>
                             </DialogContent>
                         </Dialog>
-                    )}
+                    )} */}
                 </div>
             </div>
 
@@ -201,8 +202,8 @@ export default function WarehouseSpaceDetailsClient({ space }: { space: any }) {
                             </div>
                             {space.images && space.images.length > 0 && (
                                 <Image
-                                    src={space?.images?.[0]}
-                                    alt={space.name}
+                                    src={space?.images?.[0] || ""}
+                                    alt={space.name || "Space Image"}
                                     width={200}
                                     height={200}
                                     className="rounded-md object-cover"
