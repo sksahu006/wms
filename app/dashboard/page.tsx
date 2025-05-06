@@ -17,11 +17,11 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsList className="bg-sky-950">
+          <TabsTrigger className="text-white" value="overview">Overview</TabsTrigger>
+          <TabsTrigger className="text-white" value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger  className="text-white" value="reports">Reports</TabsTrigger>
+          <TabsTrigger className="text-white" value="notifications">Notifications</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -1,4 +1,6 @@
 import Header from "@/components/Header";
+import homelogoimage from "../../public/wmsa.png"; // Make sure this image exists in /public folder
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -11,15 +13,19 @@ export default function AboutPage() {
       {/* Hero Section with Background Image */}
       <main className="flex-1">
         <section
-          className="w-full py-12 md:py-24 lg:py-32 bg-cover bg-center"
+          className="relative w-full py-12 md:py-24 lg:py-32 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://img.freepik.com/free-photo/warehouse-industrial-building-interior-with-people-forklifts-handling-goods-storage-area_342744-1498.jpg?uid=R160018945&ga=GA1.1.1155705999.1735793162&semt=ais_hybrid')`,
+            backgroundImage: `url(${homelogoimage.src})`,
           }}
         >
-          <div className="container px-4 md:px-6">
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-black/60 z-10" />
+
+          {/* Content over image */}
+          <div className="relative z-20 container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white">
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-white">
                   About Us
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-200 md:text-xl">
@@ -50,15 +56,6 @@ export default function AboutPage() {
                   efficient, cost-effective, and scalable.
                 </p>
               </div>
-              {/* Adding a related image */}
-              {/* <div className="lg:col-span-2 flex justify-center">
-                <img
-                  src="https://img.freepik.com/free-vector/illustration-business-target-icon_53876-5898.jpg?uid=R160018945&ga=GA1.1.1155705999.1735793162&semt=ais_hybrid"
-                  alt="Warehouse interior"
-                  className="max-w-full h-auto rounded-lg shadow-lg"
-                  style={{ maxWidth: "700px" }}
-                />
-              </div> */}
             </div>
           </div>
         </section>
