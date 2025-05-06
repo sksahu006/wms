@@ -32,7 +32,7 @@ export default function AddAgreementPage() {
   };
 
   const fetchSpaces = async (search: string) => {
-    const spacesResult = await getSpaces({ page: 1, pageSize: 10, search });
+    const spacesResult = await getSpaces({ page: 1, pageSize: 10, search,SpaceStatus: "AVAILABLE" });
     console.log("Fetched spaces:", spacesResult);
     if (spacesResult.success) {
       return spacesResult.data.map((space) => ({

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma, Role, Status } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import bcrypt from "bcryptjs";
+import { ClientDetails } from "@/lib/types";
 
 // Schema for form validation
 const UpdateSchema = z.object({
@@ -23,6 +24,8 @@ const UpdateSchema = z.object({
   businessLicense: z.string().optional(),
   taxCertificate: z.string().optional(),
   isActive: z.boolean().optional(),
+  status: z.enum(["ACTIVE", "INACTIVE", "PENDING"]).optional(),
+  
 });
 
 // Schema for form validation
@@ -39,6 +42,8 @@ const RegisterSchema = z.object({
   businessLicense: z.string().nullable(), // Allow null for optional fields
   taxCertificate: z.string().nullable(), // Allow null for optional fields
 });
+type SpaceStatusString = "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" | "RESERVED";
+
 
 // Mock function to simulate file upload (replace with actual storage logic, e.g., S3)
 // For now, this function remains in case you decide to re-enable file uploads later.
@@ -47,6 +52,7 @@ async function uploadFile(file: File): Promise<string | null> {
   // In production, use a service like AWS S3, Supabase Storage, or Cloudinary
   return file ? `https://example.com/uploads/${file.name}` : null;
 }
+
 
 export async function registerUser(formData: FormData) {
   try {
@@ -216,6 +222,7 @@ export async function getClients(
         phone: true,
         address: true,
         businessType: true,
+        created: true,
       },
       skip,
       take: pageSize,
@@ -424,7 +431,7 @@ export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
   }
 }
 
-export async function getSpaces({ page = 1, pageSize = 10, search = "" }) {
+export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceStatus,clientId }: { page?: number; pageSize?: number; search?: string; SpaceStatus?: SpaceStatusString, clientId?: string }) {
   try {
     const {
       page: parsedPage,
@@ -434,7 +441,7 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "" }) {
 
     const skip = (parsedPage - 1) * parsedPageSize;
 
-    const where = parsedSearch
+      const searchCondition = parsedSearch
       ? {
           OR: [
             {
@@ -458,6 +465,18 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "" }) {
           ],
         }
       : {};
+      const statusCondition = SpaceStatus === "AVAILABLE"
+      ? { status: { equals: "AVAILABLE" as SpaceStatusString } } // Use proper typing for status
+      : {};
+
+      const clientIdCondition = clientId
+      ? { clientId: { equals: clientId } }
+      : {};
+      const where = {
+        ...searchCondition,
+        ...statusCondition,
+        ...clientIdCondition
+      };
 
     const [spaces, total] = await Promise.all([
       prisma.space.findMany({
@@ -491,6 +510,97 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "" }) {
       error: "Failed to fetch spaces",
       data: [],
       pagination: { page: 0, pageSize: 0, total: 0, totalPages: 0 },
+    };
+  }
+}
+
+
+export async function getClientDetails(clientId: string): Promise<{
+  success: boolean;
+  client: ClientDetails | null;
+  error?: string;
+}> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: clientId },
+    });
+
+    if (!user) return { success: false, client: null, error: 'Client not found' };
+
+    const client: ClientDetails = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      status: user.status,
+      contact: user.contactName,
+      position: user.position,
+      phone: user.phone,
+      address: user.address,
+      joinedDate: user.created.toISOString().split('T')[0],
+      businessType: user.businessType,
+      taxId: user.taxId,
+      notes: user.requirements, // or `remarks` if that's more appropriate
+    };
+
+    return { success: true, client };
+  } catch (error) {
+    console.error('[getClientDetails]', error);
+    return { success: false, client: null, error: 'Something went wrong' };
+  }
+}
+export async function updateClient(data: {
+  id: string;
+  name: string;
+  contact: string;
+  position: string;
+  email: string;
+  phone: string;
+  address: string;
+  businessType: string;
+  taxId: string;
+  status: string;
+  notes?: string;
+}) {
+  try {
+    // Validate input data
+    const validatedData = UpdateSchema.parse(data);
+
+    const {
+      id,
+      name,
+      contactName,
+      position,
+      email,
+      phone,
+      address,
+      businessType,
+      taxId,
+      status,
+      
+    } = validatedData;
+
+    // Perform database update (assumes Prisma is set up with a `client` model)
+    const updatedClient = await prisma.user.update({
+      where: { id },
+      data: {
+        name,
+        contactName,
+        position,
+        email,
+        phone,
+        address,
+        businessType,
+        taxId,
+        status,
+        
+      },
+    });
+
+    return { success: true, client: updatedClient };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update client",
     };
   }
 }

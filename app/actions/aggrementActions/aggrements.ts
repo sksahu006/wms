@@ -288,3 +288,56 @@ export async function deleteAgreement(id: string) {
     return { success: false, error: error instanceof Error ? error.message : "Failed to delete agreement" };
   }
 }
+export async function getAgreementsByUser(userId: string, take?: number, skip?: number) {
+  try {
+    // Default pagination values
+    const itemsPerPage = take ?? 10;
+    const itemsToSkip = skip ?? 0;
+
+  
+    const agreements = await prisma.agreement.findMany({
+      where: { userId },
+      take: itemsPerPage,
+      skip: itemsToSkip,
+      select: {
+        id: true,
+        clientName: true,
+        spaceType: true,
+        areaSqft: true,
+        monthlyRentAmount: true,
+        status: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  
+
+    // Count total agreements for the user
+    const totalItems = await prisma.agreement.count({
+      where: { userId },
+    });
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const currentPage = Math.floor(itemsToSkip / itemsPerPage) + 1;
+    const hasNextPage = itemsToSkip + itemsPerPage < totalItems;
+    const hasPreviousPage = itemsToSkip > 0;
+
+    return {
+      success: true,
+      agreements,
+      pagination: {
+        totalItems,
+        totalPages,
+        currentPage,
+        itemsPerPage,
+        hasNextPage,
+        hasPreviousPage,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching agreements for user:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch agreements",
+    };
+  }
+}

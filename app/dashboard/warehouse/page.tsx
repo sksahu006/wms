@@ -46,7 +46,7 @@ export default function WarehousePage() {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const session = useSession();
-  
+
   if (!session?.data?.user || session.data.user.role !== 'ADMIN') {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
@@ -54,7 +54,7 @@ export default function WarehousePage() {
         <p className="text-lg text-gray-600">You do not have permission to access this page.</p>
       </div>
     );
-  }  
+  }
 
   const searchParams = useSearchParams();
   const router = useRouter();

@@ -103,6 +103,7 @@ export default async function ClientsPage({
               </TableHeader>
               <TableBody>
                 {clients?.map((client : any) => (
+                
                   <TableRow key={client.id}>
                     <TableCell className="font-medium">{client.id}</TableCell>
                     <TableCell>
@@ -123,7 +124,7 @@ export default async function ClientsPage({
                       </Badge>
                     </TableCell>
                     <TableCell>0</TableCell>
-                    <TableCell>{client.joinedDate}</TableCell>
+                    <TableCell>{new Date(client.created).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -139,10 +140,10 @@ export default async function ClientsPage({
                               View details
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>Edit client</DropdownMenuItem>
+                          {/* <DropdownMenuItem>Edit client</DropdownMenuItem> */}
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>View invoices</DropdownMenuItem>
-                          <DropdownMenuItem>View agreements</DropdownMenuItem>
+                          {/* <DropdownMenuItem>View invoices</DropdownMenuItem>
+                          <DropdownMenuItem>View agreements</DropdownMenuItem> */}
                           <DropdownMenuSeparator />
                           {client.status === "PENDING" ? (
                             <DropdownMenuItem className="text-green-600">Approve client</DropdownMenuItem>

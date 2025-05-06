@@ -1,9 +1,8 @@
-import Link from "next/link"
-import { CheckCircle2, Clock, MessageSquare, MoreHorizontal, Plus, Search, SlidersHorizontal, XCircle } from 'lucide-react'
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import Link from "next/link";
+import { CheckCircle2, Clock, MessageSquare, MoreHorizontal, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { 
   Table, 
   TableBody, 
@@ -11,7 +10,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -19,50 +18,170 @@ import {
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getSupportTickets } from "@/app/actions/support/supportAction";
+import { SupportStatus } from "@prisma/client";
+import { getServerAuth } from "@/lib/auth";
 
-export default function SupportPage() {
-  const supportTickets = [
-    {
-      id: "TKT-001",
-      title: "Request for additional security",
-      date: "Feb 10, 2023",
-      status: "Resolved",
-      priority: "Medium",
-      lastUpdated: "Feb 15, 2023",
-      category: "Security",
-    },
-    {
-      id: "TKT-002",
-      title: "Maintenance needed for loading dock",
-      date: "Mar 5, 2023",
-      status: "In Progress",
-      priority: "High",
-      lastUpdated: "Mar 7, 2023",
-      category: "Maintenance",
-    },
-    {
-      id: "TKT-003",
-      title: "Billing discrepancy on invoice #INV-006",
-      date: "Mar 10, 2023",
-      status: "Pending",
-      priority: "Low",
-      lastUpdated: "Mar 10, 2023",
-      category: "Billing",
-    },
-  ]
+interface Ticket {
+  id: string;
+  subject: string;
+  category: string;
+  space?: { spaceCode: string; name?: string | null } | null
+  createdAt: Date;
+  updatedAt: Date;
+  priority: string;
+  status: SupportStatus;
+}
+
+interface TicketTableProps {
+  tickets: Ticket[];
+  showResolvedDate?: boolean;
+}
+
+function TicketTable({ tickets, showResolvedDate = false }: TicketTableProps) {
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Ticket ID</TableHead>
+            <TableHead>Subject</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Space</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Priority</TableHead>
+            {showResolvedDate ? <TableHead>Resolved</TableHead> : <TableHead>Status</TableHead>}
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tickets.map((ticket) => (
+            <TableRow key={ticket.id}>
+              <TableCell className="font-medium">{ticket.id}</TableCell>
+              <TableCell>{ticket.subject}</TableCell>
+              <TableCell>{ticket.category}</TableCell>
+              <TableCell>
+                {ticket.space ? `${ticket.space.spaceCode} ${ticket.space.name || ''}` : '-'}
+              </TableCell>
+              <TableCell>{new Date(ticket.createdAt).toLocaleDateString()}</TableCell>
+              <TableCell>
+                <Badge
+                  variant="outline"
+                  className={
+                    ticket.priority === "HIGH"
+                      ? "border-red-500 text-red-500"
+                      : ticket.priority === "MEDIUM"
+                      ? "border-yellow-500 text-yellow-500"
+                      : "border-blue-500 text-blue-500"
+                  }
+                >
+                  {ticket.priority}
+                </Badge>
+              </TableCell>
+              {showResolvedDate ? (
+                <TableCell>{new Date(ticket.updatedAt).toLocaleDateString()}</TableCell>
+              ) : (
+                <TableCell>
+                  <Badge
+                    variant={
+                      ticket.status === "RESOLVED"
+                        ? "default"
+                        : ticket.status === "IN_PROGRESS"
+                        ? "outline"
+                        : "secondary"
+                    }
+                    className={
+                      ticket.status === "RESOLVED"
+                        ? "bg-green-500"
+                        : ticket.status === "IN_PROGRESS"
+                        ? "border-yellow-500 text-yellow-500"
+                        : "bg-blue-500"
+                    }
+                  >
+                    {ticket.status === "RESOLVED" && (
+                      <CheckCircle2 className="mr-1 h-3 w-3" />
+                    )}
+                    {ticket.status === "IN_PROGRESS" && (
+                      <Clock className="mr-1 h-3 w-3" />
+                    )}
+                    {ticket.status === "OPEN" && (
+                      <Clock className="mr-1 h-3 w-3" />
+                    )}
+                    {ticket.status}
+                  </Badge>
+                </TableCell>
+              )}
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/support/${ticket.id}`}>
+                        View details
+                      </Link>
+                    </DropdownMenuItem>
+                    {ticket.status !== "RESOLVED" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Add comment</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          Close ticket
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+export default async function SupportPage({ searchParams }: { searchParams: { page?: string; tab?: string; search?: string } }) {
+  const page = parseInt(searchParams.page || "1", 10);
+  const tab = searchParams.tab || "all";
+  const search = searchParams.search || "";
+  const pageSize = 10;
+  const session = await getServerAuth();
+  
+  const response = await getSupportTickets(page, pageSize, tab, search);
+  
+  if (!response.success || !response.tickets) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold tracking-tight">Support</h1>
+        <Card>
+          <CardContent>
+            <p className="text-red-500">Error loading tickets: {response.error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { tickets, pagination, stats } = response;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Support</h1>
-        <Button asChild>
+        {session && session.user.role === "CUSTOMER" && <Button asChild>
           <Link href="/dashboard/support/new">
             <Plus className="mr-2 h-4 w-4" /> New Ticket
           </Link>
-        </Button>
+        </Button>}
       </div>
       
       <div className="grid gap-4 md:grid-cols-3">
@@ -74,7 +193,7 @@ export default function SupportPage() {
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">{stats.totalTickets}</div>
             <p className="text-xs text-muted-foreground">
               All support tickets
             </p>
@@ -88,7 +207,7 @@ export default function SupportPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{stats.openTickets}</div>
             <p className="text-xs text-muted-foreground">
               Pending and in progress
             </p>
@@ -102,7 +221,7 @@ export default function SupportPage() {
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{stats.resolvedTickets}</div>
             <p className="text-xs text-muted-foreground">
               Successfully resolved
             </p>
@@ -118,251 +237,141 @@ export default function SupportPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="all" className="space-y-4">
+          <Tabs defaultValue={tab} className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList>
-                <TabsTrigger value="all">All Tickets</TabsTrigger>
-                <TabsTrigger value="open">Open</TabsTrigger>
-                <TabsTrigger value="resolved">Resolved</TabsTrigger>
+                <TabsTrigger value="all" asChild>
+                  <Link href={`/dashboard/support?page=1&tab=all${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                    All Tickets
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="open" asChild>
+                  <Link href={`/dashboard/support?page=1&tab=open${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                    Open
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="resolved" asChild>
+                  <Link href={`/dashboard/support?page=1&tab=resolved${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                    Resolved
+                  </Link>
+                </TabsTrigger>
               </TabsList>
               
-              <div className="flex items-center gap-2">
+              <form className="flex items-center gap-2" action="/dashboard/support">
+                <input type="hidden" name="tab" value={tab} />
+                <input type="hidden" name="page" value="1" />
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
+                    name="search"
                     placeholder="Search tickets..."
                     className="w-[200px] pl-8"
+                    defaultValue={search}
                   />
                 </div>
                 <Button variant="outline" size="icon">
                   <SlidersHorizontal className="h-4 w-4" />
                   <span className="sr-only">Filter</span>
                 </Button>
-              </div>
+              </form>
             </div>
             
             <TabsContent value="all">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ticket ID</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {supportTickets.map((ticket) => (
-                      <TableRow key={ticket.id}>
-                        <TableCell className="font-medium">{ticket.id}</TableCell>
-                        <TableCell>{ticket.title}</TableCell>
-                        <TableCell>{ticket.category}</TableCell>
-                        <TableCell>{ticket.date}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={
-                              ticket.priority === "High"
-                                ? "border-red-500 text-red-500"
-                                : ticket.priority === "Medium"
-                                ? "border-yellow-500 text-yellow-500"
-                                : "border-blue-500 text-blue-500"
-                            }
-                          >
-                            {ticket.priority}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              ticket.status === "Resolved"
-                                ? "default"
-                                : ticket.status === "In Progress"
-                                ? "outline"
-                                : "secondary"
-                            }
-                            className={
-                              ticket.status === "Resolved"
-                                ? "bg-green-500"
-                                : ticket.status === "In Progress"
-                                ? "border-yellow-500 text-yellow-500"
-                                : "bg-blue-500"
-                            }
-                          >
-                            {ticket.status === "Resolved" && (
-                              <CheckCircle2 className="mr-1 h-3 w-3" />
-                            )}
-                            {ticket.status === "In Progress" && (
-                              <Clock className="mr-1 h-3 w-3" />
-                            )}
-                            {ticket.status === "Pending" && (
-                              <Clock className="mr-1 h-3 w-3" />
-                            )}
-                            {ticket.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem asChild>
-                                <Link href={`/dashboard/support/${ticket.id}`}>
-                                  View details
-                                </Link>
-                              </DropdownMenuItem>
-                              {ticket.status !== "Resolved" && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem>Add comment</DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-600">
-                                    Close ticket
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <TicketTable tickets={tickets as Ticket[]} />
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {tickets.length} of {pagination.total} tickets
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    asChild
+                  >
+                    <Link href={`/dashboard/support?page=${pagination.page - 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                      Previous
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === pagination.totalPages}
+                    asChild
+                  >
+                    <Link href={`/dashboard/support?page=${pagination.page + 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                      Next
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </TabsContent>
             
             <TabsContent value="open">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ticket ID</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {supportTickets
-                      .filter((ticket) => ticket.status !== "Resolved")
-                      .map((ticket) => (
-                        <TableRow key={ticket.id}>
-                          <TableCell className="font-medium">{ticket.id}</TableCell>
-                          <TableCell>{ticket.title}</TableCell>
-                          <TableCell>{ticket.category}</TableCell>
-                          <TableCell>{ticket.date}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={
-                                ticket.priority === "High"
-                                  ? "border-red-500 text-red-500"
-                                  : ticket.priority === "Medium"
-                                  ? "border-yellow-500 text-yellow-500"
-                                  : "border-blue-500 text-blue-500"
-                              }
-                            >
-                              {ticket.priority}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                ticket.status === "In Progress"
-                                  ? "outline"
-                                  : "secondary"
-                              }
-                              className={
-                                ticket.status === "In Progress"
-                                  ? "border-yellow-500 text-yellow-500"
-                                  : "bg-blue-500"
-                              }
-                            >
-                              {ticket.status === "In Progress" && (
-                                <Clock className="mr-1 h-3 w-3" />
-                              )}
-                              {ticket.status === "Pending" && (
-                                <Clock className="mr-1 h-3 w-3" />
-                              )}
-                              {ticket.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
+              <TicketTable tickets={tickets} />
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {tickets.length} of {stats.openTickets} open tickets
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    asChild
+                  >
+                    <Link href={`/dashboard/support?page=${pagination.page - 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                      Previous
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === pagination.totalPages}
+                    asChild
+                  >
+                    <Link href={`/dashboard/support?page=${pagination.page + 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                      Next
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </TabsContent>
             
             <TabsContent value="resolved">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ticket ID</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Resolved</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {supportTickets
-                      .filter((ticket) => ticket.status === "Resolved")
-                      .map((ticket) => (
-                        <TableRow key={ticket.id}>
-                          <TableCell className="font-medium">{ticket.id}</TableCell>
-                          <TableCell>{ticket.title}</TableCell>
-                          <TableCell>{ticket.category}</TableCell>
-                          <TableCell>{ticket.date}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={
-                                ticket.priority === "High"
-                                  ? "border-red-500 text-red-500"
-                                  : ticket.priority === "Medium"
-                                  ? "border-yellow-500 text-yellow-500"
-                                  : "border-blue-500 text-blue-500"
-                              }
-                            >
-                              {ticket.priority}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{ticket.lastUpdated}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
+              <TicketTable tickets={tickets} showResolvedDate />
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {tickets.length} of {stats.resolvedTickets} resolved tickets
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    asChild
+                  >
+                    <Link href={`/dashboard/support?page=${pagination.page - 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                      Previous
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === pagination.totalPages}
+                    asChild
+                  >
+                    <Link href={`/dashboard/support?page=${pagination.page + 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
+                      Next
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

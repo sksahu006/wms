@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { Edit, Loader2 } from 'lucide-react';
 import { getAllAgreements } from '@/app/actions/aggrementActions/aggrements';
 
 type Agreement = {
@@ -112,7 +112,7 @@ export default function AgreementsPage() {
                           <Button variant="link">View</Button>
                         </Link>
                         <Link href={`/dashboard/agreements/${agreement.id}/edit`}>
-                          <Button variant="link">Edit</Button>
+                          <Button variant="link">Edit <Edit className='text-green-300'/></Button>
                         </Link>
                       </TableCell>
                     </TableRow>
