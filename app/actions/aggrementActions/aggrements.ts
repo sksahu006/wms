@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
+import { getServerAuth } from "@/lib/auth";
 
 
 // Validation schema for creating an agreement
@@ -275,15 +276,27 @@ export async function getAgreement(id: string) {
 // Server action to get all agreements with pagination info
 export async function getAllAgreements(take?: number, skip?: number) {
   try {
+    const session = await getServerAuth();
+    if (!session?.user) {
+      throw new Error("Unauthorized: Please log in to access agreements");
+    }
+
     // Default values for pagination
     const itemsPerPage = take ?? 10;
     const itemsToSkip = skip ?? 0;
 
+    // Determine if user is admin
+    const isAdmin = session.user.role === 'ADMIN';
+
+    // Build the where clause for non-admin users
+    const whereClause = isAdmin ? {} : { userId: session.user.id };
+
     // Fetch agreements with pagination and only necessary fields
     const agreements = await prisma.agreement.findMany({
+      where: whereClause,
       take: itemsPerPage,
       skip: itemsToSkip,
-      select: { // Only select the necessary fields
+      select: {
         id: true,
         clientName: true,
         spaceType: true,
@@ -294,8 +307,8 @@ export async function getAllAgreements(take?: number, skip?: number) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Get total number of agreements
-    const totalItems = await prisma.agreement.count();
+    // Get total number of agreements with the same filter
+    const totalItems = await prisma.agreement.count({ where: whereClause });
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(totalItems / itemsPerPage);

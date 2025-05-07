@@ -1,6 +1,3 @@
-'use client'
-
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -14,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Edit, Loader2 } from 'lucide-react';
 import { getAllAgreements } from '@/app/actions/aggrementActions/aggrements';
+import { getServerAuth } from '@/lib/auth';
 
 type Agreement = {
   id: string;
@@ -24,43 +22,47 @@ type Agreement = {
   status: string;
 };
 
-export default function AgreementsPage() {
-  const [agreements, setAgreements] = useState<Agreement[]>([]);
-  const [pagination, setPagination] = useState({
-    totalItems: 0,
-    totalPages: 0,
-    currentPage: 1,
-    itemsPerPage: 10,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+type Pagination = {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  itemsPerPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
 
-  const fetchAgreements = async (page: number, itemsPerPage: number = 10) => {
-    setLoading(true);
-    const skip = (page - 1) * itemsPerPage;
-    const result = await getAllAgreements(itemsPerPage, skip);
-    if (result.success) {
-      setAgreements(result.agreements || []);
-      setPagination(result.pagination || {
+type AgreementsPageProps = {
+  searchParams: { page?: string };
+};
+
+export default async function AgreementsPage({ searchParams }: AgreementsPageProps) {
+  const page = parseInt(searchParams.page || '1', 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+  const session = await getServerAuth();
+
+  // Fetch agreements on the server
+  const result = await getAllAgreements(itemsPerPage, skip);
+
+  const agreements: Agreement[] = result.success ? result.agreements || [] : [];
+  const pagination: Pagination = result.success
+    ? result.pagination || {
         totalItems: 0,
         totalPages: 0,
         currentPage: 1,
         itemsPerPage: 10,
         hasNextPage: false,
         hasPreviousPage: false,
-      });
-      setError(null);
-    } else {
-        setError(result.error ?? null);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchAgreements(1);
-  }, []);
+      }
+    : {
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 1,
+        itemsPerPage: 10,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+  const error = result.success ? null : result.error || 'Failed to fetch agreements';
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -76,11 +78,7 @@ export default function AgreementsPage() {
           <CardTitle>Agreements</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex justify-center">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          ) : error ? (
+          {error ? (
             <p className="text-red-500">{error}</p>
           ) : agreements.length === 0 ? (
             <div className="text-center py-4">
@@ -111,9 +109,11 @@ export default function AgreementsPage() {
                         <Link href={`/dashboard/agreements/${agreement.id}`}>
                           <Button variant="link">View</Button>
                         </Link>
-                        <Link href={`/dashboard/agreements/${agreement.id}/edit`}>
-                          <Button variant="link">Edit <Edit className='text-green-300'/></Button>
-                        </Link>
+                        {session && session.user.role === 'ADMIN' && <Link href={`/dashboard/agreements/${agreement.id}/edit`}>
+                          <Button variant="link">
+                            Edit <Edit className="text-green-300" />
+                          </Button>
+                        </Link>}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -129,20 +129,20 @@ export default function AgreementsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    asChild
                     disabled={!pagination.hasPreviousPage}
-                    onClick={() => fetchAgreements(pagination.currentPage - 1, pagination.itemsPerPage)}
                   >
-                    Previous
+                    <Link href={`/dashboard/agreements?page=${pagination.currentPage - 1}`}>
+                      Previous
+                    </Link>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    asChild
                     disabled={!pagination.hasNextPage}
-                    onClick={() => fetchAgreements(pagination.currentPage + 1, pagination.itemsPerPage)}
                   >
-                    Next
+                    <Link href={`/dashboard/agreements?page=${pagination.currentPage + 1}`}>
+                      Next
+                    </Link>
                   </Button>
                 </div>
               </div>
