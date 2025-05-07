@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Download, FileText, ImageIcon } from 'lucide-react';
 import { getAgreement } from '@/app/actions/aggrementActions/aggrements';
 import { formatToUTCISOString } from '@/lib/formatToUTCISOString';
 
@@ -36,10 +36,65 @@ export default async function AgreementPage({ params }: { params: { id: string }
 
   // Format dates for display
   const formatDate = (date: Date | null) =>
-    date ? formatToUTCISOString(new Date(date)) : 'N/A';
+    date ? new Date(date).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : 'N/A';
+
+  // Determine document type and rendering method
+  const renderDocument = (documentUrl: string | null) => {
+    if (!documentUrl) {
+      return <p className="text-gray-600 dark:text-gray-400">No document available</p>;
+    }
+
+    const fileExtension = documentUrl.split('.').pop()?.toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension || '');
+    const isPdf = fileExtension === 'pdf';
+
+    return (
+      <div className="mt-4">
+        {isImage && (
+          <div className="flex flex-col items-center">
+            <img
+              src={documentUrl}
+              alt="Agreement Document"
+              className="max-w-full h-auto rounded-lg shadow-md"
+              style={{ maxHeight: '500px' }}
+            />
+            <a href={documentUrl} download className="mt-4">
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Download className="mr-2 h-4 w-4" /> Download Image
+              </Button>
+            </a>
+          </div>
+        )}
+        {isPdf && (
+          <div className="flex flex-col items-center">
+            <iframe
+              src={documentUrl}
+              className="w-full h-[500px] border rounded-lg shadow-md"
+              title="Agreement PDF"
+            />
+            <a href={documentUrl} download className="mt-4">
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Download className="mr-2 h-4 w-4" /> Download PDF
+              </Button>
+            </a>
+          </div>
+        )}
+        {!isImage && !isPdf && (
+          <div className="flex flex-col items-center">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Document type not supported for preview</p>
+            <a href={documentUrl} download>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Download className="mr-2 h-4 w-4" /> Download Document
+              </Button>
+            </a>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="container mx-auto p-6  dark:from-gray-900 dark:to-gray-800 min-h-screen">
+    <div className="container mx-auto p-6 dark:from-gray-900 dark:to-gray-800 min-h-screen">
       <Card className="shadow-2xl border-none bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm max-w-5xl mx-auto">
         <CardHeader className="bg-blue-600 dark:bg-blue-800 text-white rounded-t-lg p-6">
           <div className="flex flex-row items-center justify-between">
@@ -138,6 +193,18 @@ export default async function AgreementPage({ params }: { params: { id: string }
               </CardContent>
             </Card>
           </div>
+
+          {/* New Document Section */}
+          <Card className="mt-8 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-gray-900">
+            <CardHeader className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+                <FileText className="mr-2 h-5 w-5" /> Agreement Document
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {renderDocument(agreement.documentUrl)}
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </div>

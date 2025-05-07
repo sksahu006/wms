@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -76,7 +75,7 @@ export default function AddInvoiceForm() {
             invoiceNumber: "INV-" + Math.floor(1000 + Math.random() * 9000).toString(),
             clientId: "",
             spaceId: "",
-            date: new Date().toISOString().slice(0, 16),  // Format the date correctly here
+            date: new Date()?.toISOString()?.slice(0, 16),  // Format the date correctly here
             amount: 0,
             tax: 0,
             totalAmount: 0,
@@ -126,11 +125,7 @@ export default function AddInvoiceForm() {
         if (selectedClient) {
 
             const spacesResult = await getSpacesByAgreement(selectedClient.id);
-            console.log(spacesResult)
-
             if (spacesResult.success && spacesResult.data) {
-
-
                 setAvailableSpaces(spacesResult?.data);
             }
         }

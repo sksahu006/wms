@@ -227,7 +227,7 @@ export async function getClients(
       skip,
       take: pageSize,
       orderBy: {
-        name: "asc",
+        created: "desc",
       },
     });
 

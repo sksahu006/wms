@@ -33,11 +33,6 @@ const updateInvoiceSchema = z.object({
   status: z.enum(["PAID", "PENDING", "OVERDUE"]).optional(),
 });
 
-// Schema for getting an invoice
-const getInvoiceSchema = z.object({
-  invoiceNumber: z.string().min(1, "Invoice number is required"),
-});
-
 // Schema for deleting an invoice
 const deleteInvoiceSchema = z.object({
   id: z.string().cuid("Invalid invoice ID"),

@@ -179,6 +179,7 @@ model Agreement {
   waterCharges          Float?
   remarks               String?
   status                Status    @default(PENDING)
+  documentUrl           String?
   createdAt             DateTime  @default(now())
 
   space   Space    @relation(fields: [spaceId], references: [id])
@@ -200,9 +201,9 @@ model Invoice {
   updatedAt     DateTime      @updatedAt
   status        InvoiceStatus @default(PENDING)
 
-  client        User          @relation("InvoiceClient", fields: [clientId], references: [id])
-  space         Space         @relation("InvoiceSpace", fields: [spaceId], references: [id])
-  agreement     Agreement?    @relation(name: "AgreementToInvoice") // Matches above name, no fields/references
+  client    User       @relation("InvoiceClient", fields: [clientId], references: [id])
+  space     Space      @relation("InvoiceSpace", fields: [spaceId], references: [id])
+  agreement Agreement? @relation(name: "AgreementToInvoice") // Matches above name, no fields/references
 }
 
 model Support {

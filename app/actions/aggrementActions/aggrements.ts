@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import cloudinary from "@/lib/cloudinary";
 
 
 // Validation schema for creating an agreement
@@ -40,11 +41,13 @@ const updateAgreementSchema = z.object({
   waterCharges: z.number().optional().nullable(),
   remarks: z.string().optional().nullable(),
   status: z.enum(["PENDING", "ACTIVE", "INACTIVE"]).default("PENDING"),
+  documentUrl: z.string().optional().nullable(),
 });
 
 // Server action to create a new agreement
 export async function createAgreement(formData: FormData) {
   try {
+    const documentUrl = formData.get('documentUrl') as string | null;
     // Parse and validate input from frontend
     const data = createAgreementSchema.parse({
       spaceId: formData.get("spaceId"),
@@ -83,7 +86,7 @@ export async function createAgreement(formData: FormData) {
       throw new Error("Space is not available for agreement.");
     }
 
-   
+
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
     });
@@ -119,6 +122,7 @@ export async function createAgreement(formData: FormData) {
         waterCharges: data.waterCharges,
         remarks: data.remarks,
         status: data.status,
+        documentUrl
       },
     });
 
@@ -177,6 +181,7 @@ export async function updateAgreement(id: string, formData: FormData) {
         : null,
       remarks: formData.get("remarks"),
       status: formData.get("status"),
+      documentUrl: formData.get("documentUrl") || null,
     });
 
     // Validate space and user existence
@@ -235,6 +240,7 @@ export async function updateAgreement(id: string, formData: FormData) {
         waterCharges: data.waterCharges,
         remarks: data.remarks,
         status: data.status,
+        documentUrl: data.documentUrl,
       },
     });
 
@@ -268,53 +274,53 @@ export async function getAgreement(id: string) {
 
 // Server action to get all agreements with pagination info
 export async function getAllAgreements(take?: number, skip?: number) {
-    try {
-      // Default values for pagination
-      const itemsPerPage = take ?? 10;
-      const itemsToSkip = skip ?? 0;
-  
-      // Fetch agreements with pagination and only necessary fields
-      const agreements = await prisma.agreement.findMany({
-        take: itemsPerPage,
-        skip: itemsToSkip,
-        select: { // Only select the necessary fields
-          id: true,
-          clientName: true,
-          spaceType: true,
-          areaSqft: true,
-          monthlyRentAmount: true,
-          status: true,
-        },
-        orderBy: { createdAt: "desc" },
-      });
-  
-      // Get total number of agreements
-      const totalItems = await prisma.agreement.count();
-  
-      // Calculate pagination metadata
-      const totalPages = Math.ceil(totalItems / itemsPerPage);
-      const currentPage = Math.floor(itemsToSkip / itemsPerPage) + 1;
-      const hasNextPage = itemsToSkip + itemsPerPage < totalItems;
-      const hasPreviousPage = itemsToSkip > 0;
-  
-      return {
-        success: true,
-        agreements,
-        pagination: {
-          totalItems,
-          totalPages,
-          currentPage,
-          itemsPerPage,
-          hasNextPage,
-          hasPreviousPage,
-        },
-      };
-    } catch (error) {
-      console.error(error);
-      return { success: false, error: error instanceof Error ? error.message : "Failed to retrieve agreements" };
-    }
+  try {
+    // Default values for pagination
+    const itemsPerPage = take ?? 10;
+    const itemsToSkip = skip ?? 0;
+
+    // Fetch agreements with pagination and only necessary fields
+    const agreements = await prisma.agreement.findMany({
+      take: itemsPerPage,
+      skip: itemsToSkip,
+      select: { // Only select the necessary fields
+        id: true,
+        clientName: true,
+        spaceType: true,
+        areaSqft: true,
+        monthlyRentAmount: true,
+        status: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Get total number of agreements
+    const totalItems = await prisma.agreement.count();
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const currentPage = Math.floor(itemsToSkip / itemsPerPage) + 1;
+    const hasNextPage = itemsToSkip + itemsPerPage < totalItems;
+    const hasPreviousPage = itemsToSkip > 0;
+
+    return {
+      success: true,
+      agreements,
+      pagination: {
+        totalItems,
+        totalPages,
+        currentPage,
+        itemsPerPage,
+        hasNextPage,
+        hasPreviousPage,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: error instanceof Error ? error.message : "Failed to retrieve agreements" };
   }
-  
+}
+
 
 // Server action to delete an agreement
 export async function deleteAgreement(id: string) {
@@ -336,7 +342,7 @@ export async function getAgreementsByUser(userId: string, take?: number, skip?: 
     const itemsPerPage = take ?? 10;
     const itemsToSkip = skip ?? 0;
 
-  
+
     const agreements = await prisma.agreement.findMany({
       where: { userId },
       take: itemsPerPage,
@@ -351,7 +357,7 @@ export async function getAgreementsByUser(userId: string, take?: number, skip?: 
       },
       orderBy: { createdAt: "desc" },
     });
-  
+
 
     // Count total agreements for the user
     const totalItems = await prisma.agreement.count({
@@ -398,16 +404,16 @@ export const getSpacesByAgreement = async (clientId: string) => {
             id: true,
             name: true,
             spaceCode: true,
-           
+
           },
         },
       },
     });
     console.log(agreements)
 
-    const allSpaces =  agreements.map((agreement) => ({
+    const allSpaces = agreements.map((agreement) => ({
       ...agreement.space,
-      agreementId: agreement.id, 
+      agreementId: agreement.id,
     }));
 
     return {

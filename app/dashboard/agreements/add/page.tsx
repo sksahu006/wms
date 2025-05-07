@@ -17,11 +17,11 @@ export default function AddAgreementPage() {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [spaceId, setSpaceId] = useState('');
+  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const router = useRouter();
 
   const fetchUsers = async (search: string) => {
     const usersResult = await getUsers({ page: 1, pageSize: 10, search });
-    console.log("Fetched users:", usersResult);
     if (usersResult.success) {
       return usersResult.data.map((user) => ({
         id: user.id,
@@ -32,8 +32,8 @@ export default function AddAgreementPage() {
   };
 
   const fetchSpaces = async (search: string) => {
-    const spacesResult = await getSpaces({ page: 1, pageSize: 10, search,SpaceStatus: "AVAILABLE" });
-    console.log("Fetched spaces:", spacesResult);
+    const spacesResult = await getSpaces({ page: 1, pageSize: 10, search, SpaceStatus: 'AVAILABLE' });
+    console.log('Fetched spaces:', spacesResult);
     if (spacesResult.success) {
       return spacesResult.data.map((space) => ({
         id: space.id,
@@ -43,10 +43,59 @@ export default function AddAgreementPage() {
     return [];
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  // Handle file upload to Cloudinary
+  const handleFileUpload = async (file: File) => {
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+    uploadData.append('upload_preset', 'warehouse'); // Replace with your preset
+
+    try {
+      const cloudinaryRes = await fetch(
+        'https://api.cloudinary.com/v1_1/dqboora0r/auto/upload', // Cloudinary API URL
+        {
+          method: 'POST',
+          body: uploadData,
+        }
+      );
+
+      const cloudinaryJson = await cloudinaryRes.json();
+      if (!cloudinaryRes.ok || !cloudinaryJson.secure_url) {
+        throw new Error(cloudinaryJson.error?.message || 'Cloudinary upload failed');
+      }
+
+      return cloudinaryJson.secure_url;
+    } catch (error) {
+      console.error('Cloudinary upload error:', error);
+      setError('Document upload failed');
+      setLoading(false);
+      return null;
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
+
+    // Collect form data
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
     formData.set('userId', userId);
     formData.set('spaceId', spaceId);
+
+    // Handle document file upload if a file is selected
+    const fileInput = form.querySelector<HTMLInputElement>('input[name="document"]');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const uploadedDocumentUrl = await handleFileUpload(file);
+      if (uploadedDocumentUrl) {
+        formData.set('documentUrl', uploadedDocumentUrl);
+      } else {
+        setLoading(false);
+        return; // If document upload fails, stop form submission
+      }
+    }
+
+    // Submit form to the backend
     const result = await createAgreement(formData);
     if (result.success) {
       router.push('/dashboard/agreements');
@@ -63,9 +112,9 @@ export default function AddAgreementPage() {
           <CardTitle>Create New Agreement</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {error && <p className="text-red-500 col-span-2">{error}</p>}
-            
+
             <div className="flex flex-col gap-2">
               <Label htmlFor="spaceId">Space</Label>
               <SearchableCombobox
@@ -163,6 +212,11 @@ export default function AddAgreementPage() {
                   <SelectItem value="INACTIVE">Inactive</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="document">Upload Agreement Document</Label>
+              <Input id="document" name="document" type="file" accept=".pdf,.doc,.docx,.jpg,.png" />
             </div>
 
             <div className="col-span-2 flex justify-end">
