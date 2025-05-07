@@ -1,5 +1,7 @@
 "use server"
 
+type SupportStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED"; // Define the SupportStatus type
+
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
@@ -166,22 +168,28 @@ export async function getSupportTicket(id: string) {
         }
 
         const ticket = await prisma.support.findUnique({
-            where: {
-                id,
-                clientId: session.user.id,
+          where: {
+            id,
+          },
+          include: {
+            space: {
+              select: {
+                spaceCode: true,
+                name: true,
+              },
             },
-            include: {
-                space: {
-                    select: {
-                        spaceCode: true,
-                        name: true,
-                    },
-                },
+            client: {
+              select: {
+                name: true,
+                email: true,
+              },
             },
+          },
         })
 
         if (!ticket) {
-            throw new Error("Ticket not found")
+          
+            return { success: false, error: "Ticket not found" }
         }
 
         return { success: true, ticket }
@@ -196,55 +204,38 @@ export async function getSupportTicket(id: string) {
 
 // Update Support Ticket
 export async function updateSupportTicket(id: string, formData: FormData) {
-    try {
-        const session = await getServerSession(authOptions)
-        if (!session?.user?.id) {
-            throw new Error("Unauthorized")
-        }
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) throw new Error("Unauthorized")
 
-        const title = formData.get("title") as string
-        const category = formData.get("category") as string
-        const priority = formData.get("priority") as string
-        const spaceId = formData.get("relatedSpace") as string | null
-        const description = formData.get("description") as string
-        const document = formData.get("attachments") as File | null
+    const status = formData.get("status") as SupportStatus
+    const priority = formData.get("priority") as string
+    const comment = formData.get("comment") as string
 
-        // Basic validation
-        if (!title || !category || !priority || !description) {
-            throw new Error("Missing required fields")
-        }
-
-        // Handle file upload if present
-        let documentPath: string | undefined
-        if (document && document.size > 0) {
-            documentPath = document.name
-        }
-
-        const supportTicket = await prisma.support.update({
-            where: {
-                id,
-                clientId: session.user.id,
-            },
-            data: {
-                subject: title,
-                message: description,
-                category,
-                priority,
-                spaceId: spaceId || undefined,
-                document: documentPath,
-            },
-        })
-
-        revalidatePath("/dashboard/support")
-        return { success: true, ticketId: supportTicket.id }
-    } catch (error) {
-        console.error("Error updating support ticket:", error)
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Failed to update ticket"
-        }
+    if (!status || !priority || !comment) {
+      throw new Error("Missing required fields")
     }
+
+    await prisma.support.update({
+      where: { id },
+      data: {
+        status: status as SupportStatus,
+        priority,
+        message: comment, 
+      },
+    })
+
+    revalidatePath(`/support/${id}`)
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating support ticket:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update ticket",
+    }
+  }
 }
+
 
 // Delete Support Ticket
 export async function deleteSupportTicket(id: string) {

@@ -129,13 +129,20 @@ function TicketTable({ tickets, showResolvedDate = false }: TicketTableProps) {
                         View details
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/support/${ticket.id}/edit`}>
+                      Edit
+                      </Link>
+                    </DropdownMenuItem>
                     {ticket.status !== "RESOLVED" && (
                       <>
                         <DropdownMenuSeparator />
+                        <Link href={`/dashboard/support/${ticket.id}/edit`}>
                         <DropdownMenuItem>Add comment</DropdownMenuItem>
                         <DropdownMenuItem className="text-red-600">
                           Close ticket
                         </DropdownMenuItem>
+                        </Link>
                       </>
                     )}
                   </DropdownMenuContent>
