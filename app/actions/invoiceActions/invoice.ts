@@ -17,6 +17,7 @@ const createInvoiceSchema = z.object({
   totalAmount: z.number().positive("Total amount must be positive"),
   dueDate: z.string().datetime({ message: "Invalid due date format" }),
   agreementId: z.string().cuid("Invalid agreement ID").optional(),
+  documentUrl: z.string().optional(),
 });
 
 // Schema for updating an invoice
@@ -31,6 +32,7 @@ const updateInvoiceSchema = z.object({
   totalAmount: z.number().positive("Total amount must be positive").optional(),
   dueDate: z.string().datetime({ message: "Invalid due date format" }).optional(),
   status: z.enum(["PAID", "PENDING", "OVERDUE"]).optional(),
+  documentUrl: z.string().optional(),
 });
 
 // Schema for deleting an invoice
@@ -51,6 +53,7 @@ export async function createInvoice(formData: FormData) {
       totalAmount: parseFloat(formData.get("totalAmount") as string),
       dueDate: formData.get("dueDate"),
       agreementId: formData.get("agreementId"), // Assuming agreementId is part of the form data
+      documentUrl: formData.get("documentUrl"),
     });
 
     // Validate totalAmount
@@ -85,8 +88,8 @@ export async function createInvoice(formData: FormData) {
     // Check if agreement exists (if applicable)
     const agreement = data.agreementId
       ? await prisma.agreement.findUnique({
-          where: { id: data.agreementId },
-        })
+        where: { id: data.agreementId },
+      })
       : null;
 
     if (data.agreementId && !agreement) {
@@ -105,13 +108,14 @@ export async function createInvoice(formData: FormData) {
         totalAmount: data.totalAmount,
         dueDate: new Date(data.dueDate),
         status: "PENDING",
-        agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined, 
+        agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined,
+        documentUrl: data.documentUrl
       },
     });
 
     // Optionally update the agreement or perform any other action
     if (agreement) {
-      
+
       await prisma.agreement.update({
         where: { id: agreement.id },
         data: {
@@ -303,6 +307,7 @@ export async function updateInvoice(formData: FormData) {
       totalAmount: formData.get("totalAmount") ? parseFloat(formData.get("totalAmount") as string) : undefined,
       dueDate: formData.get("dueDate"),
       status: formData.get("status"),
+      documentUrl: formData.get("documentUrl"),
     });
 
     // Validate totalAmount if provided
@@ -362,6 +367,7 @@ export async function updateInvoice(formData: FormData) {
         totalAmount: data.totalAmount,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         status: data.status,
+        documentUrl: data.documentUrl
       },
     });
 

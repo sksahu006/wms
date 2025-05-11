@@ -14,11 +14,13 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { updateInvoice } from "@/app/actions/invoiceActions/invoice"
+import { handleFileUpload } from "@/lib/handleFileUpload"
 
 export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [status, setStatus] = useState(invoice.status)
+  const [file, setFile] = useState<File | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -49,6 +51,18 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
       formData.append("totalAmount", (amount + tax).toString())
     } else {
       formData.append("totalAmount", amount.toString())
+    }
+
+    if (file) {
+      try {
+        const uploadedUrl = await handleFileUpload(file);
+        if (uploadedUrl) {
+          formData.append("documentUrl", uploadedUrl);
+        }
+      } catch (err) {
+        toast.error("Failed to upload document");
+        return;
+      }
     }
 
     // Submit update
@@ -127,6 +141,16 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
             </SelectContent>
           </Select>
           <input type="hidden" name="status" value={status} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="document">Upload New Document (optional)</Label>
+          <Input
+            id="document"
+            type="file"
+            accept="application/pdf,image/*"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
         </div>
 
         <Button type="submit" disabled={isPending} className="w-full">

@@ -22,6 +22,7 @@ interface InvoiceResponse {
     tax: number;
     totalAmount: number;
     date: Date;
+    documentUrl?: string | null;
     dueDate: Date;
     status: InvoiceStatus;
     client: { id: string; name: string | null };
@@ -104,11 +105,67 @@ export default function InvoiceDetailsPage() {
     );
   }
 
+  const renderDocument = (documentUrl: string | null | undefined) => {
+    if (!documentUrl) {
+      return <p className="text-gray-600 dark:text-gray-400">No document available</p>;
+    }
+
+    const fileExtension = documentUrl.split('.').pop()?.toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension || '');
+    const isPdf = fileExtension === 'pdf';
+
+    return (
+      <div className="mt-4">
+        {isImage && (
+          <div className="flex flex-col items-center">
+            <img
+              src={documentUrl}
+              alt="Invoice Document"
+              className="max-w-full h-auto rounded-lg shadow-md"
+              style={{ maxHeight: '500px' }}
+            />
+            <a href={documentUrl} download className="mt-4">
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Download className="mr-2 h-4 w-4" /> Download Image
+              </Button>
+            </a>
+          </div>
+        )}
+        {isPdf && (
+          <div className="flex flex-col items-center">
+            <iframe
+              src={documentUrl}
+              className="w-full h-[500px] border rounded-lg shadow-md"
+              title="Invoice PDF"
+            />
+            <a href={documentUrl} download className="mt-4">
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Download className="mr-2 h-4 w-4" /> Download PDF
+              </Button>
+            </a>
+          </div>
+        )}
+        {!isImage && !isPdf && (
+          <div className="flex flex-col items-center">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Document type not supported for preview
+            </p>
+            <a href={documentUrl} download>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Download className="mr-2 h-4 w-4" /> Download Document
+              </Button>
+            </a>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl  min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-3">
-         
+
         </div>
         <Button
           onClick={downloadPDF}
@@ -132,11 +189,10 @@ export default function InvoiceDetailsPage() {
               <p>
                 Status:{' '}
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                    invoice.status === 'PAID'
-                      ? 'bg-green-200 text-green-800'
-                      : 'bg-red-200 text-red-800'
-                  }`}
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${invoice.status === 'PAID'
+                    ? 'bg-green-200 text-green-800'
+                    : 'bg-red-200 text-red-800'
+                    }`}
                 >
                   {invoice.status}
                 </span>
@@ -195,11 +251,11 @@ export default function InvoiceDetailsPage() {
               </h3>
               <p className="text-gray-600">
                 <span className="font-medium">Issued:</span>{' '}
-                {formatToUTCISOString(new Date(invoice.date))}
+                {new Date(invoice.date).toLocaleDateString('en-IN', { dateStyle: "medium" })}
               </p>
               <p className="text-gray-600">
                 <span className="font-medium">Due:</span>{' '}
-                {formatToUTCISOString(new Date(invoice.dueDate))}
+                {new Date(invoice.dueDate).toLocaleDateString('en-IN', { dateStyle: "medium" })}
               </p>
             </div>
           </div>
@@ -223,6 +279,16 @@ export default function InvoiceDetailsPage() {
       <footer className="mt-8 text-center text-gray-500 text-sm">
         <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
       </footer>
+      <Card className="mt-8 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-gray-900">
+        <CardHeader className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+            <FileText className="mr-2 h-5 w-5" /> Invoice Document
+          </h2>
+        </CardHeader>
+        <CardContent className="p-6">
+          {renderDocument(invoice.documentUrl)}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { SpaceStatus, SpaceType } from "@prisma/client"
-import { createSpace, updateSpace, getSpaceById } from "@/app/actions/spaceActions/spaceActions"
+import { updateSpace, getSpaceById } from "@/app/actions/spaceActions/spaceActions"
+import { handleFileUpload } from "@/lib/handleFileUpload"
 type Params = {
   id: string;
   spaceId: string;
@@ -34,7 +35,6 @@ export default function WarehouseSpaceFormPage() {
   const [spaceData, setSpaceData] = useState<any | null>(null)
 
   const isEdit = !!spaceId
-  console.log(spaceData)
   useEffect(() => {
     if (isEdit) {
       getSpaceById(spaceId!).then(data => {
@@ -47,55 +47,67 @@ export default function WarehouseSpaceFormPage() {
   }, [spaceId])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    const formData = new FormData(e.currentTarget)
-    const images = formData.getAll('images') as File[]
-
-    const payload = {
-      warehouseId: id,
-      spaceCode: formData.get('spaceCode') as string,
-      name: formData.get('spaceName') as string,
-      type: formData.get('spaceType') as SpaceType || spaceData?.type,
-      size: parseFloat(formData.get('size') as string),
-      height: parseFloat(formData.get('height') as string),
-      location: formData.get('location') as string,
-      rate: parseFloat(formData.get('rate') as string) || undefined,
-      description: formData.get('description') as string || undefined,
-      status: formData.get('status') as SpaceStatus || spaceData?.status,
-
-      features: features,
-      images: images.length > 0 ? images.map((image) => image.name) : spaceData?.images || [],
-    }
+    e.preventDefault();
+    setIsLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const images = formData.getAll('images') as File[];
 
     try {
-      console.log({ ...payload })
-      const result = await updateSpace({ spaceId: spaceId!, ...payload })
+      // Upload new images to Cloudinary
+      const uploadedImageUrls: string[] = [];
+
+      for (const file of images) {
+        const imageUrl = await handleFileUpload(file);
+        if (imageUrl) {
+          uploadedImageUrls.push(imageUrl);
+        }
+      }
+
+      const payload = {
+        warehouseId: id,
+        spaceCode: formData.get('spaceCode') as string,
+        name: formData.get('spaceName') as string,
+        type: formData.get('spaceType') as SpaceType || spaceData?.type,
+        size: parseFloat(formData.get('size') as string),
+        height: parseFloat(formData.get('height') as string),
+        location: formData.get('location') as string,
+        rate: parseFloat(formData.get('rate') as string) || undefined,
+        description: formData.get('description') as string || undefined,
+        status: formData.get('status') as SpaceStatus || spaceData?.status,
+        features,
+        images:
+          uploadedImageUrls.length > 0
+            ? uploadedImageUrls
+            : spaceData?.images || [],
+      };
+
+
+      const result = await updateSpace({ spaceId: spaceId!, ...payload });
 
       if (result.success) {
         toast({
           title: isEdit ? "Space Updated" : "Space Added",
           description: `The warehouse space has been ${isEdit ? "updated" : "added"} successfully.`,
-        })
-        router.push(`/dashboard/warehouse/${id}`)
+        });
+        router.push(`/dashboard/warehouse/${id}`);
       } else {
-        console.log(result)
+        console.log(result);
         toast({
           variant: "destructive",
           title: "Error",
           description: result.error || "Failed to save space",
-        })
+        });
       }
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "An unexpected error occurred",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleFeatureToggle = (featureName: string, checked: boolean) => {
     if (checked) {

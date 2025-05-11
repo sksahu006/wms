@@ -200,6 +200,7 @@ model Invoice {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   status        InvoiceStatus @default(PENDING)
+  documentUrl   String?
 
   client    User       @relation("InvoiceClient", fields: [clientId], references: [id])
   space     Space      @relation("InvoiceSpace", fields: [spaceId], references: [id])

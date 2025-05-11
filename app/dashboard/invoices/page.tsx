@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
 import InvoiceSearchControls from "@/components/SearchComponent";
-import {  getInvoices } from "@/app/actions/invoiceActions/invoice";
+import { getInvoices } from "@/app/actions/invoiceActions/invoice";
 import { formatToUTCISOString } from "@/lib/formatToUTCISOString";
 import { getServerAuth } from "@/lib/auth";
 
@@ -123,14 +123,14 @@ export default async function InvoicesPage({
                         <TableCell>
                           <div>{invoice.client.name || invoice.client.id}</div>
                           <div className="text-sm text-muted-foreground">
-                            {formatToUTCISOString(new Date(invoice.date))}
+                            {new Date(invoice.date).toLocaleDateString("en-IN", { dateStyle: "medium" })}
                           </div>
                         </TableCell>
                         <TableCell>
                           ₹{invoice.totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                         </TableCell>
-                        <TableCell>{formatToUTCISOString(new Date(invoice.date))}</TableCell>
-                        <TableCell>{formatToUTCISOString(new Date(invoice.dueDate))}</TableCell>
+                        <TableCell>{new Date(invoice.date).toLocaleDateString("en-IN", { dateStyle: "medium" })}</TableCell>
+                        <TableCell>{new Date(invoice.dueDate).toLocaleDateString("en-IN", { dateStyle: "medium" })}</TableCell>
                         <TableCell>
                           <Badge
                             variant={

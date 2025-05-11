@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from 'lucide-react'
@@ -20,6 +20,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { SpaceStatus, SpaceType } from "@prisma/client"
 import { createSpace } from "@/app/actions/spaceActions/spaceActions"
+import { handleFileUpload } from "@/lib/handleFileUpload"
 
 export default function AddWarehouseSpacePage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -29,13 +30,22 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
   const [features, setFeatures] = useState<string[]>([])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
-    const formData = new FormData(e.currentTarget)
-    const images = formData.getAll('images') as File[]
+    const formData = new FormData(e.currentTarget);
+    const images = formData.getAll('images') as File[];
 
     try {
+      const uploadedImageUrls: string[] = [];
+
+      for (const file of images) {
+        const imageUrl = await handleFileUpload(file);
+        if (imageUrl) {
+          uploadedImageUrls.push(imageUrl);
+        }
+      }
+
       const result = await createSpace({
         warehouseId: id,
         spaceCode: formData.get('spaceCode') as string,
@@ -47,33 +57,33 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
         rate: parseFloat(formData.get('rate') as string) || undefined,
         description: formData.get('description') as string || undefined,
         status: formData.get('status') as SpaceStatus,
-        features: features,
-        images: images.length > 0 ? images.map((image) => image.name) : [],
-      })
+        features,
+        images: uploadedImageUrls,
+      });
 
       if (result.success) {
         toast({
           title: "Space Added",
           description: "The warehouse space has been added successfully.",
-        })
-        router.push(`/dashboard/warehouse/${params.id}`)
+        });
+        router.push(`/dashboard/warehouse/${id}`);
       } else {
         toast({
           variant: "destructive",
           title: "Error",
           description: result.error || "Failed to add space",
-        })
+        });
       }
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "An unexpected error occurred",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleFeatureToggle = (featureName: string, checked: boolean) => {
     if (checked) {
@@ -258,4 +268,3 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
     </div>
   )
 }
-//C:\Users\amdso\Desktop\warehse\wms\app\dashboard\warehouse\[id]\[spaceId]\edit\[spaceEditId]

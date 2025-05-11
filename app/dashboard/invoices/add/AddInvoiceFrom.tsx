@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getSpaces, getUsers } from "@/app/actions/clientActions/customer";
+import { getUsers } from "@/app/actions/clientActions/customer";
 import { createInvoice } from "@/app/actions/invoiceActions/invoice";
 import { SearchableCombobox } from "@/components/ui/SearchableCombobox";
-import { formatToUTCISOString } from "@/lib/formatToUTCISOString";
 import { getSpacesByAgreement } from "@/app/actions/aggrementActions/aggrements";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { handleFileUpload } from "@/lib/handleFileUpload";
 
 // Zod schema for form validation
 const formSchema = z.object({
@@ -66,7 +66,6 @@ export default function AddInvoiceForm() {
     }
 
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-    const [clientAgreements, setClientAgreements] = useState<{ id: string; name: string }[]>([]);
     const [availableSpaces, setAvailableSpaces] = useState<{ name: string | null; id: string; spaceCode: string; agreementId: string }[]>([])
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -143,12 +142,24 @@ export default function AddInvoiceForm() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true);
         try {
+            const formElement = document.querySelector("form");
+            const fileInput = formElement?.querySelector<HTMLInputElement>('input[name="document"]');
+            const file = fileInput?.files?.[0];
+
+            let uploadedUrl = "";
+
+            if (file) {
+                uploadedUrl = await handleFileUpload(file) || "";
+            }
             const formData = new FormData();
             Object.entries(values).forEach(([key, value]) => {
                 formData.append(key, value.toString());
             });
 
             formData.append("agreementId", agreementId);
+            if (uploadedUrl) {
+                formData.append("documentUrl", uploadedUrl ?? "");
+            }
             const result = await createInvoice(formData);
             if (result.success) {
                 toast({
@@ -178,7 +189,7 @@ export default function AddInvoiceForm() {
         const parsedDate = new Date(date);
         return parsedDate.toISOString().slice(0, 16);  // Strip milliseconds and timezone
     };
-    
+
 
     const handleGetAgreementId = async (spaceId: string) => {
         const selectedSpace = availableSpaces.find(space => space.id === spaceId);
@@ -240,48 +251,37 @@ export default function AddInvoiceForm() {
                     )}
                 />
 
-                {/* {selectedClient && clientAgreements.length > 0 && (
-                    <div>
-                        <h3 className="font-semibold">Succeeded Agreements:</h3>
-                        <ul>
-                            {clientAgreements.map((agreement) => (
-                                <li key={agreement.id}>{agreement.name}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )} */}
-
                 {selectedClient && (
                     <FormField
-                    control={form.control}
-                    name="spaceId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Space</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value)
-                              handleGetAgreementId(value)
-                            }}
-                            value={field.value}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select a space" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableSpaces.map((space) => (
-                                <SelectItem key={space.id} value={space.id}>
-                                  {space.name} ({space.spaceCode})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        control={form.control}
+                        name="spaceId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Space</FormLabel>
+                                <FormControl>
+                                    <Select
+                                        onValueChange={(value) => {
+                                            field.onChange(value)
+                                            handleGetAgreementId(value)
+                                        }}
+                                        value={field.value}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select a space" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {availableSpaces.map((space) => (
+                                                <SelectItem key={space.id} value={space.id}>
+                                                    {space.name} ({space.spaceCode})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 )}
 
 
@@ -390,6 +390,15 @@ export default function AddInvoiceForm() {
                         </FormItem>
                     )}
                 />
+                <div className="space-y-2">
+                    <FormLabel>Upload Invoice Document</FormLabel>
+                    <Input
+                        type="file"
+                        accept="application/pdf,image/*"
+                        name="document"
+                    />
+                </div>
+
 
                 {/* Buttons */}
                 <div className="flex gap-4">
