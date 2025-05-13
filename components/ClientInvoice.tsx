@@ -39,7 +39,7 @@ export default async function Invoice({ clientId, searchParams }: { clientId: st
         </TableHeader>
         <TableBody>
           {invoices.length > 0 ? (
-            invoices.map((invoice:any) => (
+            invoices.map((invoice: any) => (
               <TableRow key={invoice.id}>
                 <TableCell className="font-medium">{invoice.id}</TableCell>
                 <TableCell>{invoice.amount}</TableCell>
@@ -71,7 +71,7 @@ export default async function Invoice({ clientId, searchParams }: { clientId: st
         </TableBody>
       </Table>
 
-      <div className="pagination mt-4 flex gap-4 items-center">
+      {/* <div className="pagination mt-4 flex gap-4 items-center">
         <Link
           href={`?page=${page - 1}`}
           className={`btn-prev ${page === 1 ? "pointer-events-none opacity-50" : ""}`}
@@ -85,7 +85,25 @@ export default async function Invoice({ clientId, searchParams }: { clientId: st
         >
           Next
         </Link>
+      </div> */}
+      <div className="pagination mt-4 flex gap-4 items-center">
+        <Link
+          href={`?page=${page - 1}`}
+          className={`btn-prev ${page === 1 ? "pointer-events-none opacity-50 bg-gradient-to-r from-purple-300 to-pink-300" : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"} px-4 py-2 rounded-md transition-colors duration-200`}
+        >
+          Previous
+        </Link>
+
+        <span className="text-lg">{`Page ${page} of ${totalPages}`}</span>
+
+        <Link
+          href={`?page=${page + 1}`}
+          className={`btn-next ${page === totalPages ? "pointer-events-none opacity-50 bg-gradient-to-r from-green-300 to-blue-300" : "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"} px-4 py-2 rounded-md transition-colors duration-200`}
+        >
+          Next
+        </Link>
       </div>
+
     </div>
   );
 }

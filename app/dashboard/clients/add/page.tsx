@@ -202,14 +202,37 @@ export default function AddClientPage() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-between">
+          {/* <CardFooter className="flex justify-between">
             <Button variant="outline" type="button" asChild>
               <Link href="/dashboard/clients">Cancel</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Adding..." : "Add Client"}
             </Button>
+          </CardFooter> */}
+
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              asChild
+              className="border-none text-white bg-gradient-to-r from-gray-300 to-gray-500 hover:from-gray-400 hover:to-gray-600"
+            >
+              <Link href="/dashboard/clients">Cancel</Link>
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`border-none text-white ${isLoading
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600'
+                }`}
+            >
+              {isLoading ? "Adding..." : "Add Client"}
+            </Button>
           </CardFooter>
+
         </form>
       </Card>
     </div>

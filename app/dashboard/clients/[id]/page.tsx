@@ -5,25 +5,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table"
 import { getClientDetails } from "@/app/actions/clientActions/customer"
 import { ClientTabs } from "./clientTabs"
 
 export default async function ClientDetailsPage({ params }: { params: { id: string } }) {
-  
+
   const { success, client, error } = await getClientDetails(params?.id);
 
-  
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
           <Link href="/dashboard/clients">
             <ArrowLeft className="h-4 w-4" />
@@ -37,8 +37,36 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
             Edit Client
           </Link>
         </Button>
+      </div> */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          asChild
+          className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 border-none"
+        >
+          <Link href="/dashboard/clients">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back</span>
+          </Link>
+        </Button>
+
+        <h1 className="text-2xl font-bold tracking-tight">Client Details</h1>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 border-none"
+          asChild
+        >
+          <Link href={`/dashboard/clients/${params?.id}/edit`}>
+            <Edit className="mr-2 h-4 w-4 text-white" />
+            Edit Client
+          </Link>
+        </Button>
       </div>
-      
+
+
       <div className="grid gap-4 md:grid-cols-7">
         <Card className="md:col-span-3">
           <CardHeader>
@@ -49,15 +77,15 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                   client?.status === "ACTIVE"
                     ? "default"
                     : client?.status === "PENDING"
-                    ? "outline"
-                    : "secondary"
+                      ? "outline"
+                      : "secondary"
                 }
                 className={
                   client?.status === "ACTIVE"
                     ? "bg-green-500"
                     : client?.status === "PENDING"
-                    ? "border-yellow-500 text-yellow-500"
-                    : ""
+                      ? "border-yellow-500 text-yellow-500"
+                      : ""
                 }
               >
                 {client?.status}
@@ -95,7 +123,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                 <span>Joined: {client?.joinedDate}</span>
               </div>
             </div>
-            
+
             <div className="pt-2">
               <h3 className="text-sm font-medium mb-2">Business Details</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -109,7 +137,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                 </div>
               </div>
             </div>
-            
+
             {client?.notes && (
               <div className="pt-2">
                 <h3 className="text-sm font-medium mb-2">Notes</h3>
@@ -123,10 +151,10 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
             <CardTitle>Client Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <ClientTabs clientId={params?.id} /> 
+            <ClientTabs clientId={params?.id} />
           </CardContent>
         </Card>
-        
+
         {/* <Card className="md:col-span-4">
           <CardHeader>
             <CardTitle>Client Activity</CardTitle>

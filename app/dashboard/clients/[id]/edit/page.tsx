@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -23,17 +23,17 @@ import { ClientDetails } from "@/lib/types"
 
 
 export default function EditClientPage() {
-const { id } = useParams<{ id: string }>();
-const router = useRouter();
-const { toast } = useToast();
-const [isLoading, setIsLoading] = useState(false);
-const [client, setClient] = useState<ClientDetails | null>(null);
-const [error, setError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [client, setClient] = useState<ClientDetails | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-useEffect(() => {
+  useEffect(() => {
     const fetchClientDetails = async () => {
       try {
-        const { success, client} = await getClientDetails(id)
+        const { success, client } = await getClientDetails(id)
         console.log(client)
         if (success) {
           setClient(client)
@@ -69,23 +69,23 @@ useEffect(() => {
 
     try {
       console.log(updatedClient)
-  
-       const result= await updateClient( updatedClient)
-       if (!result.success) {
+
+      const result = await updateClient(updatedClient)
+      if (!result.success) {
         toast({
           title: "Update Failed",
           description: "There was an error updating the client details.",
           variant: "destructive",
         })
-        throw new Error(result.error)    
+        throw new Error(result.error)
 
-       }   
+      }
 
       toast({
         title: "Client Updated",
         description: "The client information has been updated successfully.",
       })
-      
+
       router.push(`/dashboard/clients/${id}`)
     } catch (error) {
       console.log(error)
@@ -98,7 +98,7 @@ useEffect(() => {
       setIsLoading(false)
     }
   }
-  
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -110,7 +110,7 @@ useEffect(() => {
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Edit Client</h1>
       </div>
-      
+
       <Card>
         <form onSubmit={handleSubmit}>
           <CardHeader>
@@ -120,40 +120,40 @@ useEffect(() => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
-              <Input id="companyName" name="companyName" defaultValue={client?.name ?? ""}  />
+              <Input id="companyName" name="companyName" defaultValue={client?.name ?? ""} />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="contactName">Contact Person</Label>
-                <Input id="contactName" name="contactName" defaultValue={client?.contact ?? ""}  />
+                <Input id="contactName" name="contactName" defaultValue={client?.contact ?? ""} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="position">Position</Label>
-                <Input id="position" name="position" defaultValue={client?.position ?? ""}  />
+                <Input id="position" name="position" defaultValue={client?.position ?? ""} />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" defaultValue={client?.email ?? ""}  />
+                <Input id="email" name="email" type="email" defaultValue={client?.email ?? ""} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" name="phone" defaultValue={client?.phone ?? ""}  />
+                <Input id="phone" name="phone" defaultValue={client?.phone ?? ""} />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="address">Business Address</Label>
-              <Textarea id="address" name="address" defaultValue={client?.address ?? ""}  />
+              <Textarea id="address" name="address" defaultValue={client?.address ?? ""} />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="businessType">Business Type</Label>
-                <Select  name="businessType" defaultValue={client?.businessType || "retail"}  required>
+                <Select name="businessType" defaultValue={client?.businessType || "retail"} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -168,13 +168,13 @@ useEffect(() => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="taxId">Tax ID / Business Number</Label>
-                <Input id="taxId" name="taxId"  className="text-white" defaultValue={(client?.taxId) ?? "" }  />
+                <Input id="taxId" name="taxId" className="text-white" defaultValue={(client?.taxId) ?? ""} />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select  name="status" defaultValue={client?.status ?? "ACTIVE"} required>
+              <Select name="status" defaultValue={client?.status ?? "ACTIVE"} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -185,25 +185,47 @@ useEffect(() => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
-              <Textarea 
-                id="notes" 
-                name="notes" 
-                defaultValue={client?.notes ?? "" }
+              <Textarea
+                id="notes"
+                name="notes"
+                defaultValue={client?.notes ?? ""}
                 placeholder="Additional notes about this client"
               />
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          {/* <CardFooter className="flex justify-between">
             <Button variant="outline" type="button" asChild>
               <Link href={`/dashboard/clients/${id}`}>Cancel</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Updating..." : "Update Client"}
             </Button>
+          </CardFooter> */}
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              asChild
+              className="border-none text-white bg-gradient-to-r from-gray-300 to-gray-500 hover:from-gray-400 hover:to-gray-600"
+            >
+              <Link href={`/dashboard/clients/${id}`}>Cancel</Link>
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`border-none text-white ${isLoading
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600'
+                }`}
+            >
+              {isLoading ? "Updating..." : "Update Client"}
+            </Button>
           </CardFooter>
+
         </form>
       </Card>
     </div>

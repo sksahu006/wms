@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { createWarehouse } from '@/app/actions/warehouseActions/warehouseActions';
-import { useSession } from 'next-auth/react'; 
+import { useSession } from 'next-auth/react';
 
 // Define schema (same as server-side)
 const warehouseSchema = z.object({
@@ -50,7 +50,7 @@ export default function AddWarehousePage() {
   const onSubmit = async (data: WarehouseFormData) => {
     const formData = new FormData();
     Object.entries({ ...data, managerId }).forEach(([key, value]) => {
-      formData.append(key,value?.toString() ?? '');
+      formData.append(key, value?.toString() ?? '');
     });
 
     const res = await createWarehouse(formData);
@@ -132,14 +132,36 @@ export default function AddWarehousePage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          {/* <CardFooter className="flex justify-between">
             <Button variant="outline" type="button" asChild>
               <Link href="/dashboard/warehouse">Cancel</Link>
             </Button>
             <Button type="submit" disabled={isSubmitting || !managerId}>
               {isSubmitting ? 'Adding...' : 'Add Warehouse'}
             </Button>
+          </CardFooter> */}
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              asChild
+              className="border-none text-white bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700"
+            >
+              <Link href="/dashboard/warehouse">Cancel</Link>
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting || !managerId}
+              className={`border-none text-white ${isSubmitting || !managerId
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                }`}
+            >
+              {isSubmitting ? 'Adding...' : 'Add Warehouse'}
+            </Button>
           </CardFooter>
+
         </form>
       </Card>
     </div>

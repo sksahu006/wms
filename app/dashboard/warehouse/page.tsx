@@ -209,10 +209,10 @@ export default function WarehousePage() {
                       <TableCell>{wrh.spaces?.length || 0}</TableCell>
                       <TableCell>
                         {/* {wrh.spaces?.filter((s: any) => s.status === 'Occupied').length || 0} */}
-                        {wrh._count.spaces  || 0}
+                        {wrh._count.spaces || 0}
                       </TableCell>
                       <TableCell>{wrh.manager?.name || 'N/A'}</TableCell>
-                      <TableCell className="text-right space-x-2">
+                      {/* <TableCell className="text-right space-x-2">
                         <Link href={`/dashboard/warehouse/${wrh.id}`}>
                           <Button variant="outline" size="sm" className='text-xs'>
                             View Spaces
@@ -223,7 +223,30 @@ export default function WarehousePage() {
                            <Edit className='size-2 text-green-500'/> Edit
                           </Button>
                         </Link>
+                      </TableCell> */}
+                      <TableCell className="text-right space-x-2">
+                        <Link href={`/dashboard/warehouse/${wrh.id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 border-none"
+                          >
+                            View Spaces
+                          </Button>
+                        </Link>
+
+                        <Link href={`/dashboard/warehouse/edit/${wrh.id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-900 hover:to-emerald-600 border-none "
+                          >
+                            <Edit className="size-3 text-white" />
+                            Edit
+                          </Button>
+                        </Link>
                       </TableCell>
+
 
                     </TableRow>
                   ))}
@@ -236,7 +259,7 @@ export default function WarehousePage() {
                   Showing {(page - 1) * limit + 1} to{' '}
                   {Math.min(page * limit, totalItems)} of {totalItems} warehouses
                 </div>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -253,7 +276,35 @@ export default function WarehousePage() {
                   >
                     Next
                   </Button>
+                </div> */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                    className={`border-none text-white ${page === 1
+                        ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      }`}
+                  >
+                    Previous
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page >= totalPages}
+                    className={`border-none text-white ${page >= totalPages
+                        ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      }`}
+                  >
+                    Next
+                  </Button>
                 </div>
+
               </div>
             </>
           )}

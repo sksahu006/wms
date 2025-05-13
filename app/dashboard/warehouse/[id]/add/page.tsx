@@ -253,7 +253,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
               </p>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          {/* <CardFooter className="flex justify-between">
             <Button variant="outline" type="button" asChild>
               <Link href={`/dashboard/warehouse/${id}`}>
                 Cancel
@@ -262,7 +262,31 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Adding..." : "Add Space"}
             </Button>
+          </CardFooter> */}
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              asChild
+              className="border-none text-white bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700"
+            >
+              <Link href={`/dashboard/warehouse/${id}`}>
+                Cancel
+              </Link>
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`border-none text-white ${isLoading
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                }`}
+            >
+              {isLoading ? "Adding..." : "Add Space"}
+            </Button>
           </CardFooter>
+
         </form>
       </Card>
     </div>

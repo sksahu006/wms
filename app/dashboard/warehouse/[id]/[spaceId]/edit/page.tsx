@@ -291,7 +291,7 @@ export default function WarehouseSpaceFormPage() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-between">
+          {/* <CardFooter className="flex justify-between">
             <Button variant="outline" type="button" asChild>
               <Link href={`/dashboard/warehouse/${id}`}>
                 Cancel
@@ -300,7 +300,37 @@ export default function WarehouseSpaceFormPage() {
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (isEdit ? "Updating..." : "Adding...") : (isEdit ? "Update Space" : "Add Space")}
             </Button>
+          </CardFooter> */}
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              asChild
+              className="border-none text-white bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700"
+            >
+              <Link href={`/dashboard/warehouse/${id}`}>
+                Cancel
+              </Link>
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`border-none text-white ${isLoading
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600'
+                }`}
+            >
+              {isLoading
+                ? isEdit
+                  ? "Updating..."
+                  : "Adding..."
+                : isEdit
+                  ? "Update Space"
+                  : "Add Space"}
+            </Button>
           </CardFooter>
+
         </form>
       </Card>
     </div>

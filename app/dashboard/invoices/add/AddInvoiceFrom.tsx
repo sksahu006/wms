@@ -401,7 +401,7 @@ export default function AddInvoiceForm() {
 
 
                 {/* Buttons */}
-                <div className="flex gap-4">
+                {/* <div className="flex gap-4">
                     <Button type="submit" disabled={isSubmitting}>
                         {isSubmitting ? (
                             <>
@@ -420,7 +420,41 @@ export default function AddInvoiceForm() {
                     >
                         Cancel
                     </Button>
+                </div> */}
+
+                <div className="flex gap-4">
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`border-none text-white flex items-center ${isSubmitting
+                                ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600'
+                            }`}
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            "Create Invoice"
+                        )}
+                    </Button>
+
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.push("/dashboard/invoices")}
+                        disabled={isSubmitting}
+                        className={`border-none text-white ${isSubmitting
+                                ? 'bg-gradient-to-r from-gray-300 to-gray-400 opacity-50 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700'
+                            }`}
+                    >
+                        Cancel
+                    </Button>
                 </div>
+
             </form>
         </Form >
     );
