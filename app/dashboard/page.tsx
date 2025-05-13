@@ -288,13 +288,13 @@ export default async function DashboardPage({
         <h1 className="text-3xl font-bold  dark:text-gray-100">Dashboard Overview</h1>
         <Badge variant="outline" className="bg-green-100 text-green-800">
           <CheckCircle2 className="h-4 w-4 mr-2 ml-3" />
-            Operational
+          Operational
         </Badge>
       </div>
 
       <Tabs defaultValue="overview">
         {/* <TabsList className="bg-blue-900"> */}
-         <TabsList className="">
+        <TabsList className="">
           <TabsTrigger className="text-white" value="overview">Overview</TabsTrigger>
           <TabsTrigger className="text-white" value="analytics">Analytics</TabsTrigger>
           <TabsTrigger className="text-white" value="reports">Reports</TabsTrigger>
@@ -337,8 +337,8 @@ export default async function DashboardPage({
               </CardHeader>
               <CardContent>
                 <div className="h-2 bg-gray-200 rounded-full">
-                  <div 
-                    className="h-2 bg-purple-600 rounded-full transition-all duration-500" 
+                  <div
+                    className="h-2 bg-purple-600 rounded-full transition-all duration-500"
                     style={{ width: `${overview.warehouseUtilization.percentage}%` }}
                   />
                 </div>
@@ -413,21 +413,21 @@ export default async function DashboardPage({
                 {recentActivities.map((activity: any) => (
                   <div key={activity.id} className="flex items-start group">
                     <div className={`p-2 rounded-lg mr-4 bg-${activity.iconColor}-100`}>
-                        {activity.icon === "AlertTriangle" && <AlertTriangle className={`h-4 w-4 text-${activity.iconColor}-600`} />}
-                        {activity.icon === "CheckCircle2" && <CheckCircle2 className={`h-4 w-4 text-${activity.iconColor}-600`} />}
-                        {activity.icon === "Clock" && <Clock className={`h-4 w-4 text-${activity.iconColor}-600`} />}
-                        {activity.icon === "Package" && <Package className={`h-4 w-4 text-${activity.iconColor}-600`} />}
-                        {activity.icon === "Building2" && <Building2 className={`h-4 w-4 text-${activity.iconColor}-600`} />}
-                        {activity.icon === "Wrench" && <Wrench className={`h-4 w-4 text-${activity.iconColor}-600`} />}
+                      {activity.icon === "AlertTriangle" && <AlertTriangle className={`h-4 w-4 text-${activity.iconColor}-600`} />}
+                      {activity.icon === "CheckCircle2" && <CheckCircle2 className={`h-4 w-4 text-${activity.iconColor}-600`} />}
+                      {activity.icon === "Clock" && <Clock className={`h-4 w-4 text-${activity.iconColor}-600`} />}
+                      {activity.icon === "Package" && <Package className={`h-4 w-4 text-${activity.iconColor}-600`} />}
+                      {activity.icon === "Building2" && <Building2 className={`h-4 w-4 text-${activity.iconColor}-600`} />}
+                      {activity.icon === "Wrench" && <Wrench className={`h-4 w-4 text-${activity.iconColor}-600`} />}
                     </div>
                     <div className="flex-1">
                       <Link href={activity.link} className="text-sm font-medium hover:text-blue-600 transition-colors">
                         {activity.message}
                       </Link>
                       <p className="text-xs text-gray-500 mt-1">
-                        {new Date(activity.createdAt).toLocaleDateString("en-IN", { 
-                          year: 'numeric', 
-                          month: 'short', 
+                        {new Date(activity.createdAt).toLocaleDateString("en-IN", {
+                          year: 'numeric',
+                          month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
@@ -518,15 +518,15 @@ export default async function DashboardPage({
                       <div className={`p-2 rounded-lg mr-4 bg-${notification.iconColor}-100`}>
                         {notification.icon === "AlertTriangle" && <AlertTriangle className={`h-5 w-5 text-${notification.iconColor}-600`} />}
                         {notification.icon === "CheckCircle2" && <CheckCircle2 className={`h-5 w-5 text-${notification.iconColor}-600`} />}
-                        
+
                       </div>
                       <div>
                         <Link href={notification.link} className="text-sm font-medium hover:text-blue-600">
                           {notification.message}
                         </Link>
                         <div className="text-xs text-gray-500 mt-1">
-                          {new Date(notification.createdAt).toLocaleDateString("en-IN", { 
-                            dateStyle: "long" 
+                          {new Date(notification.createdAt).toLocaleDateString("en-IN", {
+                            dateStyle: "long"
                           })}
                         </div>
                       </div>
