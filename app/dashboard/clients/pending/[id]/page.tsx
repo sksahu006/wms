@@ -27,7 +27,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
   const [isLoading, setIsLoading] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
-  
+
   // In a real app, you would fetch client data based on the ID
   const client = {
     id: params.id,
@@ -48,10 +48,10 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
       { name: "Insurance Certificate", file: "insurance.pdf" },
     ]
   }
-  
+
   const handleApprove = () => {
     setIsLoading(true)
-    
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
@@ -62,10 +62,10 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
       router.push("/dashboard/clients/pending")
     }, 1500)
   }
-  
+
   const handleReject = () => {
     setIsLoading(true)
-    
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
@@ -77,7 +77,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
       router.push("/dashboard/clients/pending")
     }, 1500)
   }
-  
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -111,7 +111,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                   className="min-h-[100px]"
                 />
               </div>
-              <DialogFooter>
+              {/* <DialogFooter>
                 <Button variant="outline" onClick={() => setIsRejectDialogOpen(false)}>
                   Cancel
                 </Button>
@@ -122,17 +122,39 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                 >
                   {isLoading ? "Rejecting..." : "Confirm Rejection"}
                 </Button>
+              </DialogFooter> */}
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsRejectDialogOpen(false)}
+                  className="border-none text-white bg-gradient-to-r from-gray-300 to-gray-500 hover:from-gray-400 hover:to-gray-600"
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  onClick={handleReject}
+                  disabled={isLoading || !rejectReason.trim()}
+                  className={`border-none text-white ${isLoading || !rejectReason.trim()
+                      ? 'bg-gradient-to-r from-red-300 to-red-500 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900'
+                    }`}
+                >
+                  {isLoading ? "Rejecting..." : "Confirm Rejection"}
+                </Button>
               </DialogFooter>
+
             </DialogContent>
           </Dialog>
-          
+
           <Button onClick={handleApprove} disabled={isLoading}>
             <CheckCircle2 className="mr-2 h-4 w-4" />
             {isLoading ? "Approving..." : "Approve Client"}
           </Button>
         </div>
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-7">
         <Card className="md:col-span-3">
           <CardHeader>
@@ -178,7 +200,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                 <span>Submitted: {client.submittedDate}</span>
               </div>
             </div>
-            
+
             <div className="pt-2">
               <h3 className="text-sm font-medium mb-2">Business Details</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -192,7 +214,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                 </div>
               </div>
             </div>
-            
+
             {client.requirements && (
               <div className="pt-2">
                 <h3 className="text-sm font-medium mb-2">Storage Requirements</h3>
@@ -201,7 +223,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
             )}
           </CardContent>
         </Card>
-        
+
         <Card className="md:col-span-4">
           <CardHeader>
             <CardTitle>Registration Documents</CardTitle>
@@ -215,7 +237,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                 <TabsTrigger value="documents">Documents</TabsTrigger>
                 <TabsTrigger value="verification">Verification</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="documents">
                 <div className="space-y-4">
                   {client.documents.map((doc, index) => (
@@ -232,7 +254,7 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                   ))}
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="verification">
                 <div className="space-y-4">
                   <div className="p-4 border rounded-md">
@@ -260,10 +282,10 @@ export default function PendingClientDetailsPage({ params }: { params: { id: str
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="p-4 border rounded-md">
                     <h3 className="font-medium mb-2">Notes</h3>
-                    <Textarea 
+                    <Textarea
                       placeholder="Add verification notes here..."
                       className="min-h-[100px]"
                     />

@@ -31,7 +31,7 @@ export default function NewSupportTicketPage() {
   const session = useSession()
 
   const fetchSpaces = async (search: string) => {
-    const spacesResult = await getSpaces({ page: 1, pageSize: 10, search,clientId: session.data?.user.id })
+    const spacesResult = await getSpaces({ page: 1, pageSize: 10, search, clientId: session.data?.user.id })
     if (spacesResult.success) {
       return spacesResult.data.map((space) => ({
         id: space.id,
@@ -175,14 +175,37 @@ export default function NewSupportTicketPage() {
               <p className="text-xs text-muted-foreground">Upload any relevant files or images</p>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          {/* <CardFooter className="flex justify-between">
             <Button variant="outline" type="button" asChild>
               <Link href="/dashboard/support">Cancel</Link>
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Creating..." : "Create Ticket"}
             </Button>
+          </CardFooter> */}
+
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              asChild
+              className="border-none text-white bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700"
+            >
+              <Link href="/dashboard/support">Cancel</Link>
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`border-none text-white ${isLoading
+                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600'
+                }`}
+            >
+              {isLoading ? "Creating..." : "Create Ticket"}
+            </Button>
           </CardFooter>
+
         </form>
       </Card>
     </div>

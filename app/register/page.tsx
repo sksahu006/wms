@@ -243,14 +243,36 @@ export default function RegisterPage() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
+            {/* <CardFooter className="flex justify-between">
               <Button variant="outline" type="button" asChild>
                 <Link href="/">Cancel</Link>
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Submitting..." : "Submit Registration"}
               </Button>
+            </CardFooter> */}
+            <CardFooter className="flex justify-between">
+              <Button
+                variant="outline"
+                type="button"
+                asChild
+                className="border-none text-white bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700"
+              >
+                <Link href="/">Cancel</Link>
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className={`border-none text-white ${isLoading
+                    ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600'
+                  }`}
+              >
+                {isLoading ? "Submitting..." : "Submit Registration"}
+              </Button>
             </CardFooter>
+
           </form>
         </Card>
 

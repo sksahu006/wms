@@ -31,7 +31,7 @@ export default async function ClientsPage({
     return (
       <div className="flex flex-col gap-4 p-4">
         <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
-        <Card>
+        <Card className=''>
           <CardHeader>
             <CardTitle>Client Management</CardTitle>
             <CardDescription>View and manage all registered clients</CardDescription>
@@ -51,22 +51,22 @@ export default async function ClientsPage({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
         <div className='flex gap-2'>
-        <Button asChild>
-          <Link href="/dashboard/clients/pending">
-            <Clock className="mr-2 h-4 w-4" />
-            Pending Client <span className='text-red-500'> ({pendingClientsCount})</span>
-          </Link>
-        </Button>
-        <Button asChild>
-          <Link href="/dashboard/clients/add">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Client
-          </Link>
-        </Button>
+          <Button asChild>
+            <Link href="/dashboard/clients/pending">
+              <Clock className="mr-2 h-4 w-4" />
+              Pending Client <span className='text-red-500'> ({pendingClientsCount})</span>
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard/clients/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Client
+            </Link>
+          </Button>
         </div>
       </div>
 
-      <Card>
+      <Card className=''>
         <CardHeader>
           <CardTitle>Client Management</CardTitle>
           <CardDescription>View and manage all registered clients</CardDescription>
@@ -103,8 +103,8 @@ export default async function ClientsPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clients?.map((client : any) => (
-                
+                {clients?.map((client: any) => (
+
                   <TableRow key={client.id}>
                     <TableCell className="font-medium">{client.id}</TableCell>
                     <TableCell>
@@ -169,7 +169,7 @@ export default async function ClientsPage({
                 Showing {(pagination.page - 1) * pagination.pageSize + 1} to{' '}
                 {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total} clients
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -190,7 +190,33 @@ export default async function ClientsPage({
                     Next
                   </Link>
                 </Button>
+              </div> */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  disabled={pagination.page <= 1}
+                  className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-none disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <Link href={`?page=${pagination.page - 1}`}>
+                    Previous
+                  </Link>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={`bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600 border-none disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <Link href={`?page=${pagination.page + 1}`}>
+                    Next
+                  </Link>
+                </Button>
               </div>
+
             </div>
           )}
         </CardContent>

@@ -160,14 +160,36 @@ export default function EditWarehousePage() {
                             </div>
                         </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between">
+                    {/* <CardFooter className="flex justify-between">
                         <Button variant="outline" type="button" asChild>
                             <Link href="/dashboard/warehouse">Cancel</Link>
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Updating...' : 'Update Warehouse'}
                         </Button>
+                    </CardFooter> */}
+                    <CardFooter className="flex justify-between">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            asChild
+                            className="border-none text-white bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700"
+                        >
+                            <Link href="/dashboard/warehouse">Cancel</Link>
+                        </Button>
+
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={`border-none text-white ${isSubmitting
+                                    ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600'
+                                }`}
+                        >
+                            {isSubmitting ? 'Updating...' : 'Update Warehouse'}
+                        </Button>
                     </CardFooter>
+
                 </form>
             </Card>
         </div>

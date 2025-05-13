@@ -47,21 +47,21 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
   const agreements: Agreement[] = result.success ? result.agreements || [] : [];
   const pagination: Pagination = result.success
     ? result.pagination || {
-        totalItems: 0,
-        totalPages: 0,
-        currentPage: 1,
-        itemsPerPage: 10,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      }
+      totalItems: 0,
+      totalPages: 0,
+      currentPage: 1,
+      itemsPerPage: 10,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    }
     : {
-        totalItems: 0,
-        totalPages: 0,
-        currentPage: 1,
-        itemsPerPage: 10,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      };
+      totalItems: 0,
+      totalPages: 0,
+      currentPage: 1,
+      itemsPerPage: 10,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    };
   const error = result.success ? null : result.error || 'Failed to fetch agreements';
 
   return (
@@ -105,7 +105,7 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                       <TableCell>{agreement.areaSqft}</TableCell>
                       <TableCell> ₹{agreement.monthlyRentAmount}</TableCell>
                       <TableCell>{agreement.status}</TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <Link href={`/dashboard/agreements/${agreement.id}`}>
                           <Button variant="link">View</Button>
                         </Link>
@@ -114,7 +114,29 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                             Edit <Edit className="text-green-300" />
                           </Button>
                         </Link>}
+                      </TableCell> */}
+                      <TableCell className="space-x-2 text-right">
+                        <Link href={`/dashboard/agreements/${agreement.id}`}>
+                          <Button
+                            variant="link"
+                            className="text-blue-600 hover:text-blue-800 font-semibold"
+                          >
+                            View
+                          </Button>
+                        </Link>
+
+                        {session && session.user.role === 'ADMIN' && (
+                          <Link href={`/dashboard/agreements/${agreement.id}/edit`}>
+                            <Button
+                              variant="link"
+                              className="text-green-600 hover:text-green-800 font-semibold "
+                            >
+                              Edit <Edit className="text-green-400 size-4" />
+                            </Button>
+                          </Link>
+                        )}
                       </TableCell>
+
                     </TableRow>
                   ))}
                 </TableBody>
@@ -125,7 +147,7 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                 <div className="text-sm text-muted-foreground">
                   Page {pagination.currentPage} of {pagination.totalPages} (Total: {pagination.totalItems} agreements)
                 </div>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -144,7 +166,38 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                       Next
                     </Link>
                   </Button>
+                </div> */}
+                <div className="flex items-center gap-2">
+                  <Link href={`/dashboard/agreements?page=${pagination.currentPage - 1}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!pagination.hasPreviousPage}
+                      className={`text-white border-none ${!pagination.hasPreviousPage
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 !text-white hover:from-purple-600 hover:to-pink-600 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                        }`}
+                    >
+                      Previous
+                    </Button>
+                  </Link>
+
+                  <Link href={`/dashboard/agreements?page=${pagination.currentPage + 1}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!pagination.hasNextPage}
+                      className={`text-white border-none ${!pagination.hasNextPage
+                          ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white disabled:opacity-50 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                        }`}
+                    >
+                      Next
+                    </Button>
+                  </Link>
                 </div>
+
+
               </div>
             </>
           )}

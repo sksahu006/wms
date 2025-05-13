@@ -3,21 +3,21 @@ import { CheckCircle2, Clock, MessageSquare, MoreHorizontal, Plus, Search, Slide
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,8 +74,8 @@ function TicketTable({ tickets, showResolvedDate = false }: TicketTableProps) {
                     ticket.priority === "HIGH"
                       ? "border-red-500 text-red-500"
                       : ticket.priority === "MEDIUM"
-                      ? "border-yellow-500 text-yellow-500"
-                      : "border-blue-500 text-blue-500"
+                        ? "border-yellow-500 text-yellow-500"
+                        : "border-blue-500 text-blue-500"
                   }
                 >
                   {ticket.priority}
@@ -90,15 +90,15 @@ function TicketTable({ tickets, showResolvedDate = false }: TicketTableProps) {
                       ticket.status === "RESOLVED"
                         ? "default"
                         : ticket.status === "IN_PROGRESS"
-                        ? "outline"
-                        : "secondary"
+                          ? "outline"
+                          : "secondary"
                     }
                     className={
                       ticket.status === "RESOLVED"
                         ? "bg-green-500"
                         : ticket.status === "IN_PROGRESS"
-                        ? "border-yellow-500 text-yellow-500"
-                        : "bg-blue-500"
+                          ? "border-yellow-500 text-yellow-500"
+                          : "bg-blue-500"
                     }
                   >
                     {ticket.status === "RESOLVED" && (
@@ -131,17 +131,17 @@ function TicketTable({ tickets, showResolvedDate = false }: TicketTableProps) {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href={`/dashboard/support/${ticket.id}/edit`}>
-                      Edit
+                        Edit
                       </Link>
                     </DropdownMenuItem>
                     {ticket.status !== "RESOLVED" && (
                       <>
                         <DropdownMenuSeparator />
                         <Link href={`/dashboard/support/${ticket.id}/edit`}>
-                        <DropdownMenuItem>Add comment</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Close ticket
-                        </DropdownMenuItem>
+                          <DropdownMenuItem>Add comment</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">
+                            Close ticket
+                          </DropdownMenuItem>
                         </Link>
                       </>
                     )}
@@ -162,9 +162,9 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
   const search = searchParams.search || "";
   const pageSize = 10;
   const session = await getServerAuth();
-  
+
   const response = await getSupportTickets(page, pageSize, tab, search);
-  
+
   if (!response.success || !response.tickets) {
     return (
       <div className="flex flex-col gap-4">
@@ -190,7 +190,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
           </Link>
         </Button>}
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -235,7 +235,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
           </CardContent>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Support Tickets</CardTitle>
@@ -263,7 +263,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
                   </Link>
                 </TabsTrigger>
               </TabsList>
-              
+
               <form className="flex items-center gap-2" action="/dashboard/support">
                 <input type="hidden" name="tab" value={tab} />
                 <input type="hidden" name="page" value="1" />
@@ -283,14 +283,14 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
                 </Button>
               </form>
             </div>
-            
+
             <TabsContent value="all">
               <TicketTable tickets={tickets as Ticket[]} />
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-muted-foreground">
                   Showing {tickets.length} of {pagination.total} tickets
                 </p>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -311,17 +311,54 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
                       Next
                     </Link>
                   </Button>
+                </div> */}
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    asChild
+                    className={`border-none text-white ${pagination.page === 1
+                        ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      }`}
+                  >
+                    <Link
+                      href={`/dashboard/support?page=${pagination.page - 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                    >
+                      Previous
+                    </Link>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === pagination.totalPages}
+                    asChild
+                    className={`border-none text-white ${pagination.page === pagination.totalPages
+                        ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      }`}
+                  >
+                    <Link
+                      href={`/dashboard/support?page=${pagination.page + 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                    >
+                      Next
+                    </Link>
+                  </Button>
                 </div>
+
               </div>
             </TabsContent>
-            
+
             <TabsContent value="open">
               <TicketTable tickets={tickets} />
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-muted-foreground">
                   Showing {tickets.length} of {stats.openTickets} open tickets
                 </p>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -342,17 +379,53 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
                       Next
                     </Link>
                   </Button>
+                </div> */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    asChild
+                    className={`border-none text-white ${pagination.page === 1
+                      ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      }`}
+                  >
+                    <Link
+                      href={`/dashboard/support?page=${pagination.page - 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                    >
+                      Previous
+                    </Link>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === pagination.totalPages}
+                    asChild
+                    className={`border-none text-white ${pagination.page === pagination.totalPages
+                      ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      }`}
+                  >
+                    <Link
+                      href={`/dashboard/support?page=${pagination.page + 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                    >
+                      Next
+                    </Link>
+                  </Button>
                 </div>
+
               </div>
             </TabsContent>
-            
+
             <TabsContent value="resolved">
               <TicketTable tickets={tickets} showResolvedDate />
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-muted-foreground">
                   Showing {tickets.length} of {stats.resolvedTickets} resolved tickets
                 </p>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -373,7 +446,43 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
                       Next
                     </Link>
                   </Button>
+                </div> */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    asChild
+                    className={`border-none text-white ${pagination.page === 1
+                      ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      }`}
+                  >
+                    <Link
+                      href={`/dashboard/support?page=${pagination.page - 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                    >
+                      Previous
+                    </Link>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === pagination.totalPages}
+                    asChild
+                    className={`border-none text-white ${pagination.page === pagination.totalPages
+                      ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      }`}
+                  >
+                    <Link
+                      href={`/dashboard/support?page=${pagination.page + 1}&tab=${tab}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                    >
+                      Next
+                    </Link>
+                  </Button>
                 </div>
+
               </div>
             </TabsContent>
           </Tabs>

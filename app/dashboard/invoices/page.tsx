@@ -185,7 +185,7 @@ export default async function InvoicesPage({
                 <div className="text-sm text-muted-foreground">
                   Showing {invoices.length} of {totalItems} invoices
                 </div>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -206,7 +206,49 @@ export default async function InvoicesPage({
                       Next
                     </Link>
                   </Button>
+                </div> */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === 1}
+                    asChild
+                    className={`border-none text-white ${page === 1
+                        ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      }`}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/dashboard/invoices",
+                        query: { tab, search, page: page - 1 },
+                      }}
+                    >
+                      Previous
+                    </Link>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    asChild
+                    className={`border-none text-white ${page >= totalPages
+                        ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      }`}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/dashboard/invoices",
+                        query: { tab, search, page: page + 1 },
+                      }}
+                    >
+                      Next
+                    </Link>
+                  </Button>
                 </div>
+
               </div>
             </TabsContent>
           </Tabs>
