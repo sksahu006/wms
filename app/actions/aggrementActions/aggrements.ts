@@ -3,8 +3,8 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import cloudinary from "@/lib/cloudinary";
 import { getServerAuth } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 
 
 // Validation schema for creating an agreement
@@ -21,6 +21,7 @@ const createAgreementSchema = z.object({
   waterCharges: z.number().optional().nullable(),
   remarks: z.string().optional().nullable(),
   status: z.enum(["PENDING", "ACTIVE", "INACTIVE"]).default("PENDING"),
+  documentUrl: z.string().url().optional().nullable(),
 });
 
 // Validation schema for updating an agreement
@@ -49,7 +50,9 @@ const updateAgreementSchema = z.object({
 export async function createAgreement(formData: FormData) {
   try {
     const documentUrl = formData.get('documentUrl') as string | null;
-    // Parse and validate input from frontend
+    console.log('FormData received:', Object.fromEntries(formData));
+    console.log('Document URL:', documentUrl);
+
     const data = createAgreementSchema.parse({
       spaceId: formData.get("spaceId"),
       userId: formData.get("userId"),
@@ -71,8 +74,10 @@ export async function createAgreement(formData: FormData) {
         : null,
       remarks: formData.get("remarks"),
       status: formData.get("status"),
+      documentUrl,
     });
 
+    console.log('Parsed data:', data);
 
     const space = await prisma.space.findUnique({
       where: { id: data.spaceId },
@@ -87,7 +92,6 @@ export async function createAgreement(formData: FormData) {
       throw new Error("Space is not available for agreement.");
     }
 
-
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
     });
@@ -99,7 +103,13 @@ export async function createAgreement(formData: FormData) {
     const monthlyRatePerSqft =
       space.rate && space.size ? space.rate / space.size : null;
 
-    // Create the agreement
+    console.log('Creating agreement with data:', {
+      spaceId: data.spaceId,
+      userId: data.userId,
+      clientName: user.name,
+      documentUrl: data.documentUrl,
+    });
+
     const agreement = await prisma.agreement.create({
       data: {
         spaceId: data.spaceId,
@@ -123,11 +133,12 @@ export async function createAgreement(formData: FormData) {
         waterCharges: data.waterCharges,
         remarks: data.remarks,
         status: data.status,
-        documentUrl
+        documentUrl: data.documentUrl,
       },
     });
 
-    // Update space status and assign client
+    console.log('Agreement created:', agreement);
+
     await prisma.space.update({
       where: { id: data.spaceId },
       data: {
@@ -136,16 +147,27 @@ export async function createAgreement(formData: FormData) {
       },
     });
 
+    console.log('Space updated');
+
     revalidatePath("/agreements");
     return { success: true, agreement };
   } catch (error) {
-    console.error(error);
+    console.error('Error in createAgreement:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      return {
+        success: false,
+        error: `Database error: ${error.message} (Code: ${error.code})`,
+      };
+    }
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: `Validation error: ${error.message}`,
+      };
+    }
     return {
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to create agreement",
+      error: error instanceof Error ? error.message : "Failed to create agreement",
     };
   }
 }

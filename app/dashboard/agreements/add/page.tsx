@@ -76,13 +76,11 @@ export default function AddAgreementPage() {
     event.preventDefault();
     setLoading(true);
 
-    // Collect form data
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
     formData.set('userId', userId);
     formData.set('spaceId', spaceId);
 
-    // Handle document file upload if a file is selected
     const fileInput = form.querySelector<HTMLInputElement>('input[name="document"]');
     if (fileInput && fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
@@ -91,16 +89,18 @@ export default function AddAgreementPage() {
         formData.set('documentUrl', uploadedDocumentUrl);
       } else {
         setLoading(false);
-        return; // If document upload fails, stop form submission
+        setError('Document upload failed');
+        return;
       }
     }
 
-    // Submit form to the backend
+    console.log('FormData before submission:', Object.fromEntries(formData));
     const result = await createAgreement(formData);
+    console.log('Server response:', result);
     if (result.success) {
       router.push('/dashboard/agreements');
     } else {
-      setError(result.error ?? null);
+      setError(result.error ?? 'Failed to create agreement');
     }
     setLoading(false);
   };
