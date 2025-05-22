@@ -12,7 +12,7 @@ export function ClientTabs({ clientId }: { clientId: string }) {
   return (
     <Tabs defaultValue="spaces" className="space-y-4">
       {/* Tab List */}
-      <TabsList className="grid grid-cols-4 w-full">
+      <TabsList className="grid grid-cols-4 w-full text-white">
         <TabsTrigger value="spaces">Spaces</TabsTrigger>
         <TabsTrigger value="invoices">Invoices</TabsTrigger>
         <TabsTrigger value="agreements">Agreements</TabsTrigger>

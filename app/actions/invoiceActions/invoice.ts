@@ -412,3 +412,41 @@ export async function deleteInvoice(id: string) {
     };
   }
 }
+
+// Add this to your existing invoice.ts actions
+export async function markInvoiceAsPaid(id: string) {
+  try {
+    // Validate the ID
+    const { id: validatedId } = deleteInvoiceSchema.parse({ id });
+
+    // Check if invoice exists
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: validatedId },
+    });
+    
+    if (!invoice) {
+      throw new Error("Invoice not found");
+    }
+
+    // Update the invoice status
+    const updatedInvoice = await prisma.invoice.update({
+      where: { id: validatedId },
+      data: { status: "PAID" },
+    });
+
+    revalidatePath(`/dashboard/invoices/${validatedId}`);
+    revalidatePath("/dashboard/invoices");
+    
+    return {
+      success: true,
+      data: updatedInvoice,
+      message: "Invoice marked as paid successfully",
+    };
+  } catch (error) {
+    console.error("Mark as paid error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to mark invoice as paid",
+    };
+  }
+}
