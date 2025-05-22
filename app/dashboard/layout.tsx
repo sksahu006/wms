@@ -176,10 +176,10 @@ export default function DashboardLayout({
     <SidebarProvider>
       <div className="flex min-h-screen">
         <Sidebar>
-          <SidebarHeader className="flex h-14 items-center border-b px-4">
+          <SidebarHeader className="flex h-14 items-center border-b px-4 bg-blue-900">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
               <Package className="h-6 w-6" />
-              <span>WMS</span>
+              <span className='text-lg text-white'>WMS</span>
             </Link>
           </SidebarHeader>
           <SidebarContent>

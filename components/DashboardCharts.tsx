@@ -154,3 +154,4 @@ export default function DashboardCharts({ chartType, data }: DashboardChartsProp
 
   return null;
 }
+

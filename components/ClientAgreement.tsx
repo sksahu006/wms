@@ -28,14 +28,14 @@ export default async function Agreements({ clientId, searchParams }: { clientId:
     <div>
       {/* Client's Agreements Table */}
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Agreement ID</TableHead>
-            <TableHead>Client Name</TableHead>
-            <TableHead>Space Type</TableHead>
-            <TableHead>Area (sqft)</TableHead>
-            <TableHead>Monthly Rent</TableHead>
-            <TableHead>Status</TableHead>
+        <TableHeader >
+          <TableRow className="bg-blue-900">
+            <TableHead className='text-white'>Agreement ID</TableHead>
+            <TableHead className='text-white'>Client Name</TableHead>
+            <TableHead className='text-white'>Space Type</TableHead>
+            <TableHead className='text-white'>Area (sqft)</TableHead>
+            <TableHead className='text-white'>Monthly Rent</TableHead>
+            <TableHead className='text-white'>Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

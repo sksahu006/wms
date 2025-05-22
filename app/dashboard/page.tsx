@@ -303,7 +303,7 @@ export default async function DashboardPage({
 
         <TabsContent value="overview" className="mt-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="border border border-black bg-gradient-to-br from-blue-900 ">
+            <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
                   <CardTitle className="text-sm font-medium ">Total Revenue</CardTitle>
@@ -323,7 +323,7 @@ export default async function DashboardPage({
               </CardContent>
             </Card>
 
-            <Card className="border border-black bg-gradient-to-br from-blue-900  ">
+            <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
                   <CardTitle className="text-sm font-medium ">Warehouse Utilization</CardTitle>
@@ -345,7 +345,7 @@ export default async function DashboardPage({
               </CardContent>
             </Card>
 
-            <Card className="border border-black bg-gradient-to-br from-blue-900 ">
+            <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
                   <CardTitle className="text-sm font-medium ">Active Clients</CardTitle>
@@ -365,7 +365,7 @@ export default async function DashboardPage({
             </Card>
 
             {/* <Card className="border border-black bg-gradient-to-br from-blue-900 to-white"> */}
-            <Card className="border border-black bg-gradient-to-br from-blue-900 ">
+            <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
                   <CardTitle className="text-sm font-medium ">Pending Invoices</CardTitle>
@@ -386,9 +386,9 @@ export default async function DashboardPage({
           </div>
 
           <div className="grid gap-6 mt-6 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4 p-6 border border-gray-200">
+            <Card className="col-span-4 p-6 border border-gray-200 text-white bg-blue-900">
               <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg font-semibold">Revenue Overview</CardTitle>
+                <CardTitle className="text-lg font-semibold ">Revenue Overview</CardTitle>
                 <CardDescription className="text-gray-500">Last 12 months performance</CardDescription>
               </CardHeader>
               <CardContent className="p-0 h-80 bg-gray-200 bg-gradient-to-br from-blue-200 to-white">
@@ -396,17 +396,18 @@ export default async function DashboardPage({
               </CardContent>
             </Card>
 
-            <Card className="col-span-3 p-6 border border-gray-200 ">
-              <CardHeader className="p-0 mb-4">
+            <Card className="col-span-3 p-6 border border-black bg-blue-900 ">
+              <CardHeader className="p-0 mb-4 bg-blue-200 rounded-md m-3 p-4">
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="text-lg font-semibold">Recent Activities</CardTitle>
                     <CardDescription className="text-gray-500">Latest system events</CardDescription>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-blue-200">
+                  <Button variant="default" size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
                     View All
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
+
                 </div>
               </CardHeader>
               <CardContent className="p-0 space-y-6">
@@ -443,7 +444,7 @@ export default async function DashboardPage({
 
         <TabsContent value="analytics" className="mt-6">
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="p-6 border border-gray-200">
+            <Card className="p-6 border border-gray-200 text-white bg-blue-900">
               <CardHeader className="p-0 mb-4">
                 <CardTitle className="text-lg font-semibold">Monthly Revenue</CardTitle>
                 <CardDescription className="text-gray-500">Last 6 months trend</CardDescription>
@@ -453,7 +454,7 @@ export default async function DashboardPage({
               </CardContent>
             </Card>
 
-            <Card className="p-6 border border-gray-200">
+            <Card className="p-6 border border-gray-200 text-white bg-blue-900">
               <CardHeader className="p-0 mb-4">
                 <CardTitle className="text-lg font-semibold">Warehouse Utilization</CardTitle>
                 <CardDescription className="text-gray-500">Current distribution</CardDescription>
@@ -464,7 +465,7 @@ export default async function DashboardPage({
             </Card>
           </div>
 
-          <Card className="mt-6 p-6 border border-gray-200">
+          <Card className="mt-6 p-6 border border-gray-200 text-white bg-blue-900">
             <CardHeader className="p-0 mb-4">
               <CardTitle className="text-lg font-semibold">Client Distribution</CardTitle>
               <CardDescription className="text-gray-500">Customer type segmentation</CardDescription>

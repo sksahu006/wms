@@ -46,18 +46,18 @@ function TicketTable({ tickets, showResolvedDate = false }: TicketTableProps) {
     <div className="rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Ticket ID</TableHead>
-            <TableHead>Subject</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Space</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Priority</TableHead>
-            {showResolvedDate ? <TableHead>Resolved</TableHead> : <TableHead>Status</TableHead>}
-            <TableHead className="text-right">Actions</TableHead>
+          <TableRow className=" bg-blue-900 " >
+            <TableHead className="text-white" >Ticket ID</TableHead>
+            <TableHead className="text-white" >Subject</TableHead>
+            <TableHead className="text-white" >Category</TableHead>
+            <TableHead className="text-white" >Space</TableHead>
+            <TableHead className="text-white" >Date</TableHead>
+            <TableHead className="text-white" >Priority</TableHead>
+            {showResolvedDate ? <TableHead className="text-white" >Resolved</TableHead> : <TableHead className="text-white" >Status</TableHead>}
+            <TableHead className="text-right text-white">Actions</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
           {tickets.map((ticket) => (
             <TableRow key={ticket.id}>
               <TableCell className="font-medium">{ticket.id}</TableCell>
@@ -192,7 +192,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="text-white bg-blue-900" >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total Tickets
@@ -206,7 +206,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card  className="text-white bg-blue-900" >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Open Tickets
@@ -220,7 +220,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="text-white bg-blue-900" >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Resolved Tickets
@@ -236,7 +236,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
         </Card>
       </div>
 
-      <Card>
+      <Card  >
         <CardHeader>
           <CardTitle>Support Tickets</CardTitle>
           <CardDescription>
@@ -246,7 +246,7 @@ export default async function SupportPage({ searchParams }: { searchParams: { pa
         <CardContent>
           <Tabs defaultValue={tab} className="space-y-4">
             <div className="flex items-center justify-between">
-              <TabsList>
+              <TabsList className="text-white" >
                 <TabsTrigger value="all" asChild>
                   <Link href={`/dashboard/support?page=1&tab=all${search ? `&search=${encodeURIComponent(search)}` : ''}`}>
                     All Tickets

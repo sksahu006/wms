@@ -144,7 +144,7 @@ export default function ClientWarehousePage({
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {warehouseStats.map((stat, index) => (
-          <Card key={index}>
+          <Card key={index} className="bg-blue-900 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
               <stat.icon className="h-4 w-4 text-muted-foreground" />
@@ -165,7 +165,7 @@ export default function ClientWarehousePage({
         <CardContent>
           <Tabs value={tab} onValueChange={handleTabChange} className="space-y-4">
             <div className="flex items-center justify-between">
-              <TabsList>
+              <TabsList className="text-white">
                 <TabsTrigger value="all">All Spaces</TabsTrigger>
                 <TabsTrigger value="occupied">Occupied</TabsTrigger>
                 <TabsTrigger value="vacant">Vacant</TabsTrigger>
@@ -236,16 +236,16 @@ function SpaceTable({
     <div className="rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Space Code</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Size</TableHead>
-            {showStatus && <TableHead>Status</TableHead>}
-            {showClient && <TableHead>Client</TableHead>}
-            {showUtilization && <TableHead>Utilization</TableHead>}
-            {showExpiry && <TableHead>Expiry</TableHead>}
-            <TableHead className="text-right">Actions</TableHead>
+          <TableRow className="bg-blue-900 ">
+            <TableHead className="text-white">ID</TableHead>
+            <TableHead className="text-white">Space Code</TableHead>
+            <TableHead className="text-white">Type</TableHead>
+            <TableHead className="text-white">Size</TableHead>
+            {showStatus && <TableHead className="text-white">Status</TableHead>}
+            {showClient && <TableHead className="text-white">Client</TableHead>}
+            {showUtilization && <TableHead className="text-white">Utilization</TableHead>}
+            {showExpiry && <TableHead className="text-white">Expiry</TableHead>}
+            <TableHead className="text-right text-white">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

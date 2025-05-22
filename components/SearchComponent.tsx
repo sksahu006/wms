@@ -23,7 +23,7 @@ export default function InvoiceSearchControls({ tab, search }: InvoiceSearchCont
 
   return (
     <div className="flex items-center justify-between">
-      <TabsList>
+      <TabsList className="text-white" >
         <TabsTrigger value="all" asChild>
           <Link href={{ pathname: "/dashboard/invoices", query: { tab: "all", search } }}>
             All Invoices

@@ -88,16 +88,16 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Client Name</TableHead>
-                    <TableHead>Space Type</TableHead>
-                    <TableHead>Area (sqft)</TableHead>
-                    <TableHead>Monthly Rent</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className='bg-blue-900'>
+                    <TableHead className='text-white'>Client Name</TableHead>
+                    <TableHead className='text-white'>Space Type</TableHead>
+                    <TableHead className='text-white'>Area (sqft)</TableHead>
+                    <TableHead className='text-white'>Monthly Rent</TableHead>
+                    <TableHead className='text-white'>Status</TableHead>
+                    <TableHead className='text-white'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
                   {agreements.map((agreement) => (
                     <TableRow key={agreement.id}>
                       <TableCell>{agreement.clientName || 'N/A'}</TableCell>

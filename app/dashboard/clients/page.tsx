@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { getClients, getPendingClientsCount } from '@/app/actions/clientActions/customer';
+import { cn } from '@/lib/utils';
 
 export default async function ClientsPage({
   searchParams,
@@ -66,12 +67,12 @@ export default async function ClientsPage({
         </div>
       </div>
 
-      <Card className=''>
-        <CardHeader>
+      <Card className='border border-black'>
+        <CardHeader >
           <CardTitle>Client Management</CardTitle>
           <CardDescription>View and manage all registered clients</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 w-full max-w-sm">
               <div className="relative w-full">
@@ -90,30 +91,30 @@ export default async function ClientsPage({
           </div>
 
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Spaces</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+            <Table className='border border-black'>
+              <TableHeader className=''>
+                <TableRow className='bg-blue-900' >
+                  <TableHead className='text-white'>ID</TableHead>
+                  <TableHead className='text-white'>Company</TableHead>
+                  <TableHead className='text-white'>Contact</TableHead>
+                  <TableHead className='text-white'>Status</TableHead>
+                  <TableHead className='text-white'>Spaces</TableHead>
+                  <TableHead className='text-white'>Joined</TableHead>
+                  <TableHead className='text-white text-right'>Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="text-black dark:text-white bg-white dark:bg-black ">
                 {clients?.map((client: any) => (
 
                   <TableRow key={client.id}>
                     <TableCell className="font-medium">{client.id}</TableCell>
                     <TableCell>
                       <div className="font-medium">{client.companyName || 'N/A'}</div>
-                      <div className="text-sm text-muted-foreground">{client.email || 'N/A'}</div>
+                      <div className="text-sm text-[#390E67] dark:text-[#0DFFD3]">{client.email || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
                       <div>{client.contactName || 'N/A'}</div>
-                      <div className="text-sm text-muted-foreground">{client.phone || 'N/A'}</div>
+                      <div className="text-sm text-orange-600 dark:text-blue-900">{client.phone || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
                       <Badge

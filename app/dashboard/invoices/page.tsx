@@ -50,21 +50,25 @@ export default async function InvoicesPage({
       title: "Total Invoices",
       value: `₹${stats.total.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
       description: `${stats.total.count} invoices`,
+      icon: <FileText className="h-5 w-5 text-blue-600" />,
     },
     {
       title: "Paid",
       value: `₹${stats.paid.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
       description: `${stats.paid.count} invoices`,
+      icon: <CheckCircle2 className="h-5 w-5 text-green-600" />,
     },
     {
       title: "Pending",
       value: `₹${stats.pending.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
       description: `${stats.pending.count} invoices`,
+      icon: <Clock className="h-5 w-5 text-amber-600" />,
     },
     {
       title: "Overdue",
       value: `₹${stats.overdue.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
       description: `${stats.overdue.count} invoices`,
+      icon: <XCircle className="h-5 w-5 text-red-600" />,
     },
   ];
 
@@ -81,10 +85,11 @@ export default async function InvoicesPage({
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {invoiceStats.map((stat, index) => (
-          <Card key={index}>
+          <Card key={index}   className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              {/* <FileText className="h-4 w-4 text-muted-foreground" /> */}
+              {stat.icon}
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -106,17 +111,17 @@ export default async function InvoicesPage({
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Invoice</TableHead>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Due Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                    <TableRow className="bg-blue-900">
+                      <TableHead className="text-white">Invoice</TableHead>
+                      <TableHead className="text-white">Client</TableHead>
+                      <TableHead className="text-white">Amount</TableHead>
+                      <TableHead className="text-white">Date</TableHead>
+                      <TableHead className="text-white">Due Date</TableHead>
+                      <TableHead className="text-white">Status</TableHead>
+                      <TableHead className="text-right text-white">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
                     {invoices.map((invoice) => (
                       <TableRow key={invoice.id}>
                         <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
@@ -257,3 +262,4 @@ export default async function InvoicesPage({
     </div>
   );
 }
+

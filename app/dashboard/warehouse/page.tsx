@@ -117,13 +117,13 @@ export default function WarehousePage() {
     <div className="flex flex-col gap-4">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
           <CardContent className="pt-6">
             <h2 className="text-lg font-bold">Total Warehouses</h2>
             <p className="text-xl font-semibold">{totalItems}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
           <CardContent className="pt-6">
             <h2 className="text-lg font-bold">Total Storage Units</h2>
             <p className="text-xl font-semibold">
@@ -131,7 +131,7 @@ export default function WarehousePage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
           <CardContent className="pt-6">
             <h2 className="text-lg font-bold">Occupied Storage Units</h2>
             <p className="text-xl font-semibold">
@@ -143,7 +143,7 @@ export default function WarehousePage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
           <CardContent className="pt-6">
             <h2 className="text-lg font-bold">Vacant Storage Units</h2>
             <p className="text-xl font-semibold">
@@ -190,17 +190,17 @@ export default function WarehousePage() {
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Total Spaces</TableHead>
-                    <TableHead>Occupied Spaces</TableHead>
-                    <TableHead>Manager</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className='text-white bg-blue-900'>
+                    <TableHead className='text-white'>Code</TableHead>
+                    <TableHead className='text-white'>Name</TableHead>
+                    <TableHead className='text-white'>Location</TableHead>
+                    <TableHead className='text-white'>Total Spaces</TableHead>
+                    <TableHead className='text-white'>Occupied Spaces</TableHead>
+                    <TableHead className='text-white'>Manager</TableHead>
+                    <TableHead className="text-right text-white">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
                   {warehouses.map((wrh: any) => (
                     <TableRow key={wrh.id}>
                       <TableCell className="font-medium">{wrh.code}</TableCell>
