@@ -1,136 +1,157 @@
-import Link from "next/link"
-import { ArrowRight, Building2, Clock, MoreHorizontal, Package, Search, SlidersHorizontal, Snowflake } from 'lucide-react'
+'use server';
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { revalidatePath } from 'next/cache';
+import { ArrowRight, Building2, Clock, MoreHorizontal, Package, Search, SlidersHorizontal, Snowflake } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
-export default function ClientSpacesPage() {
-  // In a real app, you would fetch the client's spaces
-  const clientSpaces = [
-    {
-      id: "WH-A-101",
-      name: "Storage Unit A-101",
-      type: "Regular",
-      size: "500 sq ft",
-      status: "Active",
-      startDate: "Jan 15, 2023",
-      endDate: "Dec 31, 2023",
-      utilization: 85,
-      monthlyRate: "₹1,200.00",
-    }
-  ]
-  
-  // Available spaces that the client can request
-  const availableSpaces = [
-    {
-      id: "WH-B-202",
-      name: "Storage Unit B-202",
-      type: "Cold Storage",
-      size: "300 sq ft",
-      monthlyRate: "₹1,500.00",
-    },
-    {
-      id: "WH-C-302",
-      name: "Storage Unit C-302",
-      type: "Regular",
-      size: "1000 sq ft",
-      monthlyRate: "₹2,000.00",
-    },
-  ]
-  
+import { SpaceStatus, SpaceType } from '@prisma/client';
+import { getSpaces } from '@/app/actions/clientActions/customer';
+import { getSpacesByUserId } from '@/app/actions/spaceActions/spaceActions';
+import { getServerAuth } from '@/lib/auth';
+
+// Mock function to get current user ID (replace with your auth mechanism)
+async function getCurrentUserId() {
+  // Example: Replace with actual auth logic (e.g., Clerk, NextAuth)
+  return 'cuid_123456789'; // Placeholder user ID
+}
+
+export default async function ClientSpacesPage({
+  searchParams,
+}: {
+  searchParams: { page?: string; search?: string };
+}) {
+   const session = await getServerAuth()
+  const userId = session?.user?.id ?? '';
+  const page = parseInt(searchParams.page || '1', 10);
+  const search = searchParams.search || '';
+
+  // Fetch rented spaces for the client
+  const rentedSpacesResult = await getSpacesByUserId({
+    userId,
+    page,
+    limit: 10,
+    search,
+  });
+  console.log(rentedSpacesResult+"hhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+  // Fetch available spaces for the client
+  const availableSpacesResult = await getSpaces({ page: 1, pageSize: 10, search, SpaceStatus: 'AVAILABLE' });
+  console.log('Fetched spaces:', availableSpacesResult);
+
+  // Process rented spaces
+  const rentedSpaces = rentedSpacesResult.success && rentedSpacesResult.data
+    ? rentedSpacesResult.data.spaces.map((space) => ({
+      id: space.id,
+      name: space.name || space.spaceCode,
+      type: space.type,
+      size: `${space.size} sq ft`,
+      status: space.status === SpaceStatus.OCCUPIED ? 'Active' : 'Inactive',
+      startDate: space.createdAt ? new Date(space.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+      endDate: 'N/A', // Add agreement end date if available in your schema
+      utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
+      monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
+    }))
+    : [];
+
+  // Process available spaces
+  // const availableSpaces = availableSpacesResult.success && availableSpacesResult.data
+  //   ? availableSpacesResult.data.spaces.map((space) => ({
+  //       id: space.id,
+  //       name: space.name || space.spaceCode,
+  //       type: space.type,
+  //       size: `${space.size} sq ft`,
+  //       status: space.status,
+  //       startDate: 'N/A',
+  //       endDate: 'N/A',
+  //       utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
+  //       monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
+  //     }))
+  //   : [];
+
+  // Calculate stats for rented spaces
+  const totalSpaces = rentedSpacesResult.success && rentedSpacesResult.data ? rentedSpacesResult.data.totalItems : 0;
+  const totalStorage = rentedSpaces.reduce((sum, space) => sum + parseFloat(space.size), 0);
+  const totalMonthlyCost = rentedSpaces.reduce((sum, space) => sum + (parseFloat(space.monthlyRate.replace('₹', '')) || 0), 0);
+
+  // Server action for requesting a space
+  // async function handleRequestSpace(formData: FormData) {
+  //   'use server';
+  //   const result = await allocateSpace(formData);
+  //   if (result.success) {
+  //     revalidatePath('/dashboard/spaces');
+  //   }
+  //   return result;
+  // }
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold tracking-tight">My Spaces</h1>
-      
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Spaces
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Active Spaces</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
-            <p className="text-xs text-muted-foreground">
-              Currently rented spaces
-            </p>
+            <div className="text-2xl font-bold">{totalSpaces}</div>
+            <p className="text-xs text-muted-foreground">Currently rented spaces</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Storage
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Storage</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">500 sq ft</div>
-            <p className="text-xs text-muted-foreground">
-              Across all spaces
-            </p>
+            <div className="text-2xl font-bold">{totalStorage} sq ft</div>
+            <p className="text-xs text-muted-foreground">Across all spaces</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Monthly Cost
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Monthly Cost</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹1,200.00</div>
-            <p className="text-xs text-muted-foreground">
-              Total monthly payments
-            </p>
+            <div className="text-2xl font-bold">₹{totalMonthlyCost.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Total monthly payments</p>
           </CardContent>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>My Rented Spaces</CardTitle>
-          <CardDescription>
-            View and manage your current warehouse spaces
-          </CardDescription>
+          <CardDescription>View and manage your current warehouse spaces</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between mb-4">
+          <form className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 w-full max-w-sm">
               <div className="relative w-full">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
+                  name="search"
                   placeholder="Search spaces..."
                   className="w-full pl-8"
+                  defaultValue={search}
                 />
               </div>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" type="submit">
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="sr-only">Filter</span>
               </Button>
             </div>
-          </div>
-          
+          </form>
+
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -145,13 +166,14 @@ export default function ClientSpacesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clientSpaces.length > 0 ? (
-                  clientSpaces.map((space) => (
+                {rentedSpaces.length > 0 ? (
+                  rentedSpaces.map((space) => (
                     <TableRow key={space.id}>
                       <TableCell className="font-medium">{space.id}</TableCell>
                       <TableCell>{space.name}</TableCell>
                       <TableCell>
-                        {space.type === "Cold Storage" ? (
+ 
+                        {space.type === SpaceType.COLD ? (
                           <div className="flex items-center">
                             <Snowflake className="mr-1 h-4 w-4 text-blue-500" />
                             {space.type}
@@ -184,15 +206,13 @@ export default function ClientSpacesPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/spaces/${space.id}`}>
-                                View details
-                              </Link>
+                              <Link href={`/dashboard/spaces/${space.id}`}>View details</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>View agreement</DropdownMenuItem>
+                            {/* <DropdownMenuItem>View agreement</DropdownMenuItem>
                             <DropdownMenuItem>View invoices</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>Request maintenance</DropdownMenuItem>
-                            <DropdownMenuItem>Request extension</DropdownMenuItem>
+                            <DropdownMenuItem>Request extension</DropdownMenuItem> */}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -210,21 +230,19 @@ export default function ClientSpacesPage() {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Available Spaces</CardTitle>
-          <CardDescription>
-            Browse and request available warehouse spaces
-          </CardDescription>
+          <CardDescription>Browse and request available warehouse spaces(contact us for more)</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {availableSpaces.map((space) => (
               <Card key={space.id} className="overflow-hidden">
                 <div className="aspect-video bg-muted relative">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {space.type === "Cold Storage" ? (
+                    {space.type === SpaceType.COLD ? (
                       <Snowflake className="h-12 w-12 text-blue-500/20" />
                     ) : (
                       <Package className="h-12 w-12 text-muted-foreground/20" />
@@ -240,7 +258,7 @@ export default function ClientSpacesPage() {
                 <CardContent className="p-4 pt-0">
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">
-                      {space.type === "Cold Storage" ? (
+                      {space.type === SpaceType.COLD ? (
                         <Snowflake className="mr-1 h-3 w-3 text-blue-500" />
                       ) : (
                         <Package className="mr-1 h-3 w-3" />
@@ -251,18 +269,20 @@ export default function ClientSpacesPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="p-4 pt-0">
-                  <Button className="w-full" asChild>
-                    <Link href={`/dashboard/spaces/request/${space.id}`}>
+                  <form action={handleRequestSpace}>
+                    <input type="hidden" name="spaceId" value={space.id} />
+                    <input type="hidden" name="clientId" value={userId} />
+                    <Button type="submit" className="w-full">
                       Request Space
                       <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
+                    </Button>
+                  </form>
                 </CardFooter>
               </Card>
             ))}
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

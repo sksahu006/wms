@@ -311,6 +311,7 @@ import html2canvas from 'html2canvas';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 interface InvoiceResponse {
   success: boolean;
@@ -337,6 +338,8 @@ export default function InvoiceDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const { data: session, status } = useSession()
+  const isAdmin = session?.user?.role === 'ADMIN'
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -649,8 +652,8 @@ export default function InvoiceDetailsPage() {
               <Progress
                 value={isOverdue ? 100 : (dueDays / 30) * 100}
                 className={`h-2 bg-gray-200 dark:bg-blue-700 ${isOverdue
-                    ? "[&>div]:bg-red-500"
-                    : "[&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-indigo-500"
+                  ? "[&>div]:bg-red-500"
+                  : "[&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-indigo-500"
                   }`}
               />
             </div>
@@ -758,7 +761,7 @@ export default function InvoiceDetailsPage() {
             </div>
 
             <div className="space-y-6">
-              <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+              {isAdmin && <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
                 <CardHeader className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 p-4">
                   <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                     Payment Actions
@@ -781,13 +784,13 @@ export default function InvoiceDetailsPage() {
                     }}>
                       <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                        className={`w-full bg-gradient-to-r from-green-600 ${invoice?.status === "PAID" ? "hover" : " "} to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white`}
                         disabled={invoice?.status === "PAID"}
                       >
                         {invoice?.status === "PAID" ? "Already Paid" : "Mark as Paid"}
                       </Button>
                     </form>
-                    <Button
+                    {invoice?.status !== "PAID" && <><Button
                       variant="outline"
                       className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/30"
                       onClick={() => {
@@ -796,18 +799,20 @@ export default function InvoiceDetailsPage() {
                     >
                       Send Reminder
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full border-purple-600 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/30"
-                      onClick={() => {
-                        toast.info("Receipt generated");
-                      }}
-                    >
-                      Generate Receipt
-                    </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full border-purple-600 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                        onClick={() => {
+                          toast.info("Receipt generated");
+                        }}
+                      >
+                        Generate Receipt
+                      </Button>
+
+                    </>}
                   </div>
                 </CardContent>
-              </Card>
+              </Card>}
 
               <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
                 <CardHeader className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 p-4">
@@ -841,7 +846,7 @@ export default function InvoiceDetailsPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+              {isAdmin && <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
                 <CardHeader className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 p-4">
                   <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                     Notes
@@ -852,7 +857,7 @@ export default function InvoiceDetailsPage() {
                     This invoice is generated by Your Company. For any queries, please reach out to our support team.
                   </p>
                 </CardContent>
-              </Card>
+              </Card>}
             </div>
           </div>
         </CardContent>
