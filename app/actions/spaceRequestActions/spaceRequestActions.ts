@@ -86,7 +86,7 @@ Please review this request and contact the client for further details.`;
 
         // Send email to admin
         const emailResult = await sendEmail({
-            to: process.env.ADMIN_EMAIL || 'subhamsahu4789@gmail.com',
+            to: process.env.ADMIN_EMAIL || 'ajaya.bhyuan@shivamcondev.com',
             subject: `New Space Request: ${space.name || space.spaceCode}`,
             text,
             html,
