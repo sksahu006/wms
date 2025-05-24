@@ -66,7 +66,12 @@ export default function DashboardLayout({
       }, 2000)
       return () => clearTimeout(timer)
     }
-  }, [status, router])
+    // Redirect customers away from /dashboard
+    if (status === 'authenticated' && session?.user?.role === 'CUSTOMER' && pathname === '/dashboard') {
+      console.log('[DashboardLayout] Customer detected on /dashboard, redirecting to /dashboard/spaces');
+      router.push('/dashboard/spaces')
+    }
+  }, [status, session, pathname, router])
 
   const adminNavItems = [
     {
@@ -95,28 +100,13 @@ export default function DashboardLayout({
       icon: ClipboardList,
     },
     {
-      title: 'Reports',
-      href: '/dashboard/reports',
-      icon: BarChart3,
-    },
-    {
       title: 'Support',
       href: '/dashboard/support',
       icon: LifeBuoy,
     },
-    {
-      title: 'Settings',
-      href: '/dashboard/settings',
-      icon: Settings,
-    },
   ]
 
   const clientNavItems = [
-    {
-      title: 'Dashboard',
-      href: '/dashboard',
-      icon: Home,
-    },
     {
       title: 'My Spaces',
       href: '/dashboard/spaces',
@@ -137,11 +127,6 @@ export default function DashboardLayout({
       href: '/dashboard/support',
       icon: LifeBuoy,
     },
-    {
-      title: 'Settings',
-      href: '/dashboard/settings',
-      icon: Settings,
-    },
   ]
 
   // Determine navigation items based on user role
@@ -150,7 +135,6 @@ export default function DashboardLayout({
 
   // Handle loading state
   if (status === 'loading') {
-    
     return <div className='flex h-screen items-center justify-center'><LucideLoader2 className='h-6 w-6 animate-spin' /></div>
   }
 
@@ -178,7 +162,7 @@ export default function DashboardLayout({
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader className="flex h-14 items-center border-b px-4 bg-blue-900">
-            <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+            <Link href={isAdmin ? '/dashboard' : '/dashboard/spaces'} className="flex items-center gap-2 font-semibold">
               <Package className="h-6 w-6" />
               <span className='text-lg text-white'>WMS</span>
             </Link>

@@ -80,8 +80,9 @@ model User {
   warehouses Warehouse[]
   agreements Agreement[]
   spaces     Space[]
-  invoices   Invoice[]   @relation("InvoiceClient")
+  invoices   Invoice[]    @relation("InvoiceClient")
   supports   Support[]
+  ResetToken ResetToken[]
 }
 
 model Account {
@@ -222,4 +223,13 @@ model Support {
   clientId String
   client   User   @relation(fields: [clientId], references: [id])
   space    Space? @relation(fields: [spaceId], references: [id])
+}
+
+model ResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

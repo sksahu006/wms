@@ -14,9 +14,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-// import { resetPassword } from "@/app/actions/auth";
 import { Package } from "lucide-react";
 import Link from "next/link";
+import { resetPassword } from "../actions/auth/auth";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -54,10 +54,10 @@ export default function ResetPasswordPage() {
       formDataToSend.append("token", token || "");
       formDataToSend.append("password", formData.password);
 
-    //   const result = await resetPassword(formDataToSend);
-    //   if (!result.success) {
-    //     throw new Error(result.error || "Failed to reset password");
-    //   }
+      const result = await resetPassword(formDataToSend);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to reset password");
+      }
 
       toast({
         title: "Password Reset Successful",

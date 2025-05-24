@@ -1,8 +1,6 @@
 'use server';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { revalidatePath } from 'next/cache';
 import { ArrowRight, Building2, Clock, MoreHorizontal, Package, Search, SlidersHorizontal, Snowflake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,24 +9,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-
 import { SpaceStatus, SpaceType } from '@prisma/client';
 import { getSpaces } from '@/app/actions/clientActions/customer';
 import { getSpacesByUserId } from '@/app/actions/spaceActions/spaceActions';
 import { getServerAuth } from '@/lib/auth';
-
-// Mock function to get current user ID (replace with your auth mechanism)
-async function getCurrentUserId() {
-  // Example: Replace with actual auth logic (e.g., Clerk, NextAuth)
-  return 'cuid_123456789'; // Placeholder user ID
-}
+import { RequestSpaceForm } from '@/components/RequestSpaceForm';
 
 export default async function ClientSpacesPage({
   searchParams,
 }: {
   searchParams: { page?: string; search?: string };
 }) {
-   const session = await getServerAuth()
+  const session = await getServerAuth();
   const userId = session?.user?.id ?? '';
   const page = parseInt(searchParams.page || '1', 10);
   const search = searchParams.search || '';
@@ -40,7 +32,6 @@ export default async function ClientSpacesPage({
     limit: 10,
     search,
   });
-  console.log(rentedSpacesResult+"hhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
   // Fetch available spaces for the client
   const availableSpacesResult = await getSpaces({ page: 1, pageSize: 10, search, SpaceStatus: 'AVAILABLE' });
   console.log('Fetched spaces:', availableSpacesResult);
@@ -48,47 +39,37 @@ export default async function ClientSpacesPage({
   // Process rented spaces
   const rentedSpaces = rentedSpacesResult.success && rentedSpacesResult.data
     ? rentedSpacesResult.data.spaces.map((space) => ({
-      id: space.id,
-      name: space.name || space.spaceCode,
-      type: space.type,
-      size: `${space.size} sq ft`,
-      status: space.status === SpaceStatus.OCCUPIED ? 'Active' : 'Inactive',
-      startDate: space.createdAt ? new Date(space.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
-      endDate: 'N/A', // Add agreement end date if available in your schema
-      utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
-      monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
-    }))
+        id: space.id,
+        name: space.name || space.spaceCode,
+        type: space.type,
+        size: `${space.size} sq ft`,
+        status: space.status === SpaceStatus.OCCUPIED ? 'Active' : 'Inactive',
+        startDate: space.createdAt ? new Date(space.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+        endDate: 'N/A', // Add agreement end date if available in your schema
+        utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
+        monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
+      }))
     : [];
 
   // Process available spaces
-  // const availableSpaces = availableSpacesResult.success && availableSpacesResult.data
-  //   ? availableSpacesResult.data.spaces.map((space) => ({
-  //       id: space.id,
-  //       name: space.name || space.spaceCode,
-  //       type: space.type,
-  //       size: `${space.size} sq ft`,
-  //       status: space.status,
-  //       startDate: 'N/A',
-  //       endDate: 'N/A',
-  //       utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
-  //       monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
-  //     }))
-  //   : [];
+  const availableSpaces = availableSpacesResult.success && availableSpacesResult.data
+    ? availableSpacesResult.data.map((space) => ({
+        id: space.id,
+        name: space.name || space.spaceCode,
+        type: space.type,
+        size: `${space.size} sq ft`,
+        status: space.status,
+        startDate: 'N/A',
+        endDate: 'N/A',
+        utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
+        monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
+      }))
+    : [];
 
   // Calculate stats for rented spaces
   const totalSpaces = rentedSpacesResult.success && rentedSpacesResult.data ? rentedSpacesResult.data.totalItems : 0;
   const totalStorage = rentedSpaces.reduce((sum, space) => sum + parseFloat(space.size), 0);
   const totalMonthlyCost = rentedSpaces.reduce((sum, space) => sum + (parseFloat(space.monthlyRate.replace('₹', '')) || 0), 0);
-
-  // Server action for requesting a space
-  // async function handleRequestSpace(formData: FormData) {
-  //   'use server';
-  //   const result = await allocateSpace(formData);
-  //   if (result.success) {
-  //     revalidatePath('/dashboard/spaces');
-  //   }
-  //   return result;
-  // }
 
   return (
     <div className="flex flex-col gap-4">
@@ -172,7 +153,6 @@ export default async function ClientSpacesPage({
                       <TableCell className="font-medium">{space.id}</TableCell>
                       <TableCell>{space.name}</TableCell>
                       <TableCell>
- 
                         {space.type === SpaceType.COLD ? (
                           <div className="flex items-center">
                             <Snowflake className="mr-1 h-4 w-4 text-blue-500" />
@@ -208,11 +188,6 @@ export default async function ClientSpacesPage({
                             <DropdownMenuItem asChild>
                               <Link href={`/dashboard/spaces/${space.id}`}>View details</Link>
                             </DropdownMenuItem>
-                            {/* <DropdownMenuItem>View agreement</DropdownMenuItem>
-                            <DropdownMenuItem>View invoices</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>Request maintenance</DropdownMenuItem>
-                            <DropdownMenuItem>Request extension</DropdownMenuItem> */}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -221,7 +196,7 @@ export default async function ClientSpacesPage({
                 ) : (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
-                      You don't have any rented spaces yet
+                      You don’t have any rented spaces yet
                     </TableCell>
                   </TableRow>
                 )}
@@ -234,10 +209,10 @@ export default async function ClientSpacesPage({
       <Card>
         <CardHeader>
           <CardTitle>Available Spaces</CardTitle>
-          <CardDescription>Browse and request available warehouse spaces(contact us for more)</CardDescription>
+          <CardDescription>Browse and request available warehouse spaces (contact us for more)</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {availableSpaces.map((space) => (
               <Card key={space.id} className="overflow-hidden">
                 <div className="aspect-video bg-muted relative">
@@ -265,22 +240,21 @@ export default async function ClientSpacesPage({
                       )}
                       {space.type}
                     </Badge>
-                    <span className="font-medium">{space.monthlyRate}/month</span>
+                    <span className="font-medium">{space?.rate}/month</span>
                   </div>
                 </CardContent>
                 <CardFooter className="p-4 pt-0">
-                  <form action={handleRequestSpace}>
-                    <input type="hidden" name="spaceId" value={space.id} />
-                    <input type="hidden" name="clientId" value={userId} />
-                    <Button type="submit" className="w-full">
-                      Request Space
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </form>
+                  <RequestSpaceForm
+                    spaceId={space.id}
+                    spaceName={space.name}
+                    spaceType={space.type}
+                    spaceSize={space.size}
+                    spaceRate={space.monthlyRate}
+                  />
                 </CardFooter>
               </Card>
             ))}
-          </div> */}
+          </div>
         </CardContent>
       </Card>
     </div>

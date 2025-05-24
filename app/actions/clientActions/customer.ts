@@ -489,7 +489,9 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceSta
           description: true,
           status: true,
           images: true,
-        
+          type: true,
+          size: true,
+          rate: true,
 
         },
         skip,

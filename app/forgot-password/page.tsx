@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-// import { requestPasswordReset } from "@/app/actions/auth"; // Adjust path to your server action
+import { requestPasswordReset } from "../actions/auth/auth";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -32,16 +32,16 @@ export default function ForgotPasswordPage() {
       const formData = new FormData();
       formData.append("email", email);
 
-    //   const result = await requestPasswordReset(formData);
-    //   if (!result.success) {
-    //     throw new Error(result.error || "Failed to request password reset");
-    //   }
+      const result = await requestPasswordReset(formData);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to request password reset");
+      }
 
       toast({
         title: "Password Reset Requested",
         description: "A password reset link has been sent to your email.",
       });
-      router.push("/sign-in");
+      router.push("/login");
     } catch (error) {
       toast({
         title: "Password Reset Failed",
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
               </Button>
               <div className="text-sm text-muted-foreground">
                 <Link
-                  href="/sign-in"
+                  href="/login"
                   className="underline underline-offset-4 hover:text-primary"
                 >
                   Back to Sign In
