@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
         title: "Password Reset Successful",
         description: "Your password has been updated. Please sign in.",
       });
-      router.push("/sign-in");
+      router.push("/login");
     } catch (error) {
       toast({
         title: "Password Reset Failed",
@@ -149,7 +149,7 @@ export default function ResetPasswordPage() {
               </Button>
               <div className="text-sm text-muted-foreground">
                 <Link
-                  href="/sign-in"
+                  href="/login"
                   className="underline underline-offset-4 hover:text-primary"
                 >
                   Back to Sign In
