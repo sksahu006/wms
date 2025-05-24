@@ -50,7 +50,7 @@ const fetchUsers = async (search: string) => {
     return [];
 };
 
-export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,id :string }) {
+export default function SingleSpace({ space ,id}: { space: any,id :string }) {
     const router = useRouter();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -91,13 +91,7 @@ export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,i
                 </Button>
                 <h1 className="text-2xl font-bold tracking-tight">Space Details</h1>
                 <div className="ml-auto space-x-2">
-                    <Button variant="outline" asChild>
-                        <Link href={`/dashboard/warehouse/${id}/${space.id}/edit`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Space
-                        </Link>
-
-                    </Button>
+                    
 
                     {/* {space.status === "AVAILABLE" && (
                         <Dialog open={isAllocateDialogOpen} onOpenChange={setIsAllocateDialogOpen}>
@@ -252,38 +246,38 @@ export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,i
                         <Tabs defaultValue="history" className="space-y-4">
                             <TabsList className="grid grid-cols-3 w-full">
                                 <TabsTrigger value="history">History</TabsTrigger>
-                                <TabsTrigger value="documents">Documents</TabsTrigger>
-                                <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+                                {/* <TabsTrigger value="documents">Documents</TabsTrigger> */}
+                                {/* <TabsTrigger value="maintenance">Maintenance</TabsTrigger> */}
                             </TabsList>
 
                             <TabsContent value="history">
                                 <p>No activity history available.</p>
                             </TabsContent>
 
-                            <TabsContent value="documents">
+                            {/* <TabsContent value="documents">
                                 <div className="text-center py-8">
                                     <FileText className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
                                     <h3 className="text-lg font-medium">No Documents</h3>
                                     <p className="text-sm text-muted-foreground">There are no documents associated with this space.</p>
                                     <Button className="mt-4">Upload Document</Button>
                                 </div>
-                            </TabsContent>
+                            </TabsContent> */}
 
-                            <TabsContent value="maintenance">
+                            {/* <TabsContent value="maintenance">
                                 <div className="text-center py-8">
                                     <Building2 className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
                                     <h3 className="text-lg font-medium">No Maintenance Records</h3>
                                     <p className="text-sm text-muted-foreground">No maintenance activity found.</p>
                                     <Button className="mt-4">Schedule Maintenance</Button>
                                 </div>
-                            </TabsContent>
+                            </TabsContent> */}
                         </Tabs>
                     </CardContent>
-                    <CardFooter className="justify-between">
+                    {/* <CardFooter className="justify-between">
                         <Button variant="outline" asChild>
-                            <Link href="/dashboard/warehouse">Back to List</Link>
+                            <Link href="/space">Back to List</Link>
                         </Button>
-                    </CardFooter>
+                    </CardFooter> */}
                 </Card>
             </div>
         </div>

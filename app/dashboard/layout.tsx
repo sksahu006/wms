@@ -150,6 +150,7 @@ export default function DashboardLayout({
 
   // Handle loading state
   if (status === 'loading') {
+    
     return <div className='flex h-screen items-center justify-center'><LucideLoader2 className='h-6 w-6 animate-spin' /></div>
   }
 

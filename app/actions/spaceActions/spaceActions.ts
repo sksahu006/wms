@@ -7,58 +7,149 @@ import { z } from 'zod';
 
 // 1. Create a new space in a warehouse
 export async function createSpace({
-    warehouseId,
-    spaceCode,
-    name,
-    type,
-    size,
-    height,
-    location,
-    rate,
-    description,
-    status,
-    features,
-    images,
-  }: {
-    warehouseId: string;
-    spaceCode: string;
-    name?: string;
-    type: SpaceType;
-    size: number;
-    height?: number;
-    location?: string;
-    rate?: number;
-    description?: string;
-    status: SpaceStatus;
-    features?: string[];
-    images?: string[];
-  }) {
-    try {
-      const newSpace = await prisma.space.create({
-        data: {
-          warehouseId,
-          spaceCode,
-          name,
-          type,
-          size,
-          height,
-          location,
-          rate,
-          description,
-          status,
-          features: features || [],
-          images: images || [],
-        },
-      });
-  
-      revalidatePath(`/dashboard/warehouse/${warehouseId}`);
-      return { success: true, data: newSpace };
-    } catch (error) {
-      console.error('Create space error:', error);
-      return { success: false, error: 'Failed to create space' };
-    }
-  }
+  warehouseId,
+  spaceCode,
+  name,
+  type,
+  size,
+  height,
+  location,
+  rate,
+  description,
+  status,
+  features,
+  images,
+}: {
+  warehouseId: string;
+  spaceCode: string;
+  name?: string;
+  type: SpaceType;
+  size: number;
+  height?: number;
+  location?: string;
+  rate?: number;
+  description?: string;
+  status: SpaceStatus;
+  features?: string[];
+  images?: string[];
+}) {
+  try {
+    const newSpace = await prisma.space.create({
+      data: {
+        warehouseId,
+        spaceCode,
+        name,
+        type,
+        size,
+        height,
+        location,
+        rate,
+        description,
+        status,
+        features: features || [],
+        images: images || [],
+      },
+    });
 
+    revalidatePath(`/dashboard/warehouse/${warehouseId}`);
+    return { success: true, data: newSpace };
+  } catch (error) {
+    console.error('Create space error:', error);
+    return { success: false, error: 'Failed to create space' };
+  }
+}
+
+
+
+
+const getSpacesByUserIdSchema = z.object({
+  userId: z.string().cuid(),
+  page: z.number().int().positive().default(1),
+  limit: z.number().int().positive().default(10),
+  search: z.string().optional(),
+});
+
+
+export async function getSpacesByUserId({
+  userId,
+  page = 1,
+  limit = 10,
+  search,
+}: {
+  userId: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+}) {
+  try {
+    // Validate input
+    const validated = getSpacesByUserIdSchema.parse({
+      userId,
+      page,
+      limit,
+      search,
+    });
+
+    const skip = (validated.page - 1) * validated.limit;
+
+    // Build where clause for spaces query
+    const where: any = {
+      clientId: validated.userId,
+      status: SpaceStatus.OCCUPIED, // Only fetch spaces with active agreements
+    };
+
+    if (validated.search) {
+      where.OR = [
+        { spaceCode: { contains: validated.search, mode: 'insensitive' } },
+        { name: { contains: validated.search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Fetch spaces and total count
+    const [spaces, total] = await Promise.all([
+      // Paginated spaces query
+      prisma.space.findMany({
+        where,
+        skip,
+        take: validated.limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          warehouse: {
+            select: {
+              id: true,
+              name: true,
+              location: true,
+            },
+          },
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+      }),
+      // Total count for pagination
+      prisma.space.count({ where }),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        spaces,
+        page: validated.page,
+        limit: validated.limit,
+        totalPages: Math.ceil(total / validated.limit),
+        totalItems: total,
+      },
+    };
+  } catch (error) {
+    console.error('Get spaces by user ID error:', error);
+    return { success: false, error: 'Failed to fetch spaces for user' };
+  }
+}
 // 2. Get space by ID
 export async function getSpaceById(spaceId: string) {
   try {

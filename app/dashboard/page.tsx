@@ -316,9 +316,9 @@ export default async function DashboardPage({
                 </div>
               </CardHeader>
               <CardContent>
-                <div className={`text-sm ${overview.totalRevenue.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-sm ${overview.totalRevenue.change >= 0 ? 'text-green-900' : 'text-red-600'}`}>
                   {overview.totalRevenue.change >= 0 ? '↑' : '↓'} {Math.abs(overview.totalRevenue.change).toFixed(1)}%
-                  <span className="text-gray-500 ml-2">vs last month</span>
+                  <span className="text-gray-900 ml-2">vs last month</span>
                 </div>
               </CardContent>
             </Card>
@@ -354,11 +354,11 @@ export default async function DashboardPage({
                   </div>
                 </div>
                 <div className="bg-green-100 p-3 rounded-full">
-                  <Users className="h-5 w-5 text-green-600" />
+                  <Users className="h-5 w-5 text-green-800" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-green-600">
+                <div className="text-sm text-green-900">
                   +{overview.activeClients.newThisMonth} new this month
                 </div>
               </CardContent>
@@ -389,7 +389,7 @@ export default async function DashboardPage({
             <Card className="col-span-4 p-6 border border-gray-200 text-white bg-blue-900">
               <CardHeader className="p-0 mb-4">
                 <CardTitle className="text-lg font-semibold ">Revenue Overview</CardTitle>
-                <CardDescription className="text-gray-500">Last 12 months performance</CardDescription>
+                <CardDescription className="text-gray-300 text-sm">Last 12 months performance</CardDescription>
               </CardHeader>
               <CardContent className="p-0 h-80 bg-gray-200 bg-gradient-to-br from-blue-200 to-white">
                 <DashboardCharts chartType="revenue" data={revenueChart} />
@@ -400,17 +400,17 @@ export default async function DashboardPage({
               <CardHeader className="p-0 mb-4 bg-blue-200 rounded-md m-3 p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="text-lg font-semibold">Recent Activities</CardTitle>
+                    <CardTitle className="text-lg font-semibold  text-gray-800">Recent Activities</CardTitle>
                     <CardDescription className="text-gray-500">Latest system events</CardDescription>
                   </div>
-                  <Button variant="default" size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
+                  {/* <Button variant="default" size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
                     View All
                     <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  </Button> */}
 
                 </div>
               </CardHeader>
-              <CardContent className="p-0 space-y-6">
+              <CardContent className="p-0 space-y-6 ml-3 mr-3 ">
                 {recentActivities.map((activity: any) => (
                   <div key={activity.id} className="flex items-start group">
                     <div className={`p-2 rounded-lg mr-4 bg-${activity.iconColor}-100`}>
@@ -422,7 +422,7 @@ export default async function DashboardPage({
                       {activity.icon === "Wrench" && <Wrench className={`h-4 w-4 text-${activity.iconColor}-600`} />}
                     </div>
                     <div className="flex-1">
-                      <Link href={activity.link} className="text-sm font-medium hover:text-blue-600 transition-colors">
+                      <Link href={activity.link} className="text-sm  text-white font-medium hover:text-red-600 transition-colors">
                         {activity.message}
                       </Link>
                       <p className="text-xs text-gray-500 mt-1">
@@ -447,7 +447,7 @@ export default async function DashboardPage({
             <Card className="p-6 border border-gray-200 text-white bg-blue-900">
               <CardHeader className="p-0 mb-4">
                 <CardTitle className="text-lg font-semibold">Monthly Revenue</CardTitle>
-                <CardDescription className="text-gray-500">Last 6 months trend</CardDescription>
+                <CardDescription className="text-gray-200 text-sm">Last 6 months trend</CardDescription>
               </CardHeader>
               <CardContent className="p-0 h-64 bg-gray-50 bg-repeat-round border border-black">
                 <DashboardCharts chartType="monthlyRevenue" data={analytics.monthlyRevenue} />
@@ -457,7 +457,7 @@ export default async function DashboardPage({
             <Card className="p-6 border border-gray-200 text-white bg-blue-900">
               <CardHeader className="p-0 mb-4">
                 <CardTitle className="text-lg font-semibold">Warehouse Utilization</CardTitle>
-                <CardDescription className="text-gray-500">Current distribution</CardDescription>
+                <CardDescription className="text-gray-200 text-sm">Current distribution</CardDescription>
               </CardHeader>
               <CardContent className="p-0 h-64 bg-gray-50 bg-repeat-round border border-black">
                 <DashboardCharts chartType="warehouseUtilization" data={analytics.warehouseUtilization} />
@@ -468,7 +468,7 @@ export default async function DashboardPage({
           <Card className="mt-6 p-6 border border-gray-200 text-white bg-blue-900">
             <CardHeader className="p-0 mb-4">
               <CardTitle className="text-lg font-semibold">Client Distribution</CardTitle>
-              <CardDescription className="text-gray-500">Customer type segmentation</CardDescription>
+              <CardDescription className="text-gray-200 text-sm">Customer type segmentation</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
               <div className="w-full h-auto max-w-md bg-gray-50 bg-repeat-round border border-black">
@@ -499,21 +499,21 @@ export default async function DashboardPage({
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">
-          <Card className="border border-gray-200">
-            <CardHeader className="p-6 border-b">
+          <Card className="border border-gray-300 shadow-xl">
+            <CardHeader className="p-6 border-b border-b-gray-400">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg font-semibold">System Notifications</CardTitle>
-                  <CardDescription className="text-gray-200">Recent alerts and messages</CardDescription>
+                  <CardDescription className="text-gray-700 text-xs">Recent alerts and messages</CardDescription>
                 </div>
-                <Badge variant="outline" className="bg-gray-100">
+                <Badge variant="outline" className="bg-orange-400 border-orange-400">
                   {notifications.items.length} New
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               {notifications.items.map((notification: any) => (
-                <div key={notification.id} className="p-4 rounded-lg text-black bg-gray-50 hover:bg-gray-100 transition-colors">
+                <div key={notification.id} className="p-4 rounded-lg text-black bg-gray-100 hover:bg-gray-100 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-start">
                       <div className={`p-2 rounded-lg mr-4 bg-${notification.iconColor}-100`}>
