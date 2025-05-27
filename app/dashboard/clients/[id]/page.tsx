@@ -98,28 +98,28 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center text-sm">
-                <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
+                <Building2 className="mr-2 h-4 w-4 text-gray-600" />
                 <span className="font-medium">{client?.name}</span>
               </div>
               <div className="flex items-center text-sm">
-                <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                <User className="mr-2 h-4 w-4 text-gray-600" />
                 <span>{client?.contact}</span>
-                <span className="text-muted-foreground ml-1">({client?.position})</span>
+                <span className="text-gray-600 ml-1">({client?.position})</span>
               </div>
               <div className="flex items-center text-sm">
-                <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+                <Mail className="mr-2 h-4 w-4 text-gray-600" />
                 <span>{client?.email}</span>
               </div>
               <div className="flex items-center text-sm">
-                <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
+                <Phone className="mr-2 h-4 w-4 text-gray-600" />
                 <span>{client?.phone}</span>
               </div>
               <div className="flex items-start text-sm">
-                <MapPin className="mr-2 h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                <MapPin className="mr-2 h-4 w-4 text-gray-600 shrink-0 mt-0.5" />
                 <span>{client?.address}</span>
               </div>
               <div className="flex items-center text-sm">
-                <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                <Calendar className="mr-2 h-4 w-4 text-gray-600" />
                 <span>Joined: {client?.joinedDate}</span>
               </div>
             </div>
@@ -128,20 +128,20 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
               <h3 className="text-sm font-medium mb-2">Business Details</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Business Type:</span>
+                  <span className="text-gray-600">Business Type:</span>
                   <p>{client?.businessType}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Tax ID:</span>
+                  <span className="text-gray-600">Tax ID:</span>
                   <p>{client?.taxId}</p>
                 </div>
               </div>
             </div>
 
-            {client?.notes && (
+            {client?.requirements && (
               <div className="pt-2">
                 <h3 className="text-sm font-medium mb-2">Notes</h3>
-                <p className="text-sm">{client.notes}</p>
+                <p className="text-sm">{client.requirements}</p>
               </div>
             )}
           </CardContent>
@@ -195,7 +195,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                          <TableCell colSpan={5} className="text-center py-4 text-gray-600">
                             No spaces allocated
                           </TableCell>
                         </TableRow>
@@ -246,7 +246,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                          <TableCell colSpan={6} className="text-center py-4 text-gray-600">
                             No invoices found
                           </TableCell>
                         </TableRow>
@@ -297,7 +297,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                          <TableCell colSpan={6} className="text-center py-4 text-gray-600">
                             No agreements found
                           </TableCell>
                         </TableRow>
@@ -348,7 +348,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                          <TableCell colSpan={6} className="text-center py-4 text-gray-600">
                             No support tickets found
                           </TableCell>
                         </TableRow>

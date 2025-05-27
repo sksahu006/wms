@@ -125,7 +125,7 @@ export default async function ClientsPage({
                         {client?.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>0</TableCell>
+                    <TableCell>{client?.spaces?.length || 0}</TableCell>
                     <TableCell>{new Date(client.created).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -135,7 +135,7 @@ export default async function ClientsPage({
                             <span className="sr-only">Open menu</span>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className='text-white'>
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/clients/${client.id}`} className="flex w-full">
@@ -197,7 +197,7 @@ export default async function ClientsPage({
                   variant="outline"
                   size="sm"
                   asChild
-                  disabled={pagination.page <= 1}
+                  disabled={pagination.page == 1}
                   className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-none disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <Link href={`?page=${pagination.page - 1}`}>

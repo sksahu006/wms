@@ -55,8 +55,8 @@ export default function EditClientPage() {
     const formData = new FormData(e.target as HTMLFormElement)
     const updatedClient = {
       id,
-      name: formData.get("companyName") as string,
-      contact: formData.get("contactName") as string,
+      companyName : formData.get("companyName") as string,
+      name: formData.get("contactName") as string,
       position: formData.get("position") as string,
       email: formData.get("email") as string,
       phone: formData.get("phone") as string,
@@ -64,7 +64,7 @@ export default function EditClientPage() {
       businessType: formData.get("businessType") as string,
       taxId: formData.get("taxId") as string,
       status: formData.get("status") as string,
-      notes: formData.get("notes") as string,
+      requirements: formData.get("notes") as string,
     }
 
     try {
@@ -111,7 +111,7 @@ export default function EditClientPage() {
         <h1 className="text-2xl font-bold tracking-tight">Edit Client</h1>
       </div>
 
-      <Card>
+      <Card className="shadow-lg">
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle>Client Information</CardTitle>
@@ -120,44 +120,44 @@ export default function EditClientPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
-              <Input id="companyName" name="companyName" defaultValue={client?.name ?? ""} />
+              <Input id="companyName" name="companyName"  className="shadow-md" defaultValue={client?.name ?? ""} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="contactName">Contact Person</Label>
-                <Input id="contactName" name="contactName" defaultValue={client?.contact ?? ""} />
+                <Input id="contactName" name="contactName"  className="shadow-md" defaultValue={client?.contact ?? ""} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="position">Position</Label>
-                <Input id="position" name="position" defaultValue={client?.position ?? ""} />
+                <Input id="position" name="position"  className="shadow-md" defaultValue={client?.position ?? ""} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" defaultValue={client?.email ?? ""} />
+                <Input id="email" name="email" type="email"  className="shadow-md" defaultValue={client?.email ?? ""} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" name="phone" defaultValue={client?.phone ?? ""} />
+                <Input id="phone" name="phone"  className="shadow-md" defaultValue={client?.phone ?? ""} />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="address">Business Address</Label>
-              <Textarea id="address" name="address" defaultValue={client?.address ?? ""} />
+              <Textarea id="address" name="address"  className="shadow-md" defaultValue={client?.address ?? ""} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="businessType">Business Type</Label>
-                <Select name="businessType" defaultValue={client?.businessType || "retail"} required>
+                <Select name="businessType"  defaultValue={client?.businessType || "retail"} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="text-gray-100">
                     <SelectItem value="retail">Retail</SelectItem>
                     <SelectItem value="manufacturing">Manufacturing</SelectItem>
                     <SelectItem value="distribution">Distribution</SelectItem>
@@ -168,17 +168,17 @@ export default function EditClientPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="taxId">Tax ID / Business Number</Label>
-                <Input id="taxId" name="taxId" className="text-white" defaultValue={(client?.taxId) ?? ""} />
+                <Input id="taxId" name="taxId" className="text-gray-900 shadow-md"  defaultValue={(client?.taxId) ?? ""} />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select name="status" defaultValue={client?.status ?? "ACTIVE"} required>
+              <Select name="status"   defaultValue={client?.status ?? "ACTIVE"} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-gray-100">
                   <SelectItem value="ACTIVE">Active</SelectItem>
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="INACTIVE">Inactive</SelectItem>
@@ -191,7 +191,7 @@ export default function EditClientPage() {
               <Textarea
                 id="notes"
                 name="notes"
-                defaultValue={client?.notes ?? ""}
+                 className="shadow-md" defaultValue={client?.requirements ?? ""}
                 placeholder="Additional notes about this client"
               />
             </div>

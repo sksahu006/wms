@@ -159,11 +159,11 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar>
+      <div className="flex min-h-screen ">
+        <Sidebar className='border-r-2 border-gray-300 shadow-md'>
           <SidebarHeader className="flex h-14 items-center border-b px-4 bg-blue-900">
             <Link href={isAdmin ? '/dashboard' : '/dashboard/spaces'} className="flex items-center gap-2 font-semibold">
-              <Package className="h-6 w-6" />
+              <Package className="h-6 w-6 text-white" />
               <span className='text-lg text-white'>WMS</span>
             </Link>
           </SidebarHeader>
@@ -197,29 +197,29 @@ export default function DashboardLayout({
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={session?.user?.image || '/placeholder-user.jpg'} alt="User" />
-                      <AvatarFallback>{isAdmin ? 'AD' : 'CL'}</AvatarFallback>
+                      <AvatarFallback className='text-white'>{isAdmin ? 'AD' : 'CL'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
+                <DropdownMenuContent className="w-56   " align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal ">
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-sm font-medium leading-none text-white">
                         {session?.user?.name || (isAdmin ? 'Admin User' : 'Client User')}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground">
+                      <p className="text-[10px] leading-none text-muted-foreground">
                         {session?.user?.email || (isAdmin ? 'admin@wms.com' : 'client@example.com')}
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuSeparator/>
+                  {/* <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
-                    <Link href="/dashboard/settings">Settings</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <Link href="/dashboard/settings">Settings</Link> 
+                  </DropdownMenuItem> */}
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className='hover:bg-black '>
+                    <LogOut className="mr-2 h-4 w-4 text-[#fd3030] hover:text-black" />
+                    <span className='text-[#fd3030] font-bold'>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -235,7 +235,7 @@ export default function DashboardLayout({
           </SidebarFooter>
         </Sidebar>
         <main className="flex-1 overflow-hidden">
-          <div className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
+          <div className="flex h-14 items-center gap-4 border-b bg-background px-4 border-gray-300 shadow-md lg:px-6">
             <SidebarTrigger />
             <div className="flex-1">
               <h1 className="text-lg font-semibold">Warehouse Management System</h1>

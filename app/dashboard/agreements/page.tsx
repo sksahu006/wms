@@ -73,7 +73,7 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
         </Link>
       </div>
 
-      <Card>
+      <Card className='shadow-lg border-[1px] border-gray-300'>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Agreements</CardTitle>
         </CardHeader>
@@ -99,12 +99,12 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                 </TableHeader>
                 <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
                   {agreements.map((agreement) => (
-                    <TableRow key={agreement.id}>
-                      <TableCell>{agreement.clientName || 'N/A'}</TableCell>
+                    <TableRow  className='border-b-[1px] border-b-gray-300 shadow-md' key={agreement.id}>
+                      <TableCell className='font-mono'>{agreement.clientName || 'N/A'}</TableCell>
                       <TableCell>{agreement.spaceType}</TableCell>
                       <TableCell>{agreement.areaSqft}</TableCell>
                       <TableCell> ₹{agreement.monthlyRentAmount}</TableCell>
-                      <TableCell>{agreement.status}</TableCell>
+                      <TableCell className='font-mono'>{agreement.status}</TableCell>
                       {/* <TableCell>
                         <Link href={`/dashboard/agreements/${agreement.id}`}>
                           <Button variant="link">View</Button>
@@ -174,8 +174,8 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                       size="sm"
                       disabled={!pagination.hasPreviousPage}
                       className={`text-white border-none ${!pagination.hasPreviousPage
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 !text-white hover:from-purple-600 hover:to-pink-600 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                          ? 'bg-[#7737ec] hover:from-purple-600 hover:to-pink-600 cursor-not-allowed'
+                          : 'bg-[#7737ec] hover:bg-black hover:text-white '
                         }`}
                     >
                       Previous
@@ -188,7 +188,7 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                       size="sm"
                       disabled={!pagination.hasNextPage}
                       className={`text-white border-none ${!pagination.hasNextPage
-                          ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white disabled:opacity-50 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-green-500 to-blue-500  text-white disabled:opacity-50 cursor-not-allowed'
                           : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
                         }`}
                     >

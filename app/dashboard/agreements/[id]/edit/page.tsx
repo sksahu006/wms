@@ -12,6 +12,8 @@ import { getAgreement, updateAgreement } from '@/app/actions/aggrementActions/ag
 import { SearchableCombobox } from '@/components/ui/SearchableCombobox';
 import { getSpaces, getUsers } from '@/app/actions/clientActions/customer';
 import { z } from 'zod';  // Zod import
+import { Info, InfoIcon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Define Zod schema for form validation
 const agreementSchema = z.object({
@@ -87,9 +89,9 @@ export default function EditAgreementPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     const form = event.target as HTMLFormElement;
-  
+
     const formData = {
       userId: userId,
       spaceId: spaceId,
@@ -109,36 +111,36 @@ export default function EditAgreementPage() {
       remarks: (form as any).remarks.value || null,
       status: (form as any).status.value || 'PENDING',
     };
-  
+
     try {
       agreementSchema.parse(formData);
-  
+
       setLoading(true);
-  
+
       if (!id || typeof id !== 'string') {
         setError('Invalid agreement ID');
         return;
       }
-  
+
       const formDataToSend = new FormData();
-  
+
       // Append basic fields
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
           formDataToSend.append(key, value.toString());
         }
       });
-  
+
       // 🔄 Upload the document to Cloudinary
       let documentUrl: string | null = null;
       const fileInput = form.querySelector<HTMLInputElement>('input[name="document"]');
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
-  
+
         const uploadData = new FormData();
         uploadData.append('file', file);
         uploadData.append('upload_preset', 'warehouse'); // Replace with your actual unsigned preset
-  
+
         const cloudinaryRes = await fetch(
           'https://api.cloudinary.com/v1_1/dqboora0r/auto/upload', // Cloudinary API URL
           {
@@ -146,24 +148,24 @@ export default function EditAgreementPage() {
             body: uploadData,
           }
         );
-  
+
         const cloudinaryJson = await cloudinaryRes.json();
-  
+
         if (!cloudinaryRes.ok || !cloudinaryJson.secure_url) {
           throw new Error(cloudinaryJson.error?.message || 'Cloudinary upload failed');
         }
-  
+
         documentUrl = cloudinaryJson.secure_url;
       }
-  
+
       // Append the Cloudinary URL to the form data if the document was uploaded
       if (documentUrl) {
         formDataToSend.append('documentUrl', documentUrl);
       }
-  
+
       // 🔁 Call the backend API with the form data
       const result = await updateAgreement(id, formDataToSend);
-  
+
       if (result.success) {
         router.push('/dashboard/agreements');
       } else {
@@ -178,7 +180,7 @@ export default function EditAgreementPage() {
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   if (!agreement) {
     return <div>Loading...</div>;
@@ -186,12 +188,18 @@ export default function EditAgreementPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Agreement</CardTitle>
+      <Card className='shadow-md border-[1px] border-gray-300'>
+        <CardHeader className="flex flex-col gap-1">
+          <CardTitle className="text-[25px]">
+            Edit Agreement
+          </CardTitle>
+          <div className="flex items-center text-sm text-gray-500">
+            <Info className="w-4 h-4 mr-1" />
+            <span>Kindly read the info while updating agreement at status</span>
+          </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <CardContent >
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 ">
             {error && <p className="text-red-500 col-span-2">{error}</p>}
 
             {/* Space Selection */}
@@ -293,7 +301,7 @@ export default function EditAgreementPage() {
                 name="agreementPeriod"
                 type="number"
                 defaultValue={agreement.agreementPeriod}
-                required
+
               />
             </div>
 
@@ -305,7 +313,7 @@ export default function EditAgreementPage() {
                 name="electricityCharges"
                 type="number"
                 defaultValue={agreement.electricityCharges}
-                required
+
               />
             </div>
 
@@ -317,7 +325,7 @@ export default function EditAgreementPage() {
                 name="waterCharges"
                 type="number"
                 defaultValue={agreement.waterCharges}
-                required
+
               />
             </div>
 
@@ -338,7 +346,7 @@ export default function EditAgreementPage() {
                 <SelectTrigger>
                   <SelectValue placeholder="Select space type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='text-white'>
                   <SelectItem value="REGULAR">Regular</SelectItem>
                   <SelectItem value="COLD">Cold</SelectItem>
                   <SelectItem value="HAZARDOUS">Hazardous</SelectItem>
@@ -384,12 +392,30 @@ export default function EditAgreementPage() {
 
             {/* Status */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
+              <div className='flex gap-2'><Label htmlFor="status">Status</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className='hover:cursor-pointer'>
+                        <InfoIcon className="w-4 h-4 text-gray-500" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="h-24 w-48 bg-black">
+                      <p className="text-xs text-white p-2">
+                        You can inactivate the agreement you no longer need and the assigned space will be available for new agreements. Hense you don't need to delete the agreement.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+
+              </div>
+
               <Select name="status" defaultValue={agreement.status}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='text-white'>
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="ACTIVE">Active</SelectItem>
                   <SelectItem value="INACTIVE">Inactive</SelectItem>

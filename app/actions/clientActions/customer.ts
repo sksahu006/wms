@@ -223,6 +223,7 @@ export async function getClients(
         address: true,
         businessType: true,
         created: true,
+        spaces:true,
       },
       skip,
       take: pageSize,
@@ -547,7 +548,7 @@ export async function getClientDetails(clientId: string): Promise<{
       joinedDate: user.created.toISOString().split('T')[0],
       businessType: user.businessType,
       taxId: user.taxId,
-      notes: user.requirements, // or `remarks` if that's more appropriate
+      requirements: user.requirements, // or `remarks` if that's more appropriate
     };
 
     return { success: true, client };
@@ -558,8 +559,8 @@ export async function getClientDetails(clientId: string): Promise<{
 }
 export async function updateClient(data: {
   id: string;
+  companyName : string;
   name: string;
-  contact: string;
   position: string;
   email: string;
   phone: string;
@@ -567,7 +568,7 @@ export async function updateClient(data: {
   businessType: string;
   taxId: string;
   status: string;
-  notes?: string;
+  requirements?: string;
 }) {
   try {
     // Validate input data
@@ -576,7 +577,7 @@ export async function updateClient(data: {
     const {
       id,
       name,
-      contactName,
+       companyName,
       position,
       email,
       phone,
@@ -584,6 +585,7 @@ export async function updateClient(data: {
       businessType,
       taxId,
       status,
+      requirements,
 
     } = validatedData;
 
@@ -592,7 +594,7 @@ export async function updateClient(data: {
       where: { id },
       data: {
         name,
-        contactName,
+         companyName,
         position,
         email,
         phone,
@@ -600,6 +602,7 @@ export async function updateClient(data: {
         businessType,
         taxId,
         status,
+        requirements,
 
       },
     });

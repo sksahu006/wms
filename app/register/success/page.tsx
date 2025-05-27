@@ -24,7 +24,7 @@ export default function RegistrationSuccessPage() {
           </p>
         </div>
 
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <div className="flex justify-center mb-4">
               <div className="rounded-full bg-green-100 p-3">
@@ -36,7 +36,7 @@ export default function RegistrationSuccessPage() {
               Your registration has been submitted successfully
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-4">
+          <CardContent className="text-center space-y-4 text-white">
             <p>
               Your application is now pending approval by our administrators. This process typically takes 1-2 business days.
             </p>

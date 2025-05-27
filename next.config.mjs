@@ -21,7 +21,7 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
     serverActions: {
-      bodySizeLimit: '10mb', // Increase to handle large file uploads
+      bodySizeLimit: '30mb', // Increase to handle large file uploads
     },
   },
 }

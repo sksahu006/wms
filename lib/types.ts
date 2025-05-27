@@ -10,7 +10,7 @@ export type ClientDetails = {
     joinedDate: string;
     businessType: string | null;
     taxId: string | null;
-    notes?: string | null;
+    requirements?: string | null;
   };
   export enum SpaceStatus {
     AVAILABLE = "AVAILABLE",

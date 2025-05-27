@@ -93,6 +93,8 @@ export default function WarehousePage() {
     fetchWarehouses();
   }, [page, limit, search, toast]);
 
+
+
   // Handle search input
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearch = e.target.value;
@@ -112,6 +114,16 @@ export default function WarehousePage() {
     params.set('page', newPage.toString());
     router.push(`?${params.toString()}`);
   };
+
+  const occupiedCount = warehouses?.reduce(
+    (sum: number, wrh: any) =>
+      sum + (wrh.spaces?.filter((s: any) => s.status === 'OCCUPIED').length || 0),
+    0
+  );
+
+  const vacantCount =  warehouses.reduce((sum: number, wrh: any) => sum + (wrh.spaces?.length || 0), 0)
+
+  const vacant = vacantCount - occupiedCount;
 
   return (
     <div className="flex flex-col gap-4">
@@ -137,7 +149,7 @@ export default function WarehousePage() {
             <p className="text-xl font-semibold">
               {warehouses.reduce(
                 (sum: number, wrh: any) =>
-                  sum + (wrh.spaces?.filter((s: any) => s.status === 'Occupied').length || 0),
+                  sum + (wrh.spaces?.filter((s: any) => s.status === 'OCCUPIED').length || 0),
                 0
               )}
             </p>
@@ -147,11 +159,7 @@ export default function WarehousePage() {
           <CardContent className="pt-6">
             <h2 className="text-lg font-bold">Vacant Storage Units</h2>
             <p className="text-xl font-semibold">
-              {warehouses.reduce(
-                (sum: number, wrh: any) =>
-                  sum + (wrh.spaces?.filter((s: any) => s.status === 'Vacant').length || 0),
-                0
-              )}
+              {vacant}
             </p>
           </CardContent>
         </Card>
@@ -162,10 +170,10 @@ export default function WarehousePage() {
         <h1 className="text-2xl font-bold tracking-tight">Warehouses</h1>
         <div className="flex items-center gap-4">
           <Input
-            placeholder="Search warehouses..."
+            placeholder="Search warehouses nam...."
             value={search}
             onChange={handleSearch}
-            className="w-64"
+            className="w-64 shadow-md border-[1px] border-gray-300 dark:border-gray-600"
           />
           <Link href="/dashboard/warehouse/add">
             <Button>
@@ -189,8 +197,8 @@ export default function WarehousePage() {
           ) : (
             <>
               <Table>
-                <TableHeader>
-                  <TableRow className='text-white bg-blue-900'>
+                <TableHeader className='p-2'>
+                  <TableRow className='text-white bg-blue-900 p-2'>
                     <TableHead className='text-white'>Code</TableHead>
                     <TableHead className='text-white'>Name</TableHead>
                     <TableHead className='text-white'>Location</TableHead>
@@ -202,7 +210,7 @@ export default function WarehousePage() {
                 </TableHeader>
                 <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
                   {warehouses.map((wrh: any) => (
-                    <TableRow key={wrh.id}>
+                    <TableRow key={wrh.id} className='border-b-[1px] border-b-gray-300 shadow-md'>
                       <TableCell className="font-medium">{wrh.code}</TableCell>
                       <TableCell>{wrh.name}</TableCell>
                       <TableCell>{wrh.location}</TableCell>
@@ -284,8 +292,8 @@ export default function WarehousePage() {
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
                     className={`border-none text-white ${page === 1
-                        ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
                       }`}
                   >
                     Previous
@@ -297,8 +305,8 @@ export default function WarehousePage() {
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page >= totalPages}
                     className={`border-none text-white ${page >= totalPages
-                        ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
                       }`}
                   >
                     Next

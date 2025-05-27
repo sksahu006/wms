@@ -106,8 +106,8 @@ export function SearchableCombobox({
   }, [search, open]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen} >
+      <PopoverTrigger asChild className='shadow-sm'>
         <Button
           variant="outline"
           role="combobox"
@@ -121,7 +121,7 @@ export function SearchableCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-full p-0 bg-black/10 text-white" align="start">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder={searchPlaceholder}
@@ -131,7 +131,7 @@ export function SearchableCombobox({
           <CommandEmpty>
             {loading ? 'Loading...' : items.length === 0 ? 'No results found' : 'Type to search...'}
           </CommandEmpty>
-          <CommandGroup className="max-h-60 overflow-auto">
+          <CommandGroup className="max-h-60 overflow-auto ">
             {items.map((item) => (
               <CommandItem
                 key={item.id}
@@ -140,6 +140,7 @@ export function SearchableCombobox({
                   onValueChange(item.id);
                   setOpen(false);
                 }}
+                className='text-white'
               >
                 <Check
                   className={cn(

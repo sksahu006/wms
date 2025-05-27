@@ -16,7 +16,7 @@ export function ClientTabs({ clientId }: { clientId: string }) {
         <TabsTrigger value="spaces">Spaces</TabsTrigger>
         <TabsTrigger value="invoices">Invoices</TabsTrigger>
         <TabsTrigger value="agreements">Agreements</TabsTrigger>
-        <TabsTrigger value="support">Support</TabsTrigger>
+        {/* <TabsTrigger value="support">Support</TabsTrigger> */}
       </TabsList>
 
       {/* Tab Content */}
@@ -38,11 +38,11 @@ export function ClientTabs({ clientId }: { clientId: string }) {
         </Suspense>
       </TabsContent>
 
-      <TabsContent value="support">
+      {/* <TabsContent value="support">
         <Suspense fallback={<div>Loading Support...</div>}>
           <Support clientId={clientId} />
         </Suspense>
-      </TabsContent>
+      </TabsContent> */}
     </Tabs>
   );
 }

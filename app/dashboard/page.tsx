@@ -316,9 +316,9 @@ export default async function DashboardPage({
                 </div>
               </CardHeader>
               <CardContent>
-                <div className={`text-sm ${overview.totalRevenue.change >= 0 ? 'text-green-900' : 'text-red-600'}`}>
+                <div className={`text-sm ${overview.totalRevenue.change >= 0 ? 'text-[#33ea4a]' : 'text-red-600'}`}>
                   {overview.totalRevenue.change >= 0 ? '↑' : '↓'} {Math.abs(overview.totalRevenue.change).toFixed(1)}%
-                  <span className="text-gray-900 ml-2">vs last month</span>
+                  <span className="text-gray-200 ml-2">vs last month</span>
                 </div>
               </CardContent>
             </Card>
@@ -358,7 +358,7 @@ export default async function DashboardPage({
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-green-900">
+                <div className="text-sm text-[#33ea4a]">
                   +{overview.activeClients.newThisMonth} new this month
                 </div>
               </CardContent>
@@ -401,7 +401,7 @@ export default async function DashboardPage({
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="text-lg font-semibold  text-gray-800">Recent Activities</CardTitle>
-                    <CardDescription className="text-gray-500">Latest system events</CardDescription>
+                    <CardDescription className="text-gray-800 text-xs">Latest system events</CardDescription>
                   </div>
                   {/* <Button variant="default" size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
                     View All
@@ -425,7 +425,7 @@ export default async function DashboardPage({
                       <Link href={activity.link} className="text-sm  text-white font-medium hover:text-red-600 transition-colors">
                         {activity.message}
                       </Link>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-[#49ea5e] mt-1">
                         {new Date(activity.createdAt).toLocaleDateString("en-IN", {
                           year: 'numeric',
                           month: 'short',

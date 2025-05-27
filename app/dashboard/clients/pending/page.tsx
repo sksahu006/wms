@@ -122,14 +122,15 @@ export default function PendingClientsPage() {
 
           <div className="rounded-md border">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+              <TableHeader className="
+              bg-blue-900 dark:bg-gray-800 text-black">
+                <TableRow className="text-black">
+                  <TableHead className="text-white">Name</TableHead>
+                  <TableHead className="text-white">Email</TableHead>
+                  <TableHead className="text-white">Contact</TableHead>
+                  <TableHead className="text-white">Phone</TableHead>
+                  <TableHead className="text-white">Status</TableHead>
+                  <TableHead  className="text-white right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -169,10 +170,10 @@ export default function PendingClientsPage() {
                               <span className="sr-only">Open menu</span>
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuContent align="end" className="">
+                            <DropdownMenuLabel className="text-white">Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/clients/pending/${client.id}`}>
+                              <Link href={`/dashboard/clients/pending/${client.id}`} className="text-white">
                                 View details
                               </Link>
                             </DropdownMenuItem>

@@ -311,7 +311,7 @@ export async function getAllAgreements(take?: number, skip?: number) {
     const isAdmin = session.user.role === 'ADMIN';
 
     // Build the where clause for non-admin users
-    const whereClause = isAdmin ? {} : { userId: session.user.id };
+    const whereClause = isAdmin ? {} : { userId: session?.user?.id };
 
     // Fetch agreements with pagination and only necessary fields
     const agreements = await prisma.agreement.findMany({

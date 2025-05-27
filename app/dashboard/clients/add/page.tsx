@@ -86,6 +86,7 @@ export default function AddClientPage() {
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
               <Input
+               className="placeholder:text-gray-500 shadow-md"
                 id="companyName"
                 name="companyName"
                 placeholder="Enter company name"
@@ -97,6 +98,7 @@ export default function AddClientPage() {
               <div className="space-y-2">
                 <Label htmlFor="contactName">Contact Person</Label>
                 <Input
+                  className="placeholder:text-gray-500 shadow-md"
                   id="contactName"
                   name="contactName"
                   placeholder="Full name"
@@ -106,6 +108,7 @@ export default function AddClientPage() {
               <div className="space-y-2">
                 <Label htmlFor="position">Position</Label>
                 <Input
+                  className="placeholder:text-gray-500 shadow-md"
                   id="position"
                   name="position"
                   placeholder="Job title"
@@ -118,6 +121,7 @@ export default function AddClientPage() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
+                  className="placeholder:text-gray-500 shadow-md"
                   id="email"
                   name="email"
                   type="email"
@@ -128,6 +132,7 @@ export default function AddClientPage() {
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
+                  className="placeholder:text-gray-500 shadow-md"
                   id="phone"
                   name="phone"
                   placeholder="+1 (555) 123-4567"
@@ -139,6 +144,7 @@ export default function AddClientPage() {
             <div className="space-y-2">
               <Label htmlFor="address">Business Address</Label>
               <Textarea
+                className="placeholder:text-gray-500 shadow-md"
                 id="address"
                 name="address"
                 placeholder="Enter business address"
@@ -153,7 +159,7 @@ export default function AddClientPage() {
                   <SelectTrigger id="businessType">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="text-gray-100">
                     <SelectItem value="retail">Retail</SelectItem>
                     <SelectItem value="manufacturing">Manufacturing</SelectItem>
                     <SelectItem value="distribution">Distribution</SelectItem>
@@ -166,6 +172,7 @@ export default function AddClientPage() {
               <div className="space-y-2">
                 <Label htmlFor="taxId">Tax ID / Business Number</Label>
                 <Input
+                  className="placeholder:text-gray-500 shadow-md"
                   id="taxId"
                   name="taxId"
                   placeholder="Enter tax ID"
@@ -186,6 +193,7 @@ export default function AddClientPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
+                className="placeholder:text-gray-500 shadow-md"
                 id="password"
                 name="password"
                 type="password"
