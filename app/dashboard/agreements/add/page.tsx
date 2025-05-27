@@ -84,6 +84,11 @@ export default function AddAgreementPage() {
     const fileInput = form.querySelector<HTMLInputElement>('input[name="document"]');
     if (fileInput && fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size should not exceed 10MB.');
+        setLoading(false);
+        return;
+      }
       const uploadedDocumentUrl = await handleFileUpload(file);
       if (uploadedDocumentUrl) {
         formData.set('documentUrl', uploadedDocumentUrl);
@@ -185,7 +190,7 @@ export default function AddAgreementPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="waterCharges">Water Charges</Label>
+              <Label htmlFor="waterCharges">Lease deed</Label>
               <Input
                 id="waterCharges"
                 name="waterCharges"

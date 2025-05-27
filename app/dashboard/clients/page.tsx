@@ -107,7 +107,8 @@ export default async function ClientsPage({
                 {clients?.map((client: any) => (
 
                   <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.id}</TableCell>
+                    {/* show last 5 characters of id */}
+                    <TableCell className="font-medium uppercase">{(client.id)?.slice(-10)}</TableCell>
                     <TableCell>
                       <div className="font-medium">{client.companyName || 'N/A'}</div>
                       <div className="text-sm text-[#390E67] dark:text-[#0DFFD3]">{client.email || 'N/A'}</div>

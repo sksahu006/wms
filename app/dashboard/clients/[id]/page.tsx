@@ -91,8 +91,8 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
                 {client?.status}
               </Badge>
             </div>
-            <CardDescription>
-              Vendor Code: {client?.id}
+            <CardDescription className="uppercase">
+              Vendor Code: {(client?.id)?.slice(-10)}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

@@ -38,6 +38,9 @@ enum SpaceType {
   COLD
   HAZARDOUS
   OUTDOOR
+  AMENITY
+  CARPET
+  UTILITY
 }
 
 enum InvoiceStatus {

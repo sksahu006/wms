@@ -146,6 +146,9 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                     <SelectItem value="COLD">Cold Storage</SelectItem>
                     <SelectItem value="HAZARDOUS">Hazardous Materials</SelectItem>
                     <SelectItem value="OUTDOOR">Outdoor Storage</SelectItem>
+                    <SelectItem value="AMENITY">Amenity</SelectItem>
+                    <SelectItem value="CARPET">Carpet</SelectItem>
+                    <SelectItem value="UTILITY">Utility</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

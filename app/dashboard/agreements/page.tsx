@@ -92,7 +92,7 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                     <TableHead className='text-white'>Client Name</TableHead>
                     <TableHead className='text-white'>Space Type</TableHead>
                     <TableHead className='text-white'>Area (sqft)</TableHead>
-                    <TableHead className='text-white'>Monthly Rent</TableHead>
+                    <TableHead className='text-white'>Security Deposit</TableHead>
                     <TableHead className='text-white'>Status</TableHead>
                     <TableHead className='text-white'>Actions</TableHead>
                   </TableRow>

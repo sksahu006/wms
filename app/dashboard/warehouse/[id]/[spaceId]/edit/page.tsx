@@ -183,6 +183,9 @@ export default function WarehouseSpaceFormPage() {
                     <SelectItem value="COLD">Cold Storage</SelectItem>
                     <SelectItem value="HAZARDOUS">Hazardous Materials</SelectItem>
                     <SelectItem value="OUTDOOR">Outdoor Storage</SelectItem>
+                    <SelectItem value="AMENITY">Amenity</SelectItem>
+                    <SelectItem value="CARPET">Carpet</SelectItem>
+                    <SelectItem value="UTILITY">Utility</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -317,8 +320,8 @@ export default function WarehouseSpaceFormPage() {
               type="submit"
               disabled={isLoading}
               className={`border-none text-white ${isLoading
-                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600'
+                ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600'
                 }`}
             >
               {isLoading

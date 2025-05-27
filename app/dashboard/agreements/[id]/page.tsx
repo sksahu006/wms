@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Loader2, ArrowLeft, Download, FileText, ImageIcon } from 'lucide-react';
 import { getAgreement } from '@/app/actions/aggrementActions/aggrements';
-import { formatToUTCISOString } from '@/lib/formatToUTCISOString';
 
 // Enable dynamic params for server-side rendering
 export const dynamicParams = true;
@@ -149,9 +148,9 @@ export default async function AgreementPage({ params }: { params: { id: string }
                           : 'N/A',
                       },
                       {
-                        label: 'Water Charges',
+                        label: 'Lease deed',
                         value: agreement.waterCharges
-                          ? `₹${agreement.waterCharges.toFixed(2)}`
+                          ? `${agreement.waterCharges}`
                           : 'N/A',
                       },
                       { label: 'Status', value: agreement.status },

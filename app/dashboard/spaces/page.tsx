@@ -47,7 +47,7 @@ export default async function ClientSpacesPage({
         startDate: space.createdAt ? new Date(space.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
         endDate: 'N/A', // Add agreement end date if available in your schema
         utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
-        monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
+        rate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
       }))
     : [];
 
@@ -62,14 +62,14 @@ export default async function ClientSpacesPage({
         startDate: 'N/A',
         endDate: 'N/A',
         utilization: Math.floor(Math.random() * 100), // Placeholder; replace with actual data if available
-        monthlyRate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
+        rate: space.rate ? `₹${space.rate.toFixed(2)}` : 'N/A',
       }))
     : [];
 
   // Calculate stats for rented spaces
   const totalSpaces = rentedSpacesResult.success && rentedSpacesResult.data ? rentedSpacesResult.data.totalItems : 0;
   const totalStorage = rentedSpaces.reduce((sum, space) => sum + parseFloat(space.size), 0);
-  const totalMonthlyCost = rentedSpaces.reduce((sum, space) => sum + (parseFloat(space.monthlyRate.replace('₹', '')) || 0), 0);
+  const totalMonthlyCost = rentedSpaces.reduce((sum, space) => sum + (parseFloat(space.rate.replace('₹', '')) || 0), 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -249,7 +249,7 @@ export default async function ClientSpacesPage({
                     spaceName={space.name}
                     spaceType={space.type}
                     spaceSize={space.size}
-                    spaceRate={space.monthlyRate}
+                    spaceRate={space.rate}
                   />
                 </CardFooter>
               </Card>

@@ -137,6 +137,11 @@ export default function EditAgreementPage() {
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
 
+        if (file.size > 10 * 1024 * 1024) {
+          alert('File size should not exceed 10MB.');
+          return; // Stop execution
+        }
+
         const uploadData = new FormData();
         uploadData.append('file', file);
         uploadData.append('upload_preset', 'warehouse'); // Replace with your actual unsigned preset
@@ -193,7 +198,7 @@ export default function EditAgreementPage() {
           <CardTitle className="text-[25px]">
             Edit Agreement
           </CardTitle>
-          <div className="flex items-center text-sm text-gray-500">
+          <div className="flex items-center text-sm text-blue-800 bg-blue-100 border border-blue-300 rounded-md p-2">
             <Info className="w-4 h-4 mr-1" />
             <span>Kindly read the info while updating agreement at status</span>
           </div>
@@ -319,7 +324,7 @@ export default function EditAgreementPage() {
 
             {/* Water Charges */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="waterCharges">Water Charges</Label>
+              <Label htmlFor="waterCharges">Lease deed</Label>
               <Input
                 id="waterCharges"
                 name="waterCharges"
@@ -351,6 +356,9 @@ export default function EditAgreementPage() {
                   <SelectItem value="COLD">Cold</SelectItem>
                   <SelectItem value="HAZARDOUS">Hazardous</SelectItem>
                   <SelectItem value="OUTDOOR">Outdoor</SelectItem>
+                  <SelectItem value="AMENITY">Amenity</SelectItem>
+                  <SelectItem value="CARPET">Carpet</SelectItem>
+                  <SelectItem value="UTILITY">Utility</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -380,7 +388,7 @@ export default function EditAgreementPage() {
 
             {/* Monthly Rent Amount */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="monthlyRentAmount">Monthly Rent Amount</Label>
+              <Label htmlFor="monthlyRentAmount">Security Deposit</Label>
               <Input
                 id="monthlyRentAmount"
                 name="monthlyRentAmount"
@@ -392,7 +400,7 @@ export default function EditAgreementPage() {
 
             {/* Status */}
             <div className="flex flex-col gap-2">
-              <div className='flex gap-2'><Label htmlFor="status">Status</Label>
+              <div className='flex gap-2 text-blue-800 bg-blue-100 border border-blue-300 p-1'><Label htmlFor="status">Status (Hover over me)</Label>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -400,7 +408,7 @@ export default function EditAgreementPage() {
                         <InfoIcon className="w-4 h-4 text-gray-500" />
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent className="h-24 w-48 bg-black">
+                    <TooltipContent className="h-32 w-80 bg-black">
                       <p className="text-xs text-white p-2">
                         You can inactivate the agreement you no longer need and the assigned space will be available for new agreements. Hense you don't need to delete the agreement.
                       </p>
@@ -424,7 +432,7 @@ export default function EditAgreementPage() {
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="document">Upload Agreement Document</Label>
-              <Input id="document" name="document" type="file" accept=".pdf,.doc,.docx,.jpg,.png" />
+              <Input className='p-2' id="document" name="document" type="file" accept=".pdf,.doc,.docx,.jpg,.png" />
             </div>
 
             {/* Submit Button */}
