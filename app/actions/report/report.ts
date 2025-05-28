@@ -45,7 +45,6 @@ function buildDateFilter(startDate?: string, endDate?: string) {
 // Utility function to safely get array filters
 function getArrayFilter<T>(filters: Filters, key: string): T[] | undefined {
     const value = filters[key];
-    // If 'all' is selected or included in array, return undefined to skip filtering
     if (value === 'all' || (Array.isArray(value) && value.includes('all'))) {
         return undefined;
     }
@@ -55,7 +54,6 @@ function getArrayFilter<T>(filters: Filters, key: string): T[] | undefined {
 // Utility function to safely get single filter value
 function getSingleFilter<T>(filters: Filters, key: string): T | undefined {
     const value = filters[key];
-    // If 'all' is selected, return undefined to skip filtering
     if (value === 'all') {
         return undefined;
     }
@@ -65,8 +63,7 @@ function getSingleFilter<T>(filters: Filters, key: string): T | undefined {
 // Report handlers
 class ReportHandlers {
     static async spaceOccupancy(dateFilter: any, filters: Filters) {
-        return prisma.space.groupBy({
-            by: ["status", "warehouseId"],
+        const spaces = await prisma.space.findMany({
             where: {
                 ...dateFilter,
                 ...(getArrayFilter<SpaceStatus>(filters, "status") && {
@@ -79,13 +76,35 @@ class ReportHandlers {
                     warehouseId: getSingleFilter<string>(filters, "warehouseId")!
                 }),
             },
-            _count: { id: true },
+            select: {
+                status: true,
+                warehouse: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
+
+        // Group data manually to include warehouse name
+        const groupedData = spaces.reduce((acc, space) => {
+            const key = `${space.status}_${space.warehouse.name}`;
+            if (!acc[key]) {
+                acc[key] = {
+                    status: space.status,
+                    warehouseName: space.warehouse.name,
+                    count: 0,
+                };
+            }
+            acc[key].count += 1;
+            return acc;
+        }, {} as Record<string, { status: SpaceStatus; warehouseName: string; count: number }>);
+
+        return Object.values(groupedData);
     }
 
     static async revenue(dateFilter: any, filters: Filters) {
-        return prisma.invoice.groupBy({
-            by: ["status", "clientId"],
+        const invoices = await prisma.invoice.findMany({
             where: {
                 ...dateFilter,
                 ...(getArrayFilter<InvoiceStatus>(filters, "status") && {
@@ -98,8 +117,32 @@ class ReportHandlers {
                     space: { warehouseId: getSingleFilter<string>(filters, "warehouseId")! }
                 }),
             },
-            _sum: { totalAmount: true },
+            select: {
+                status: true,
+                totalAmount: true,
+                client: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
+
+        // Group data manually to include client name
+        const groupedData = invoices.reduce((acc, invoice) => {
+            const key = `${invoice.status}_${invoice.client.name}`;
+            if (!acc[key]) {
+                acc[key] = {
+                    status: invoice.status,
+                    clientName: invoice.client.name ?? "",
+                    totalAmount: 0,
+                };
+            }
+            acc[key].totalAmount += invoice.totalAmount || 0;
+            return acc;
+        }, {} as Record<string, { status: InvoiceStatus; clientName: string; totalAmount: number }>);
+
+        return Object.values(groupedData);
     }
 
     static async agreementStatus(dateFilter: any, filters: Filters) {
@@ -122,9 +165,24 @@ class ReportHandlers {
                 monthlyRentAmount: true,
                 rentStartDate: true,
                 user: { select: { name: true } },
-                space: { select: { spaceCode: true, type: true } },
+                space: {
+                    select: {
+                        spaceCode: true,
+                        type: true,
+                        warehouse: { select: { name: true } },
+                    },
+                },
             },
-        });
+        }).then(agreements => agreements.map(agreement => ({
+            id: agreement.id,
+            status: agreement.status,
+            monthlyRentAmount: agreement.monthlyRentAmount,
+            rentStartDate: agreement.rentStartDate,
+            clientName: agreement.user.name,
+            spaceCode: agreement.space.spaceCode,
+            spaceType: agreement.space.type,
+            warehouseName: agreement.space.warehouse.name,
+        })));
     }
 
     static async supportTicket(dateFilter: any, filters: Filters) {
@@ -146,13 +204,17 @@ class ReportHandlers {
                 }),
             },
             _count: { id: true },
-        });
+        }).then(tickets => tickets.map(ticket => ({
+            status: ticket.status,
+            priority: ticket.priority,
+            category: ticket.category,
+            count: ticket._count.id,
+        })));
     }
 
     static async warehouseCapacity(dateFilter: any, filters: Filters) {
-        return prisma.warehouse.findMany({
+        const warehouses = await prisma.warehouse.findMany({
             select: {
-                id: true,
                 name: true,
                 capacity: true,
                 spaces: {
@@ -166,10 +228,25 @@ class ReportHandlers {
                 }),
             },
         });
+
+        return warehouses.map(warehouse => {
+            const availableSpace = warehouse.spaces
+                .filter(space => space.status === 'AVAILABLE')
+                .reduce((sum, space) => sum + (space.size || 0), 0);
+            const totalSpace = warehouse.spaces
+                .reduce((sum, space) => sum + (space.size || 0), 0);
+            return {
+                warehouseName: warehouse.name,
+                totalCapacity: warehouse.capacity,
+                availableSpace,
+                notAvailableSpace: totalSpace - availableSpace,
+                spaceCount: warehouse.spaces.length,
+            };
+        });
     }
 
     static async clientActivity(dateFilter: any, filters: Filters) {
-        return prisma.user.findMany({
+        const clients = await prisma.user.findMany({
             where: {
                 ...dateFilter,
                 role: "CUSTOMER",
@@ -178,13 +255,22 @@ class ReportHandlers {
                 }),
             },
             select: {
-                id: true,
                 name: true,
-                agreements: { select: { id: true, status: true } },
-                invoices: { select: { id: true, status: true } },
-                supports: { select: { id: true, status: true } },
+                agreements: { select: { status: true } },
+                invoices: { select: { status: true } },
+                supports: { select: { status: true } },
             },
         });
+
+        return clients.map(client => ({
+            clientName: client.name,
+            agreementCount: client.agreements.length,
+            activeAgreements: client.agreements.filter(a => a.status === 'ACTIVE').length,
+            invoiceCount: client.invoices.length,
+            pendingInvoices: client.invoices.filter(i => i.status === 'PENDING').length,
+            supportCount: client.supports.length,
+            openSupports: client.supports.filter(s => s.status === 'OPEN').length,
+        }));
     }
 
     static async invoiceAging(dateFilter: any, filters: Filters) {
@@ -197,14 +283,19 @@ class ReportHandlers {
                 }),
             },
             select: {
-                id: true,
                 invoiceNumber: true,
                 dueDate: true,
                 totalAmount: true,
                 status: true,
                 client: { select: { name: true } },
             },
-        });
+        }).then(invoices => invoices.map(invoice => ({
+            invoiceNumber: invoice.invoiceNumber,
+            dueDate: invoice.dueDate,
+            totalAmount: invoice.totalAmount,
+            status: invoice.status,
+            clientName: invoice.client.name,
+        })));
     }
 
     static async spaceUtilization(dateFilter: any, filters: Filters) {
@@ -222,11 +313,36 @@ class ReportHandlers {
         };
 
         const [groupedData, occupiedTotal, notOccupiedTotal, warehouseData] = await Promise.all([
-            prisma.space.groupBy({
-                by: ['type', 'status', 'warehouseId'],
+            prisma.space.findMany({
                 where: whereClause,
-                _sum: { size: true },
-                _count: { id: true },
+                select: {
+                    type: true,
+                    status: true,
+                    size: true,
+                    warehouse: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            }).then(spaces => {
+                return Object.values(
+                    spaces.reduce((acc, space) => {
+                        const key = `${space.type}_${space.status}_${space.warehouse.name}`;
+                        if (!acc[key]) {
+                            acc[key] = {
+                                type: space.type,
+                                status: space.status,
+                                warehouseName: space.warehouse.name,
+                                totalSize: 0,
+                                count: 0,
+                            };
+                        }
+                        acc[key].totalSize += space.size || 0;
+                        acc[key].count += 1;
+                        return acc;
+                    }, {} as Record<string, { type: SpaceType; status: SpaceStatus; warehouseName: string; totalSize: number; count: number }>)
+                );
             }),
             prisma.space.aggregate({
                 where: {
@@ -251,7 +367,6 @@ class ReportHandlers {
                     }),
                 },
                 select: {
-                    id: true,
                     name: true,
                     capacity: true,
                     spaces: {
@@ -274,7 +389,6 @@ class ReportHandlers {
             const warehouseTotal = warehouse.spaces
                 .reduce((sum, space) => sum + (space.size || 0), 0);
             return {
-                warehouseId: warehouse.id,
                 warehouseName: warehouse.name,
                 occupied: warehouseOccupied,
                 total: warehouseTotal,
@@ -322,7 +436,6 @@ export async function fetchReportData(formData: FormData) {
 
         const dateFilter = buildDateFilter(startDate, endDate);
 
-        // Process filters to handle 'all'
         const processedFilters = Object.fromEntries(
             Object.entries(filters).map(([key, value]) => [
                 key,

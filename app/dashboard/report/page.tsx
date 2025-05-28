@@ -110,7 +110,10 @@ const ReportPage: React.FC = () => {
                 ]);
 
                 if (warehouseResult?.success && warehouseResult.data) {
-                    setWarehouses(warehouseResult.data.warehouses);
+                    setWarehouses(warehouseResult.data.warehouses.map((w: any) => ({
+                        id: w.id,
+                        name: w.name,
+                    })));
                 } else {
                     setError("Failed to load warehouses");
                 }
@@ -190,14 +193,20 @@ const ReportPage: React.FC = () => {
             danger: "#ef4444",
             info: "#6366f1",
         };
+          const statusColors: Record<string, string> = {
+            PENDING: colors.warning, // Orange for PENDING
+            ACTIVE: colors.success,  // Green for ACTIVE
+            TERMINATED: colors.danger, // Red for TERMINATED (if applicable)
+            EXPIRED: colors.info,   // Purple for EXPIRED (if applicable)
+        };
 
         switch (reportType) {
             case "SPACE_UTILIZATION":
-                const { groupedData, totals, warehouseMetrics } = reportData;
+                const { warehouseMetrics, totals } = reportData;
                 return {
                     type: "bar" as const,
                     data: {
-                        labels: warehouseMetrics?.map((w: any) => w?.warehouseName),
+                        labels: warehouseMetrics?.map((w: any) => w.warehouseName),
                         datasets: [
                             {
                                 label: "Occupied Space",
@@ -207,7 +216,7 @@ const ReportPage: React.FC = () => {
                             },
                             {
                                 label: "Total Space",
-                                data: warehouseMetrics.map((w: any) => w.total),
+                                data: warehouseMetrics?.map((w: any) => w.total),
                                 backgroundColor: colors.primary,
                                 borderWidth: 1,
                             },
@@ -246,11 +255,11 @@ const ReportPage: React.FC = () => {
                 return {
                     type: "bar" as const,
                     data: {
-                        labels: reportData.map((d: any) => d.status),
+                        labels: reportData.map((d: any) => `${d.warehouseName} - ${d.status}`),
                         datasets: [
                             {
                                 label: "Space Count",
-                                data: reportData.map((d: any) => d._count?.id || 0),
+                                data: reportData.map((d: any) => d.count),
                                 backgroundColor: Object.values(colors),
                                 borderWidth: 1,
                             },
@@ -261,7 +270,7 @@ const ReportPage: React.FC = () => {
                         maintainAspectRatio: false,
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: "Number of Spaces" } },
-                            x: { title: { display: true, text: "Status" } },
+                            x: { title: { display: true, text: "Warehouse - Status" } },
                         },
                         plugins: { title: { display: true, text: "Space Occupancy Report" } },
                     },
@@ -271,11 +280,11 @@ const ReportPage: React.FC = () => {
                 return {
                     type: "bar" as const,
                     data: {
-                        labels: reportData.map((d: any) => d.status || "Unknown"),
+                        labels: reportData.map((d: any) => `${d.clientName} - ${d.status}`),
                         datasets: [
                             {
                                 label: "Total Amount",
-                                data: reportData.map((d: any) => d._sum?.totalAmount || 0),
+                                data: reportData.map((d: any) => d.totalAmount),
                                 backgroundColor: colors.primary,
                                 borderWidth: 1,
                             },
@@ -286,9 +295,50 @@ const ReportPage: React.FC = () => {
                         maintainAspectRatio: false,
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: "Amount ($)" } },
-                            x: { title: { display: true, text: "Status" } },
+                            x: { title: { display: true, text: "Client - Status" } },
                         },
                         plugins: { title: { display: true, text: "Revenue Report" } },
+                    },
+                };
+
+          
+            case "AGREEMENT_STATUS":
+                const agreementCounts = reportData.reduce((acc: any, agreement: any) => {
+                    const key = `${agreement.clientName} - ${agreement.status}`;
+                    acc[key] = (acc[key] || 0) + 1;
+                    return acc;
+                }, {});
+                const labels = Object.keys(agreementCounts);
+                return {
+                    type: "bar" as const,
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Agreement Count",
+                                data: Object.values(agreementCounts),
+                                backgroundColor: labels.map(label => {
+                                    const status = label.split(' - ')[1]; // Extract status from "Client - Status"
+                                    return statusColors[status] || colors.info; // Default to info if status is unknown
+                                }),
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: "Number of Agreements" } },
+                            x: { title: { display: true, text: "Client - Status" } },
+                        },
+                        plugins: {
+                            title: { display: true, text: "Agreement Status Report" },
+                            legend: {
+                                display: true,
+                                position: 'top' as const,
+                            },
+                        },
                     },
                 };
 
@@ -296,11 +346,11 @@ const ReportPage: React.FC = () => {
                 return {
                     type: "pie" as const,
                     data: {
-                        labels: reportData.map((d: any) => d.status),
+                        labels: reportData.map((d: any) => `${d.status} - ${d.priority}`),
                         datasets: [
                             {
                                 label: "Tickets",
-                                data: reportData.map((d: any) => d._count?.id || 0),
+                                data: reportData.map((d: any) => d.count),
                                 backgroundColor: Object.values(colors),
                                 borderWidth: 1,
                             },
@@ -310,6 +360,104 @@ const ReportPage: React.FC = () => {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: { title: { display: true, text: "Support Ticket Report" } },
+                    },
+                };
+
+            case "WAREHOUSE_CAPACITY":
+                const totalAvailable = reportData.reduce((sum: number, w: any) => sum + w.availableSpace, 0);
+                const totalNotAvailable = reportData.reduce((sum: number, w: any) => sum + w.notAvailableSpace, 0);
+                return {
+                    type: "pie" as const,
+                    data: {
+                        labels: ["Available Space", "Not Available Space"],
+                        datasets: [
+                            {
+                                label: "Space",
+                                data: [totalAvailable, totalNotAvailable],
+                                backgroundColor: [colors.success, colors.danger],
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: "Warehouse Capacity Report" },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context: any) => {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = totalAvailable + totalNotAvailable;
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                                        return `${label}: ${value} sq ft (${percentage}%)`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                };
+
+            case "CLIENT_ACTIVITY":
+                return {
+                    type: "bar" as const,
+                    data: {
+                        labels: reportData.map((d: any) => d.clientName),
+                        datasets: [
+                            {
+                                label: "Agreements",
+                                data: reportData.map((d: any) => d.agreementCount),
+                                backgroundColor: colors.primary,
+                                borderWidth: 1,
+                            },
+                            {
+                                label: "Invoices",
+                                data: reportData.map((d: any) => d.invoiceCount),
+                                backgroundColor: colors.warning,
+                                borderWidth: 1,
+                            },
+                            {
+                                label: "Support Tickets",
+                                data: reportData.map((d: any) => d.supportCount),
+                                backgroundColor: colors.danger,
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: "Count" } },
+                            x: { title: { display: true, text: "Client" } },
+                        },
+                        plugins: { title: { display: true, text: "Client Activity Report" } },
+                    },
+                };
+
+            case "INVOICE_AGING":
+                return {
+                    type: "bar" as const,
+                    data: {
+                        labels: reportData.map((d: any) => `${d.clientName} - ${d.status}`),
+                        datasets: [
+                            {
+                                label: "Invoice Amount",
+                                data: reportData.map((d: any) => d.totalAmount),
+                                backgroundColor: colors.warning,
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: "Amount ($)" } },
+                            x: { title: { display: true, text: "Client - Status" } },
+                        },
+                        plugins: { title: { display: true, text: "Invoice Aging Report" } },
                     },
                 };
 
@@ -328,21 +476,13 @@ const ReportPage: React.FC = () => {
             return null;
         }
 
-        if (chartConfig.type === "bar") {
-            return (
-                <div style={{ height: 400 }}>
-                    <Bar data={chartConfig.data} options={chartConfig.options} />
-                </div>
-            );
-        } else if (chartConfig.type === "pie") {
-            return (
-                <div style={{ height: 400 }}>
-                    <Pie data={chartConfig.data} options={chartConfig.options} />
-                </div>
-            );
-        } else {
-            return null;
-        }
+        const ChartComponent = chartConfig.type === "pie" ? Pie : Bar;
+
+        return (
+            <div className="h-96">
+                <ChartComponent data={chartConfig.data} options={chartConfig.options} />
+            </div>
+        );
     };
 
     const renderTable = () => {
@@ -350,22 +490,52 @@ const ReportPage: React.FC = () => {
 
         let headers: string[] = [];
         let rows: any[] = [];
+        console.log(reportData)
+        console.log(reportType)
 
-        if (reportType === "SPACE_UTILIZATION") {
-            headers = ["Warehouse", "Occupied (sq ft)", "Total (sq ft)", "Utilization Rate", "Space Count"];
-            rows = reportData.warehouseMetrics;
-        } else if (Array.isArray(reportData)) {
-            headers = reportData.length > 0 ? Object.keys(reportData[0]) : [];
-            rows = reportData;
-        } else {
-            return <div className="text-center py-8 text-gray-500">Invalid data format</div>;
+        switch (reportType) {
+            case "SPACE_UTILIZATION":
+                headers = ["Warehouse", "Occupied (sq ft)", "Total (sq ft)", "Utilization Rate", "Space Count"];
+                rows = reportData?.warehouseMetrics;
+                break;
+            case "SPACE_OCCUPANCY":
+                headers = ["warehouseName", "status", "count"];
+                rows = reportData;
+                break;
+            case "REVENUE":
+                headers = ["clientName", "status", "totalAmount"];
+                rows = reportData;
+                break;
+            case "AGREEMENT_STATUS":
+                headers = ["id", "status", "monthlyRentAmount", "rentStartDate", "clientName", "spaceCode", "spaceType", "warehouseName"];
+                rows = reportData;
+                break;
+            case "SUPPORT_TICKET":
+                headers = ["Status", "Priority", "Category", "Count"];
+                rows = reportData;
+                break;
+            case "WAREHOUSE_CAPACITY":
+                headers = ["warehouseName", "totalCapacity", "availableSpace", "notAvailableSpace", "spaceCount"];
+                rows = reportData;
+                break;
+            case "CLIENT_ACTIVITY":
+                headers = ["clientName", "agreementCount", "activeAgreements", "invoiceCount", "pendingInvoices", "supportCount", "openSupports"];
+                rows = reportData;
+                break;
+            case "INVOICE_AGING":
+                headers = ["invoiceNumber", "dueDate", "totalAmount", "status", "clientName"];
+                rows = reportData;
+                break;
+            default:
+                headers = reportData.length > 0 ? Object.keys(reportData[0]) : [];
+                rows = reportData;
         }
 
         return (
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 shadow-lg">
-                    <thead className="bg-gray-50">
-                        <tr className="bg-blue-600 text-white">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-blue-500">
+                        <tr>
                             {headers.map(header => (
                                 <th
                                     key={header}
@@ -381,13 +551,21 @@ const ReportPage: React.FC = () => {
                             <tr key={index} className="hover:bg-gray-50">
                                 {headers.map(header => (
                                     <td key={header} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {reportType === "SPACE_UTILIZATION" && header === "warehouseName"
-                                            ? row.warehouseName
-                                            : reportType === "SPACE_UTILIZATION" && header === "utilizationRate"
+                                        {reportType === "SPACE_UTILIZATION" && header === "utilizationRate"
                                             ? `${row.utilizationRate.toFixed(2)}%`
-                                            : typeof row[header] === "object"
-                                            ? JSON.stringify(row[header])
-                                            : String(row[header] || "-")
+                                            : reportType === "SPACE_OCCUPANCY" && header === "spaceCount"
+                                            ? row.count
+                                            : reportType === "REVENUE" && header === "totalAmount"
+                                            ? `₹${row.totalAmount}`
+                                            : reportType === "AGREEMENT_STATUS" && header === "monthlyRentAmount"
+                                            ? `₹${row.monthlyRentAmount}`
+                                            : reportType === "AGREEMENT_STATUS" && header === "rentStartDate"
+                                            ? new Date(row.rentStartDate).toLocaleDateString()
+                                            : reportType === "INVOICE_AGING" && header === "totalAmount"
+                                            ? `₹${row.totalAmount}`
+                                            : reportType === "INVOICE_AGING" && header === "dueDate"
+                                            ? new Date(row.dueDate).toLocaleDateString()
+                                            : row[header] ?? "-"
                                         }
                                     </td>
                                 ))}
@@ -401,7 +579,7 @@ const ReportPage: React.FC = () => {
 
     return (
         <div className="container mx-auto p-6 space-y-6">
-            <Card className="shadow-lg">
+            <Card>
                 <CardHeader>
                     <CardTitle>Warehouse Reports</CardTitle>
                 </CardHeader>
