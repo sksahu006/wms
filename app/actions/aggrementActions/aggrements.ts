@@ -22,6 +22,7 @@ const createAgreementSchema = z.object({
   remarks: z.string().optional().nullable(),
   status: z.enum(["PENDING", "ACTIVE", "INACTIVE"]).default("PENDING"),
   documentUrl: z.string().url().optional().nullable(),
+  monthlyRentAmount: z.number().optional().nullable(),
 });
 
 // Validation schema for updating an agreement
@@ -72,7 +73,9 @@ export async function createAgreement(formData: FormData) {
       waterCharges: formData.get("waterCharges")
         ? Number(formData.get("waterCharges"))
         : null,
-      remarks: formData.get("remarks"),
+        monthlyRentAmount: formData.get("monthlyRentAmount")
+        ? Number(formData.get("monthlyRentAmount"))
+        : null,
       status: formData.get("status"),
       documentUrl,
     });
@@ -119,7 +122,7 @@ export async function createAgreement(formData: FormData) {
         spaceType: space.type,
         areaSqft: space.size,
         monthlyRatePerSqft,
-        monthlyRentAmount: space.rate || 0,
+        monthlyRentAmount: data?.monthlyRentAmount || 0,
         handoverDate: data.handoverDate
           ? new Date(data.handoverDate)
           : null,
@@ -226,7 +229,7 @@ export async function updateAgreement(id: string, formData: FormData) {
 
     // Check if the status is being changed to INACTIVE
     const previousAgreement = await prisma.agreement.findUnique({
-      where: { id },
+      where: { id,isDeleted: false },
     });
 
     const isStatusChangedToInactive = previousAgreement?.status !== 'INACTIVE' && data.status === 'INACTIVE';
@@ -311,7 +314,10 @@ export async function getAllAgreements(take?: number, skip?: number) {
     const isAdmin = session.user.role === 'ADMIN';
 
     // Build the where clause for non-admin users
-    const whereClause = isAdmin ? {} : { userId: session?.user?.id };
+    const whereClause = {
+      isDeleted: false,
+      ...(isAdmin ? {} : { userId: session?.user?.id }),
+    };
 
     // Fetch agreements with pagination and only necessary fields
     const agreements = await prisma.agreement.findMany({
@@ -360,12 +366,38 @@ export async function getAllAgreements(take?: number, skip?: number) {
 // Server action to delete an agreement
 export async function deleteAgreement(id: string) {
   try {
-    await prisma.agreement.delete({
-      where: { id },
-    });
 
-    revalidatePath("/agreements");
+    const session = await getServerAuth();
+    if (!session || session.user.role !== 'ADMIN') {
+      throw new Error('Unauthorized: Only admins can delete agreements');
+    }
+    const agreement = await prisma.agreement.findUnique({
+      where: { id },
+      include: { space: true, invoice: true },
+    });
+    if (!agreement) {
+      throw new Error('Agreement not found');
+    }
+
+    // if (agreement.invoice && agreement.invoice.status !== 'PAID') {
+    //   throw new Error('Cannot delete agreement with unpaid invoices');
+    // }
+    if (agreement.space) {
+      await prisma.space.update({
+        where: { id: agreement.spaceId },
+        data: {
+          status: 'AVAILABLE',
+          clientId: null,
+        },
+      });
+    }
+    await prisma.agreement.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+    revalidatePath('/agreements');
     return { success: true };
+
   } catch (error) {
     console.error(error);
     return { success: false, error: error instanceof Error ? error.message : "Failed to delete agreement" };
@@ -379,7 +411,7 @@ export async function getAgreementsByUser(userId: string, take?: number, skip?: 
 
 
     const agreements = await prisma.agreement.findMany({
-      where: { userId },
+      where: { userId ,isDeleted: false }, // ✅ this checks if no invoice exists
       take: itemsPerPage,
       skip: itemsToSkip,
       select: {
@@ -431,6 +463,7 @@ export const getSpacesByAgreement = async (clientId: string) => {
       where: {
         userId: clientId,
         status: "ACTIVE",
+        isDeleted: false, 
         invoiceId: null, // ✅ this checks if no invoice exists
       },
       include: {

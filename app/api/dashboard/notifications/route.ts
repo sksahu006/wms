@@ -13,7 +13,7 @@ export async function GET() {
             // Monthly Revenue (last 6 months)
             prisma.invoice.groupBy({
                 by: ["date"],
-                where: { status: "PAID", date: { gte: sixMonthsAgo } },
+                where: { status: "PAID",isDeleted:false, date: { gte: sixMonthsAgo } },
                 _sum: { totalAmount: true },
             }),
             // Warehouse Utilization (per warehouse)

@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { Edit, Loader2 } from 'lucide-react';
 import { getAllAgreements } from '@/app/actions/aggrementActions/aggrements';
 import { getServerAuth } from '@/lib/auth';
+import DeleteAgreementButton from '@/components/DeleteAgreementButton';
 
 type Agreement = {
   id: string;
@@ -99,7 +100,7 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                 </TableHeader>
                 <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
                   {agreements.map((agreement) => (
-                    <TableRow  className='border-b-[1px] border-b-gray-300 shadow-md' key={agreement.id}>
+                    <TableRow className='border-b-[1px] border-b-gray-300 shadow-md' key={agreement.id}>
                       <TableCell className='font-mono'>{agreement.clientName || 'N/A'}</TableCell>
                       <TableCell>{agreement.spaceType}</TableCell>
                       <TableCell>{agreement.areaSqft}</TableCell>
@@ -126,14 +127,17 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                         </Link>
 
                         {session && session.user.role === 'ADMIN' && (
-                          <Link href={`/dashboard/agreements/${agreement.id}/edit`}>
-                            <Button
-                              variant="link"
-                              className="text-green-600 hover:text-green-800 font-semibold "
-                            >
-                              Edit <Edit className="text-green-400 size-4" />
-                            </Button>
-                          </Link>
+                          <>
+                            <Link href={`/dashboard/agreements/${agreement.id}/edit`}>
+                              <Button
+                                variant="link"
+                                className="text-green-600 hover:text-green-800 font-semibold "
+                              >
+                                Edit <Edit className="text-green-400 size-4" />
+                              </Button>
+                            </Link>
+                            <DeleteAgreementButton agreementId={agreement.id} />
+                          </>
                         )}
                       </TableCell>
 
@@ -174,8 +178,8 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                       size="sm"
                       disabled={!pagination.hasPreviousPage}
                       className={`text-white border-none ${!pagination.hasPreviousPage
-                          ? 'bg-[#7737ec] hover:from-purple-600 hover:to-pink-600 cursor-not-allowed'
-                          : 'bg-[#7737ec] hover:bg-black hover:text-white '
+                        ? 'bg-[#7737ec] hover:from-purple-600 hover:to-pink-600 cursor-not-allowed'
+                        : 'bg-[#7737ec] hover:bg-black hover:text-white '
                         }`}
                     >
                       Previous
@@ -188,8 +192,8 @@ export default async function AgreementsPage({ searchParams }: AgreementsPagePro
                       size="sm"
                       disabled={!pagination.hasNextPage}
                       className={`text-white border-none ${!pagination.hasNextPage
-                          ? 'bg-gradient-to-r from-green-500 to-blue-500  text-white disabled:opacity-50 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                        ? 'bg-gradient-to-r from-green-500 to-blue-500  text-white disabled:opacity-50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
                         }`}
                     >
                       Next

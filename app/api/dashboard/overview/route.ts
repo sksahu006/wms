@@ -24,12 +24,12 @@ export async function GET() {
         ] = await Promise.all([
             // Total Revenue (PAID invoices this month)
             prisma.invoice.aggregate({
-                where: { status: "PAID", date: { gte: startOfThisMonth } },
+                where: { status: "PAID",isDeleted:false, date: { gte: startOfThisMonth } },
                 _sum: { totalAmount: true },
             }),
             // Total Revenue (PAID invoices last month)
             prisma.invoice.aggregate({
-                where: { status: "PAID", date: { gte: startOfLastMonth, lt: startOfThisMonth } },
+                where: { status: "PAID",isDeleted:false, date: { gte: startOfLastMonth, lt: startOfThisMonth } },
                 _sum: { totalAmount: true },
             }),
             // Space Stats (current)
@@ -52,14 +52,14 @@ export async function GET() {
             }),
             // Pending Invoices
             prisma.invoice.aggregate({
-                where: { status: { in: ["PENDING", "OVERDUE"] } },
+                where: { status: { in: ["PENDING", "OVERDUE"] },isDeleted:false },
                 _sum: { totalAmount: true },
                 _count: { id: true },
             }),
             // Revenue Overview (last 7 days)
             prisma.invoice.groupBy({
                 by: ["date"],
-                where: { status: "PAID", date: { gte: sevenDaysAgo } },
+                where: { status: "PAID", date: { gte: sevenDaysAgo },isDeleted:false },
                 _sum: { totalAmount: true },
                 orderBy: { date: "asc" },
             }),
@@ -71,12 +71,13 @@ export async function GET() {
                     take: 5,
                 }),
                 prisma.invoice.findMany({
-                    where: { status: { in: ["PAID", "OVERDUE"] }, updatedAt: { gte: subDays(now, 5) } },
+                    where: { status: { in: ["PAID", "OVERDUE"] }, updatedAt: { gte: subDays(now, 5) },isDeleted:false },
                     select: { id: true, invoiceNumber: true, totalAmount: true, status: true, dueDate: true, updatedAt: true },
                     take: 5,
                 }),
                 prisma.agreement.findMany({
                     where: {
+                        isDeleted: false,
                         OR: [
                             { status: "PENDING", createdAt: { gte: subDays(now, 5) } },
                             {

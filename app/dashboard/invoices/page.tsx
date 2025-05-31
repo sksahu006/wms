@@ -22,15 +22,15 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
 import InvoiceSearchControls from "@/components/SearchComponent";
 import { getInvoices } from "@/app/actions/invoiceActions/invoice";
-import { formatToUTCISOString } from "@/lib/formatToUTCISOString";
 import { getServerAuth } from "@/lib/auth";
+import DeleteInvoiceButton from "@/components/DeleteInvoiceButton";
 
 export default async function InvoicesPage({
   searchParams,
 }: {
   searchParams: { tab?: string; search?: string; page?: string };
 }) {
-  const session = await getServerAuth()
+  const session = await getServerAuth();
   const tab = searchParams?.tab || "all";
   const search = searchParams?.search || "";
   const page = parseInt(searchParams?.page || "1", 10);
@@ -76,19 +76,23 @@ export default async function InvoicesPage({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-        {session && session.user.role === "ADMIN" && <Link href="/dashboard/invoices/add">
-          <Button variant="default" size="sm">
-            <Plus className="mr-2 h-4 w-4" /> Create Invoice
-          </Button>
-        </Link>}
+        {session && session.user.role === "ADMIN" && (
+          <Link href="/dashboard/invoices/add">
+            <Button variant="default" size="sm">
+              <Plus className="mr-2 h-4 w-4" /> Create Invoice
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {invoiceStats.map((stat, index) => (
-          <Card key={index}   className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300">
+          <Card
+            key={index}
+            className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              {/* <FileText className="h-4 w-4 text-muted-foreground" /> */}
               {stat.icon}
             </CardHeader>
             <CardContent>
@@ -121,7 +125,7 @@ export default async function InvoicesPage({
                       <TableHead className="text-right text-white">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody className='text-black dark:text-white bg-white dark:bg-black '>
+                  <TableBody className="text-black dark:text-white bg-white dark:bg-black">
                     {invoices.map((invoice) => (
                       <TableRow key={invoice.id}>
                         <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
@@ -134,8 +138,12 @@ export default async function InvoicesPage({
                         <TableCell>
                           ₹{invoice.totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                         </TableCell>
-                        <TableCell>{new Date(invoice.date).toLocaleDateString("en-IN", { dateStyle: "medium" })}</TableCell>
-                        <TableCell>{new Date(invoice.dueDate).toLocaleDateString("en-IN", { dateStyle: "medium" })}</TableCell>
+                        <TableCell>
+                          {new Date(invoice.date).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(invoice.dueDate).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                        </TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -159,7 +167,8 @@ export default async function InvoicesPage({
                             {invoice.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right flex items-center justify-end space-x-2">
+                          <DeleteInvoiceButton invoiceId={invoice.id} />
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon">
@@ -173,11 +182,19 @@ export default async function InvoicesPage({
                                 <Link href={`/dashboard/invoices/${invoice.id}`}>View invoice</Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem>Download PDF</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuSeparator />
-                              {session && session.user.role === "ADMIN" && <DropdownMenuItem asChild>
-                                <Link href={`/dashboard/invoices/edit/${invoice.id}`}>Edit invoice</Link>
-                              </DropdownMenuItem>}
+                              {session && session.user.role === "ADMIN" && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem asChild>
+                                    <Link href={`/dashboard/invoices/edit/${invoice.id}`}>
+                                      Edit invoice
+                                    </Link>
+                                  </DropdownMenuItem>
+
+
+
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -190,28 +207,6 @@ export default async function InvoicesPage({
                 <div className="text-sm text-muted-foreground">
                   Showing {invoices.length} of {totalItems} invoices
                 </div>
-                {/* <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page === 1}
-                    asChild
-                  >
-                    <Link href={{ pathname: "/dashboard/invoices", query: { tab, search, page: page - 1 } }}>
-                      Previous
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= totalPages}
-                    asChild
-                  >
-                    <Link href={{ pathname: "/dashboard/invoices", query: { tab, search, page: page + 1 } }}>
-                      Next
-                    </Link>
-                  </Button>
-                </div> */}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -232,7 +227,6 @@ export default async function InvoicesPage({
                       Previous
                     </Link>
                   </Button>
-
                   <Button
                     variant="outline"
                     size="sm"
@@ -253,7 +247,6 @@ export default async function InvoicesPage({
                     </Link>
                   </Button>
                 </div>
-
               </div>
             </TabsContent>
           </Tabs>
@@ -262,4 +255,3 @@ export default async function InvoicesPage({
     </div>
   );
 }
-

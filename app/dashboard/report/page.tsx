@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Bar, Pie } from "react-chartjs-2";
 import {
@@ -88,6 +88,8 @@ const ReportPage: React.FC = () => {
     const [clients, setClients] = useState<DropdownOption[]>([]);
     const [selectedMultiValues, setSelectedMultiValues] = useState<Record<string, string[]>>({});
     const [error, setError] = useState<string | null>(null);
+    const chartRef = useRef<any>(null); // Use 'any' or ChartJSOrUndefined if available
+    const [isChartLoaded, setIsChartLoaded] = useState(true); // Track chart render status
 
     const { control, handleSubmit, watch, setValue, reset } = useForm<FormData>({
         resolver: zodResolver(FormSchema),
@@ -145,7 +147,7 @@ const ReportPage: React.FC = () => {
         return config.map(filter => ({
             ...filter,
             options: filter.key === "warehouseId" ? warehouses :
-                    filter.key === "clientId" ? clients :
+                filter.key === "clientId" ? clients :
                     filter.options,
         }));
     };
@@ -174,6 +176,7 @@ const ReportPage: React.FC = () => {
             const result = await fetchReportData(formData);
             console.log('Report data:', result);
             setReportData(result);
+             setIsChartLoaded(false);
         } catch (error) {
             console.error('Failed to fetch report:', error);
             setReportData(null);
@@ -193,7 +196,7 @@ const ReportPage: React.FC = () => {
             danger: "#ef4444",
             info: "#6366f1",
         };
-          const statusColors: Record<string, string> = {
+        const statusColors: Record<string, string> = {
             PENDING: colors.warning, // Orange for PENDING
             ACTIVE: colors.success,  // Green for ACTIVE
             TERMINATED: colors.danger, // Red for TERMINATED (if applicable)
@@ -234,10 +237,10 @@ const ReportPage: React.FC = () => {
                                 title: { display: true, text: "Warehouse" },
                             },
                         },
-                        plugins: {
+                      plugins: {
                             title: {
                                 display: true,
-                                text: `Space Utilization Report (${totals.utilizationRate}% Utilized)`,
+                                text: `Space Utilization Report (${totals?.utilizationRate}% Utilized)`,
                             },
                             tooltip: {
                                 callbacks: {
@@ -301,7 +304,7 @@ const ReportPage: React.FC = () => {
                     },
                 };
 
-          
+
             case "AGREEMENT_STATUS":
                 const agreementCounts = reportData.reduce((acc: any, agreement: any) => {
                     const key = `${agreement.clientName} - ${agreement.status}`;
@@ -465,6 +468,104 @@ const ReportPage: React.FC = () => {
                 return null;
         }
     };
+    const downloadCSV = () => {
+        if (!reportData || (Array.isArray(reportData) && !reportData.length)) return;
+
+        let headers: string[] = [];
+        let rows: any[] = [];
+
+        switch (reportType) {
+            case "SPACE_UTILIZATION":
+                headers = ["Warehouse", "Occupied (sq ft)", "Total (sq ft)", "Utilization Rate", "Space Count"];
+                rows = reportData?.warehouseMetrics;
+                break;
+            case "SPACE_OCCUPANCY":
+                headers = ["warehouseName", "status", "count"];
+                rows = reportData;
+                break;
+            case "REVENUE":
+                headers = ["clientName", "status", "totalAmount"];
+                rows = reportData;
+                break;
+            case "AGREEMENT_STATUS":
+                headers = ["id", "status", "monthlyRentAmount", "rentStartDate", "clientName", "spaceCode", "spaceType", "warehouseName"];
+                rows = reportData;
+                break;
+            case "SUPPORT_TICKET":
+                headers = ["Status", "Priority", "Category", "Count"];
+                rows = reportData;
+                break;
+            case "WAREHOUSE_CAPACITY":
+                headers = ["warehouseName", "totalCapacity", "availableSpace", "notAvailableSpace", "spaceCount"];
+                rows = reportData;
+                break;
+            case "CLIENT_ACTIVITY":
+                headers = ["clientName", "agreementCount", "activeAgreements", "invoiceCount", "pendingInvoices", "supportCount", "openSupports"];
+                rows = reportData;
+                break;
+            case "INVOICE_AGING":
+                headers = ["invoiceNumber", "dueDate", "totalAmount", "status", "clientName"];
+                rows = reportData;
+                break;
+            default:
+                headers = reportData.length > 0 ? Object.keys(reportData[0]) : [];
+                rows = reportData;
+        }
+
+        // Format data for CSV
+        const csvRows = [];
+        // Add headers
+        csvRows.push(headers.map(header => `"${header.replace(/"/g, '""')}"`).join(','));
+
+        // Add data rows
+        rows.forEach(row => {
+            const values = headers.map(header => {
+                let value = row[header] ?? "-";
+                if (reportType === "SPACE_UTILIZATION" && header === "utilizationRate") {
+                    value = `${row.utilizationRate.toFixed(2)}%`;
+                } else if (reportType === "SPACE_OCCUPANCY" && header === "spaceCount") {
+                    value = row.count;
+                } else if (reportType === "REVENUE" && header === "totalAmount") {
+                    value = `$${row.totalAmount}`;
+                } else if (reportType === "AGREEMENT_STATUS" && header === "monthlyRentAmount") {
+                    value = `$${row.monthlyRentAmount}`;
+                } else if (reportType === "AGREEMENT_STATUS" && header === "rentStartDate") {
+                    value = new Date(row.rentStartDate).toLocaleDateString();
+                } else if (reportType === "INVOICE_AGING" && header === "totalAmount") {
+                    value = `$${row.totalAmount}`;
+                } else if (reportType === "INVOICE_AGING" && header === "dueDate") {
+                    value = new Date(row.dueDate).toLocaleDateString();
+                }
+                return `"${String(value).replace(/"/g, '""')}"`;
+            });
+            csvRows.push(values.join(','));
+        });
+
+        // Create CSV content
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${reportType.toLowerCase().replace(/_/g, '-')}-report-${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const downloadChart = () => {
+        if (!chartRef.current) return;
+
+        const canvas = chartRef.current.canvas;
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${reportType.toLowerCase().replace(/_/g, '-')}-chart-${new Date().toISOString().split('T')[0]}.png`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const renderChart = () => {
         if (!reportData) {
@@ -480,7 +581,15 @@ const ReportPage: React.FC = () => {
 
         return (
             <div className="h-96">
-                <ChartComponent data={chartConfig.data} options={chartConfig.options} />
+                <ChartComponent
+                    ref={(ref: any) => {
+                        chartRef.current = ref;
+                        if (ref) {
+                            console.log('Chart rendered, ref set:', ref);
+
+                        }
+                    }}
+                    data={chartConfig.data} options={chartConfig.options} />
             </div>
         );
     };
@@ -554,18 +663,18 @@ const ReportPage: React.FC = () => {
                                         {reportType === "SPACE_UTILIZATION" && header === "utilizationRate"
                                             ? `${row.utilizationRate.toFixed(2)}%`
                                             : reportType === "SPACE_OCCUPANCY" && header === "spaceCount"
-                                            ? row.count
-                                            : reportType === "REVENUE" && header === "totalAmount"
-                                            ? `₹${row.totalAmount}`
-                                            : reportType === "AGREEMENT_STATUS" && header === "monthlyRentAmount"
-                                            ? `₹${row.monthlyRentAmount}`
-                                            : reportType === "AGREEMENT_STATUS" && header === "rentStartDate"
-                                            ? new Date(row.rentStartDate).toLocaleDateString()
-                                            : reportType === "INVOICE_AGING" && header === "totalAmount"
-                                            ? `₹${row.totalAmount}`
-                                            : reportType === "INVOICE_AGING" && header === "dueDate"
-                                            ? new Date(row.dueDate).toLocaleDateString()
-                                            : row[header] ?? "-"
+                                                ? row.count
+                                                : reportType === "REVENUE" && header === "totalAmount"
+                                                    ? `₹${row.totalAmount}`
+                                                    : reportType === "AGREEMENT_STATUS" && header === "monthlyRentAmount"
+                                                        ? `₹${row.monthlyRentAmount}`
+                                                        : reportType === "AGREEMENT_STATUS" && header === "rentStartDate"
+                                                            ? new Date(row.rentStartDate).toLocaleDateString()
+                                                            : reportType === "INVOICE_AGING" && header === "totalAmount"
+                                                                ? `₹${row.totalAmount}`
+                                                                : reportType === "INVOICE_AGING" && header === "dueDate"
+                                                                    ? new Date(row.dueDate).toLocaleDateString()
+                                                                    : row[header] ?? "-"
                                         }
                                     </td>
                                 ))}
@@ -704,6 +813,20 @@ const ReportPage: React.FC = () => {
                     <CardTitle>Report Results</CardTitle>
                 </CardHeader>
                 <CardContent>
+                    <div className="flex justify-end space-x-4 mb-4">
+                        {reportData && (
+                            <>
+                                <Button onClick={downloadCSV} disabled={!reportData}>
+                                    Download Table as CSV
+                                </Button>
+                                {getChartData() && (
+                                    <Button onClick={downloadChart} disabled={!chartRef?.current}>
+                                        Download Chart as PNG
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    </div>
                     {renderChart()}
                     {renderTable()}
                 </CardContent>

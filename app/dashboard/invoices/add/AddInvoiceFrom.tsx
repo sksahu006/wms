@@ -30,7 +30,7 @@ const formSchema = z.object({
     invoiceNumber: z
         .string()
         .min(1, "Invoice number is required")
-        .regex(/^INV-\d+$/, "Invoice number must start with 'INV-' followed by digits"),
+        .regex(/^INV-[a-zA-Z0-9]+$/, "Invoice number must start with 'INV-' followed by letters or numbers"),
     clientId: z.string().cuid("Please select a valid client"),
     spaceId: z.string().cuid("Please select a valid space"),
     date: z
@@ -105,7 +105,7 @@ export default function AddInvoiceForm() {
 
     // Fetch users for the combobox
     const fetchUsers = async (search: string) => {
-        const usersResult = await getUsers({ page: 1, pageSize: 10, search });
+        const usersResult = await getUsers({ page: 1, pageSize: 15, search });
 
         if (usersResult.success) {
             const mapped = usersResult.data.map((user) => ({
@@ -337,7 +337,7 @@ export default function AddInvoiceForm() {
                                 <FormControl>
                                     <Input
                                         type="number"
-                                        step="0.01"
+                                       
                                         placeholder="1000.00"
                                         min={0}
                                         {...field}
@@ -358,7 +358,7 @@ export default function AddInvoiceForm() {
                                 <FormControl>
                                     <Input
                                         type="number"
-                                        step="0.01"
+                                      
                                         placeholder="100.00"
                                         {...field}
                                         onChange={(e) => field.onChange(parseFloat(e.target.value))}
@@ -380,7 +380,7 @@ export default function AddInvoiceForm() {
                             <FormControl>
                                 <Input
                                     type="number"
-                                    step="0.01"
+                                   
                                     placeholder="1100.00"
                                     {...field}
                                     onChange={(e) => field.onChange(parseFloat(e.target.value))}
