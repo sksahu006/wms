@@ -9,7 +9,7 @@ export default function AboutPage() {
       <div className="sticky top-0 z-50 bg-white dark:bg-gray-950 shadow">
         <Header />
       </div>
-
+ 
       {/* Hero Section with Background Image */}
       <main className="flex-1">
         <section

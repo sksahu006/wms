@@ -19,6 +19,7 @@ import {
   Sun,
   Moon,
   LucideLoader2,
+  ClipboardMinus
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -103,6 +104,11 @@ export default function DashboardLayout({
       title: 'Support',
       href: '/dashboard/support',
       icon: LifeBuoy,
+    },
+     {
+      title: 'Reports',
+      href: '/dashboard/report',
+      icon: ClipboardMinus,
     },
   ]
 
