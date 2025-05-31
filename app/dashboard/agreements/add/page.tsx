@@ -199,6 +199,16 @@ export default function AddAgreementPage() {
                 placeholder="e.g., 50.00"
               />
             </div>
+             <div className="flex flex-col gap-2">
+              <Label htmlFor="monthlyRentAmount">Security Deposit</Label>
+              <Input
+                id="monthlyRentAmount"
+                name="monthlyRentAmount"
+                type="number"
+             
+                placeholder="e.g., 50.00"
+              />
+            </div>
 
             <div className="col-span-2 flex flex-col gap-2">
               <Label htmlFor="remarks">Remarks</Label>

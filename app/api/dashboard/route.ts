@@ -29,12 +29,12 @@ export async function GET(request: Request) {
         ] = await Promise.all([
             // Total Revenue (PAID invoices this month)
             prisma.invoice.aggregate({
-                where: { status: "PAID", date: { gte: startOfThisMonth } },
+                where: { status: "PAID",isDeleted:false, date: { gte: startOfThisMonth } },
                 _sum: { totalAmount: true },
             }),
             // Total Revenue (PAID invoices last month)
             prisma.invoice.aggregate({
-                where: { status: "PAID", date: { gte: startOfLastMonth, lt: startOfThisMonth } },
+                where: { status: "PAID",isDeleted:false, date: { gte: startOfLastMonth, lt: startOfThisMonth } },
                 _sum: { totalAmount: true },
             }),
             // Space Stats (current)
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
             }),
             // Pending Invoices
             prisma.invoice.aggregate({
-                where: { status: { in: ["PENDING", "OVERDUE"] } },
+                where: { status: { in: ["PENDING", "OVERDUE"] },isDeleted:false },
                 _sum: { totalAmount: true },
                 _count: { id: true },
             }),
@@ -71,13 +71,14 @@ export async function GET(request: Request) {
                 }),
                 // Invoices (PAID or OVERDUE, last 5 days)
                 prisma.invoice.findMany({
-                    where: { status: { in: ["PAID", "OVERDUE"] }, updatedAt: { gte: subDays(now, 5) } },
+                    where: { status: { in: ["PAID", "OVERDUE"] }, updatedAt: { gte: subDays(now, 5) },isDeleted:false },
                     select: { id: true, invoiceNumber: true, totalAmount: true, status: true, dueDate: true, updatedAt: true },
                     take: 5,
                 }),
                 // Agreements (Expiring soon or PENDING, last 5 days)
                 prisma.agreement.findMany({
                     where: {
+                        isDeleted: false,
                         OR: [
                             { status: "PENDING", createdAt: { gte: subDays(now, 5) } },
                             {
@@ -208,7 +209,7 @@ export async function GET(request: Request) {
         // Revenue Overview (last 7 days)
         const revenueByDay = await prisma.invoice.groupBy({
             by: ["date"],
-            where: { status: "PAID", date: { gte: sevenDaysAgo } },
+            where: { status: "PAID",isDeleted:false, date: { gte: sevenDaysAgo } },
             _sum: { totalAmount: true },
             orderBy: { date: "asc" },
         });
@@ -223,7 +224,7 @@ export async function GET(request: Request) {
         const sixMonthsAgo = subMonths(now, 6);
         const monthlyRevenue = await prisma.invoice.groupBy({
             by: ["date"],
-            where: { status: "PAID", date: { gte: sixMonthsAgo } },
+            where: { status: "PAID",isDeleted:false, date: { gte: sixMonthsAgo } },
             _sum: { totalAmount: true },
         });
 

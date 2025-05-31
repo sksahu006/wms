@@ -367,7 +367,7 @@ const paginationSchema = z.object({
   search: z.string().optional(),
 });
 
-export async function getUsers({ page = 1, pageSize = 10, search = "" }) {
+export async function getUsers({ page = 1, pageSize = 15, search = "" }) {
   try {
     const {
       page: parsedPage,

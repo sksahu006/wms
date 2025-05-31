@@ -148,13 +148,13 @@ export default async function ClientsPage({
                           {/* <DropdownMenuItem>View invoices</DropdownMenuItem>
                           <DropdownMenuItem>View agreements</DropdownMenuItem> */}
                           <DropdownMenuSeparator />
-                          {client.status === "PENDING" ? (
+                          {/* {client.status === "PENDING" ? (
                             <DropdownMenuItem className="text-green-600">Approve client</DropdownMenuItem>
                           ) : client.status === "ACTIVE" ? (
                             <DropdownMenuItem className="text-yellow-600">Deactivate client</DropdownMenuItem>
                           ) : (
                             <DropdownMenuItem className="text-green-600">Activate client</DropdownMenuItem>
-                          )}
+                          )} */}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

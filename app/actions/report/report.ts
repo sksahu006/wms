@@ -106,6 +106,7 @@ class ReportHandlers {
     static async revenue(dateFilter: any, filters: Filters) {
         const invoices = await prisma.invoice.findMany({
             where: {
+                isDeleted: false,
                 ...dateFilter,
                 ...(getArrayFilter<InvoiceStatus>(filters, "status") && {
                     status: { in: getArrayFilter<InvoiceStatus>(filters, "status")! }
@@ -148,6 +149,7 @@ class ReportHandlers {
     static async agreementStatus(dateFilter: any, filters: Filters) {
         return prisma.agreement.findMany({
             where: {
+                isDeleted: false,
                 ...dateFilter,
                 ...(getArrayFilter<Status>(filters, "status") && {
                     status: { in: getArrayFilter<Status>(filters, "status")! }
@@ -276,6 +278,7 @@ class ReportHandlers {
     static async invoiceAging(dateFilter: any, filters: Filters) {
         return prisma.invoice.findMany({
             where: {
+                isDeleted: false,
                 ...dateFilter,
                 status: { in: ["PENDING", "OVERDUE"] },
                 ...(getSingleFilter<string>(filters, "clientId") && {

@@ -8,7 +8,7 @@ import { getServerAuth } from "@/lib/auth";
 
 // Schema for creating an invoice
 const createInvoiceSchema = z.object({
-  invoiceNumber: z.string().min(1, "Invoice number is required").regex(/^INV-\d+$/, "Invoice number must start with 'INV-' followed by digits"),
+  invoiceNumber: z.string().min(1, "Invoice number is required").regex(/^INV-[a-zA-Z0-9]+$/, "Invoice number must start with 'INV-' followed by letters or numbers"),
   clientId: z.string().cuid("Invalid client ID"),
   spaceId: z.string().cuid("Invalid space ID"),
   date: z.string().datetime({ message: "Invalid date format" }),
@@ -23,7 +23,7 @@ const createInvoiceSchema = z.object({
 // Schema for updating an invoice
 const updateInvoiceSchema = z.object({
   id: z.string().cuid("Invalid invoice ID"),
-  invoiceNumber: z.string().min(1, "Invoice number is required").regex(/^INV-\d+$/, "Invoice number must start with 'INV-' followed by digits").optional(),
+ invoiceNumber: z.string().min(1, "Invoice number is required").regex(/^INV-[a-zA-Z0-9]+$/, "Invoice number must start with 'INV-' followed by letters or numbers").optional(),
   clientId: z.string().cuid("Invalid client ID").optional(),
   spaceId: z.string().cuid("Invalid space ID").optional(),
   date: z.string().datetime({ message: "Invalid date format" }).optional(),
@@ -146,7 +146,7 @@ export async function createInvoice(formData: FormData) {
 export async function getInvoice(id: string) {
   try {
     const invoice = await prisma.invoice.findUnique({
-      where: { id: id },
+      where: { id: id,isDeleted: false },
       include: {
         client: { select: { id: true, name: true } },
         space: { select: { id: true, spaceCode: true } },
@@ -215,6 +215,7 @@ export async function getInvoices({
 
     // 4. Build secure query conditions
     const where: any = {
+       isDeleted: false,
       // For customers, only show their own invoices
       ...(user.role === 'CUSTOMER' && { clientId: user.id }),
       // For admins, allow filtering by clientId if provided
@@ -319,7 +320,7 @@ export async function updateInvoice(formData: FormData) {
 
     // Check if invoice exists
     const existingInvoice = await prisma.invoice.findUnique({
-      where: { id: data.id },
+      where: { id: data.id, isDeleted: false  },
     });
     if (!existingInvoice) {
       throw new Error("Invoice not found");
@@ -389,18 +390,39 @@ export async function updateInvoice(formData: FormData) {
 // Delete an invoice
 export async function deleteInvoice(id: string) {
   try {
+    const session = await getServerAuth();
+    if (!session || session.user.role !== "ADMIN") {
+      throw new Error("Unauthorized: Only admins can delete invoices");
+    }
+
     const { id: validatedId } = deleteInvoiceSchema.parse({ id });
 
     const invoice = await prisma.invoice.findUnique({
-      where: { id: validatedId },
+      where: { id: validatedId, isDeleted: false },
+      include: { agreement: true },
     });
     if (!invoice) {
       throw new Error("Invoice not found");
     }
 
-    await prisma.invoice.delete({
+    // Check if the invoice is linked to an agreement and is not paid
+    // if (invoice.agreement && invoice.status !== "PAID") {
+    //   throw new Error("Cannot delete an unpaid invoice linked to an agreement");
+    // }
+
+    // Soft delete the invoice
+    await prisma.invoice.update({
       where: { id: validatedId },
+      data: { isDeleted: true },
     });
+
+    // Unlink from agreement if applicable
+    if (invoice.agreement) {
+      await prisma.agreement.update({
+        where: { id: invoice.agreement.id },
+        data: { invoiceId: null },
+      });
+    }
 
     revalidatePath("/dashboard/invoices");
     return { success: true, message: "Invoice deleted successfully" };
@@ -430,7 +452,7 @@ export async function markInvoiceAsPaid(id: string) {
 
     // Update the invoice status
     const updatedInvoice = await prisma.invoice.update({
-      where: { id: validatedId },
+      where: { id: validatedId ,isDeleted: false},
       data: { status: "PAID" },
     });
 
