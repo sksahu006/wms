@@ -379,6 +379,7 @@ export async function getUsers({ page = 1, pageSize = 15, search = "" }) {
 
     const where = parsedSearch
       ? {
+        status: Status.ACTIVE, // Use the Status enum
         OR: [
           {
             name: {
@@ -393,9 +394,9 @@ export async function getUsers({ page = 1, pageSize = 15, search = "" }) {
             },
           },
         ],
-        role: Role.CUSTOMER, // Changed from Role to role
+        role: Role.CUSTOMER,
       }
-      : { role: Role.CUSTOMER }; // Ensure non-search queries also filter by role
+      : { role: Role.CUSTOMER };
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
