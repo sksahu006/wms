@@ -237,6 +237,7 @@ export async function GET(request: Request) {
 
         // Analytics: Warehouse Utilization (per warehouse)
         const warehouseUtilization = await prisma.warehouse.findMany({
+            where: { isDeleted: false },
             include: { spaces: { select: { status: true } } },
         });
 

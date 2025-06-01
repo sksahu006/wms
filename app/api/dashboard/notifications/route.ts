@@ -18,6 +18,7 @@ export async function GET() {
             }),
             // Warehouse Utilization (per warehouse)
             prisma.warehouse.findMany({
+                where: { isDeleted: false },
                 include: { spaces: { select: { status: true } } },
             }),
             // Client Distribution

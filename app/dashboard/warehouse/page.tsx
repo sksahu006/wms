@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getAllWarehouses } from '@/app/actions/warehouseActions/warehouseActions';
 import { SpaceStatus } from '@prisma/client';
 import { useSession } from 'next-auth/react';
+import DeleteWarehouseButton from '@/components/DeleteWarehouseButton';
 
 type Space = {
   id: string;
@@ -46,6 +47,7 @@ export default function WarehousePage() {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const session = useSession();
+   const [fetchTrigger, setFetchTrigger] = useState(0);
 
   if (!session?.data?.user || session.data.user.role !== 'ADMIN') {
     return (
@@ -91,7 +93,7 @@ export default function WarehousePage() {
     };
 
     fetchWarehouses();
-  }, [page, limit, search, toast]);
+  }, [page, limit, search, toast, fetchTrigger]); // Add fetchTrigger to re-fetch on delete
 
 
 
@@ -114,6 +116,10 @@ export default function WarehousePage() {
     params.set('page', newPage.toString());
     router.push(`?${params.toString()}`);
   };
+    const handleDelete = () => {
+    setFetchTrigger((prev) => prev + 1); // Trigger re-fetch
+  };
+
 
   const occupiedCount = warehouses?.reduce(
     (sum: number, wrh: any) =>
@@ -253,6 +259,7 @@ export default function WarehousePage() {
                             Edit
                           </Button>
                         </Link>
+                       <DeleteWarehouseButton warehouseId={wrh.id} onDelete={handleDelete} />
                       </TableCell>
 
 

@@ -8,7 +8,7 @@ import { getServerAuth } from "@/lib/auth";
 
 // Schema for creating an invoice
 const createInvoiceSchema = z.object({
-  invoiceNumber: z.string().min(1, "Invoice number is required").regex(/^INV-[a-zA-Z0-9]+$/, "Invoice number must start with 'INV-' followed by letters or numbers"),
+  invoiceNumber: z.string().min(1, "Invoice number is required"),
   clientId: z.string().cuid("Invalid client ID"),
   spaceId: z.string().cuid("Invalid space ID"),
   date: z.string().datetime({ message: "Invalid date format" }),
@@ -23,7 +23,7 @@ const createInvoiceSchema = z.object({
 // Schema for updating an invoice
 const updateInvoiceSchema = z.object({
   id: z.string().cuid("Invalid invoice ID"),
- invoiceNumber: z.string().min(1, "Invoice number is required").regex(/^INV-[a-zA-Z0-9]+$/, "Invoice number must start with 'INV-' followed by letters or numbers").optional(),
+ invoiceNumber: z.string().min(1, "Invoice number is required").optional(),
   clientId: z.string().cuid("Invalid client ID").optional(),
   spaceId: z.string().cuid("Invalid space ID").optional(),
   date: z.string().datetime({ message: "Invalid date format" }).optional(),
