@@ -30,7 +30,7 @@ const formSchema = z.object({
     invoiceNumber: z
         .string()
         .min(1, "Invoice number is required")
-        .regex(/^INV-[a-zA-Z0-9]+$/, "Invoice number must start with 'INV-' followed by letters or numbers"),
+       ,
     clientId: z.string().cuid("Please select a valid client"),
     spaceId: z.string().cuid("Please select a valid space"),
     date: z
@@ -460,3 +460,4 @@ export default function AddInvoiceForm() {
     );
 }
 
+ 

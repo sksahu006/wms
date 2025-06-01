@@ -1,5 +1,6 @@
 'use server';
 
+import { getServerAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -17,33 +18,33 @@ export type WarehouseInput = z.infer<typeof warehouseSchema>;
 
 // 👉 Create
 export async function createWarehouse(formData: FormData) {
-    const values = Object.fromEntries(formData.entries())
-  
-    const parsed = warehouseSchema.safeParse({
-      code: values.code,
-      name: values.name,
-      location: values.location,
-      storageType: values.storageType,
-      capacity: values.capacity,
-      managerId: values.managerId,
-    })
-  
-    if (!parsed.success) {
-      return {
-        success: false,
-        errors: parsed.error.flatten().fieldErrors,
-      }
-    }
-  
-    try {
-      const warehouse = await prisma.warehouse.create({ data: parsed.data })
-      revalidatePath('/dashboard/warehouse')
-      return { success: true, warehouse }
-    } catch (error) {
-      console.error('Create error:', error)
-      return { success: false, error: 'Failed to create warehouse' }
+  const values = Object.fromEntries(formData.entries())
+
+  const parsed = warehouseSchema.safeParse({
+    code: values.code,
+    name: values.name,
+    location: values.location,
+    storageType: values.storageType,
+    capacity: values.capacity,
+    managerId: values.managerId,
+  })
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors,
     }
   }
+
+  try {
+    const warehouse = await prisma.warehouse.create({ data: parsed.data })
+    revalidatePath('/dashboard/warehouse')
+    return { success: true, warehouse }
+  } catch (error) {
+    console.error('Create error:', error)
+    return { success: false, error: 'Failed to create warehouse' }
+  }
+}
 
 // 👉 Read all
 export async function getAllWarehouses({
@@ -63,6 +64,7 @@ export async function getAllWarehouses({
         skip,
         take: limit,
         where: {
+          isDeleted: false,
           name: {
             contains: search,
             mode: 'insensitive',
@@ -81,7 +83,7 @@ export async function getAllWarehouses({
             select: {
               spaces: {
                 where: {
-                  status: 'OCCUPIED', 
+                  status: 'OCCUPIED',
                 },
               },
             },
@@ -91,6 +93,7 @@ export async function getAllWarehouses({
       }),
       prisma.warehouse.count({
         where: {
+          isDeleted: false,
           name: {
             contains: search,
             mode: 'insensitive',
@@ -115,13 +118,13 @@ export async function getAllWarehouses({
   }
 }
 
-  
+
 
 // 👉 Read one by ID
 export async function getWarehouseById(id: string) {
   try {
     const warehouse = await prisma.warehouse.findUnique({
-      where: { id },
+      where: { id, isDeleted: false },
       include: { manager: true, spaces: true },
     });
 
@@ -153,7 +156,7 @@ export async function updateWarehouse(id: string, formData: FormData) {
 
   try {
     const updated = await prisma.warehouse.update({
-      where: { id },
+      where: { id, isDeleted: false },
       data: parsed.data,
     });
 
@@ -168,9 +171,58 @@ export async function updateWarehouse(id: string, formData: FormData) {
 // 👉 Delete
 export async function deleteWarehouse(id: string) {
   try {
-    await prisma.warehouse.delete({ where: { id } });
-    revalidatePath('/warehouses');
-    return { success: true };
+    const session = await getServerAuth();
+    if (!session || session.user.role !== 'ADMIN') {
+      return {
+        success: false,
+        error: 'Unauthorized: Only admins can delete warehouses',
+      };
+    }
+
+    const warehouse = await prisma.warehouse.findUnique({
+      where: { id, isDeleted: false },
+      include: {
+        spaces: {
+          include: {
+            agreements: {
+              where: {
+                status: { in: ['PENDING', 'ACTIVE'] },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!warehouse) {
+      return { success: false, error: 'Warehouse not found' };
+    }
+
+    // Check for spaces with active or pending agreements
+    const hasActiveAgreements = warehouse.spaces.some(
+      (space) => space.agreements.length > 0
+    );
+    if (hasActiveAgreements) {
+      return {
+        success: false,
+        error: 'Cannot delete warehouse with spaces linked to active or pending agreements',
+      };
+    }
+
+    // Soft delete the warehouse
+    await prisma.warehouse.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+
+    // Soft delete associated spaces (if any)
+    await prisma.space.updateMany({
+      where: { warehouseId: id },
+      data: { isDeleted: true },
+    });
+
+    revalidatePath('/dashboard/warehouse');
+    return { success: true, message: 'Warehouse deleted successfully' };
   } catch (error) {
     console.error('Delete error:', error);
     return { success: false, error: 'Failed to delete warehouse' };
