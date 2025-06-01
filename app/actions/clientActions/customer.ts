@@ -223,7 +223,7 @@ export async function getClients(
         address: true,
         businessType: true,
         created: true,
-        spaces:true,
+        spaces: true,
       },
       skip,
       take: pageSize,
@@ -374,11 +374,14 @@ export async function getUsers({ page = 1, pageSize = 15, search = "" }) {
       pageSize: parsedPageSize,
       search: parsedSearch,
     } = paginationSchema.parse({ page, pageSize, search });
+    const usersss = await prisma.user.findMany({ where: { role: Role.CUSTOMER, status: Status.ACTIVE } });
+    //console.log(usersss);
 
     const skip = (parsedPage - 1) * parsedPageSize;
 
     const where = parsedSearch
       ? {
+        status: Status.ACTIVE, // Use the Status enum
         OR: [
           {
             name: {
@@ -393,9 +396,9 @@ export async function getUsers({ page = 1, pageSize = 15, search = "" }) {
             },
           },
         ],
-        role: Role.CUSTOMER, // Changed from Role to role
+        role: Role.CUSTOMER,
       }
-      : { role: Role.CUSTOMER }; // Ensure non-search queries also filter by role
+      : { role: Role.CUSTOMER, status: Status.ACTIVE }; // Default condition for active customers
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
@@ -559,7 +562,7 @@ export async function getClientDetails(clientId: string): Promise<{
 }
 export async function updateClient(data: {
   id: string;
-  companyName : string;
+  companyName: string;
   name: string;
   position: string;
   email: string;
@@ -577,7 +580,7 @@ export async function updateClient(data: {
     const {
       id,
       name,
-       companyName,
+      companyName,
       position,
       email,
       phone,
@@ -594,7 +597,7 @@ export async function updateClient(data: {
       where: { id },
       data: {
         name,
-         companyName,
+        companyName,
         position,
         email,
         phone,

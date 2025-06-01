@@ -107,6 +107,7 @@ export default function AddInvoiceForm() {
     const fetchUsers = async (search: string) => {
         const usersResult = await getUsers({ page: 1, pageSize: 15, search });
 
+        console.log(usersResult)
         if (usersResult.success) {
             const mapped = usersResult.data.map((user) => ({
                 id: user.id,
