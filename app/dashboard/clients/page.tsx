@@ -1,7 +1,7 @@
 'use server';
 
 import Link from 'next/link';
-import { CheckCircle2, Clock, Download, MoreHorizontal, Plus, Search, SlidersHorizontal, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Download, MoreHorizontal, Plus, Search, SlidersHorizontal, View, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -62,6 +62,12 @@ export default async function ClientsPage({
             <Link href="/dashboard/clients/add">
               <Plus className="mr-2 h-4 w-4" />
               Add Client
+            </Link>
+          </Button>
+           <Button asChild>
+            <Link href="/dashboard/adminactions">
+              <View className="mr-2 h-4 w-4" />
+              View Admin
             </Link>
           </Button>
         </div>

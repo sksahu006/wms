@@ -210,7 +210,7 @@ export default function WarehousePage() {
                     <TableHead className='text-white'>Location</TableHead>
                     <TableHead className='text-white whitespace-nowrap'>Total Spaces</TableHead>
                     <TableHead className='text-white whitespace-nowrap'>Occupied Spaces</TableHead>
-                    <TableHead className='text-white'>Manager</TableHead>
+                    {/* <TableHead className='text-white'>Manager</TableHead> */}
                     <TableHead className="text-right text-white">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -225,7 +225,7 @@ export default function WarehousePage() {
                         {/* {wrh.spaces?.filter((s: any) => s.status === 'Occupied').length || 0} */}
                         {wrh._count.spaces || 0}
                       </TableCell>
-                      <TableCell className='whitespace-nowrap'>{wrh.manager?.name || 'N/A'}</TableCell>
+                      {/* <TableCell className='whitespace-nowrap'>{wrh.manager?.name || 'N/A'}</TableCell> */}
                       {/* <TableCell className="text-right space-x-2">
                         <Link href={`/dashboard/warehouse/${wrh.id}`}>
                           <Button variant="outline" size="sm" className='text-xs'>

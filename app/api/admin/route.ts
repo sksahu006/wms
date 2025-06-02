@@ -1,9 +1,31 @@
+"use server"
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
 
 // Handle POST /api/admin
+const createAdminSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  phone: z.string().optional(),
+  position: z.string().optional(),
+  companyName: z.string().optional(),
+  status: z.enum(['ACTIVE', 'PENDING', 'INACTIVE']).default('ACTIVE'),
+});
+
+// Validation schema for updating an admin
+const updateAdminSchema = z.object({
+  id: z.string().cuid('Invalid user ID'),
+  name: z.string().optional(),
+  email: z.string().email('Invalid email address').optional(),
+  phone: z.string().optional(),
+  position: z.string().optional(),
+  companyName: z.string().optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+});
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
