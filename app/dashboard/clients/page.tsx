@@ -60,13 +60,13 @@ export default async function ClientsPage({
           </Button>
           <Button asChild>
             <Link href="/dashboard/clients/add">
-              <View className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
               Add Client
             </Link>
           </Button>
            <Button asChild>
             <Link href="/dashboard/adminactions">
-              <Plus className="mr-2 h-4 w-4" />
+              <View className="mr-2 h-4 w-4" />
               View Admin
             </Link>
           </Button>
