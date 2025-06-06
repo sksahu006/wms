@@ -546,6 +546,7 @@ export async function getClientDetails(clientId: string): Promise<{
       status: user.status,
       contact: user.contactName,
       position: user.position,
+      companyName: user.companyName,
       phone: user.phone,
       address: user.address,
       joinedDate: user.created.toISOString().split('T')[0],

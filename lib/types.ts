@@ -5,6 +5,7 @@ export type ClientDetails = {
     status: 'ACTIVE' | 'PENDING' | 'INACTIVE';
     contact: string | null;
     position: string | null;
+    companyName: string | null;
     phone: string | null;
     address: string | null;
     joinedDate: string;

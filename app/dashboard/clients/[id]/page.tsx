@@ -99,7 +99,7 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
             <div className="space-y-2">
               <div className="flex items-center text-sm">
                 <Building2 className="mr-2 h-4 w-4 text-gray-600" />
-                <span className="font-medium">{client?.name}</span>
+                <span className="font-medium">{client?.companyName}</span>
               </div>
               <div className="flex items-center text-sm">
                 <User className="mr-2 h-4 w-4 text-gray-600" />

@@ -120,7 +120,7 @@ export default function EditClientPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
-              <Input id="companyName" name="companyName"  className="shadow-md" defaultValue={client?.name ?? ""} />
+              <Input id="companyName" name="companyName"  className="shadow-md" defaultValue={client?.companyName ?? ""} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
