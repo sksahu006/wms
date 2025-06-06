@@ -10,6 +10,20 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Warehouse Management System",
+  keywords: [
+    "warehouse management",
+    "inventory control",
+    "space rental",
+    "client management",
+    "invoice management",
+    "agreement management",
+    "support system",
+  ],
+    icons: {
+    icon: "/logowms.jpeg",               // default favicon
+    
+  },
+  
   description: "Manage warehouse space rentals, clients, invoices and more",
   generator: "v0.dev",
 };

@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import {
@@ -167,10 +168,12 @@ export default function DashboardLayout({
     <SidebarProvider>
       <div className="flex min-h-screen ">
         <Sidebar className='border-r-2 border-gray-300 shadow-md'>
-          <SidebarHeader className="flex h-14 items-center border-b px-4 bg-blue-900">
+          <SidebarHeader className="flex h-14 items-center border-b px-4 bg-white shadow-md">
             <Link href={isAdmin ? '/dashboard' : '/dashboard/spaces'} className="flex items-center gap-2 font-semibold">
-              <Package className="h-6 w-6 text-white" />
-              <span className='text-lg text-white'>WMS</span>
+              {/* <Package className="h-6 w-6 text-white" /> */}
+              <Image
+                src="/logo-wms.png" alt=" "  height={52} width={52}/>
+              <span className='text-lg text-gray-700'>WMS</span>
             </Link>
           </SidebarHeader>
           <SidebarContent>

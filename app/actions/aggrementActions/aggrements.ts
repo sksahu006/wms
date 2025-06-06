@@ -373,7 +373,7 @@ export async function deleteAgreement(id: string) {
     }
     const agreement = await prisma.agreement.findUnique({
       where: { id },
-      include: { space: true, invoice: true },
+      include: { space: true, invoices: true },
     });
     if (!agreement) {
       throw new Error('Agreement not found');
@@ -464,7 +464,7 @@ export const getSpacesByAgreement = async (clientId: string) => {
         userId: clientId,
         status: "ACTIVE",
         isDeleted: false, 
-        invoiceId: null, // ✅ this checks if no invoice exists
+       
       },
       include: {
         space: {
@@ -477,7 +477,7 @@ export const getSpacesByAgreement = async (clientId: string) => {
         },
       },
     });
-    console.log(agreements)
+    //console.log(agreements)
 
     const allSpaces = agreements.map((agreement) => ({
       ...agreement.space,

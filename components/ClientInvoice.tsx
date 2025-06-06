@@ -157,7 +157,7 @@ export default function ClientInvoice({ clientId, searchParams }: ClientInvoiceP
                     invoice.status === "PAID"
                       ? "default"
                       : invoice.status === "PENDING"
-                      ? "secondary"
+                      ? "neutral"
                       : "destructive"
                   }
                 >

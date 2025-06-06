@@ -26,6 +26,7 @@ export async function GET(request: Request) {
             pendingInvoices,
             recentActivities,
             notifications,
+            allRevenue
         ] = await Promise.all([
             // Total Revenue (PAID invoices this month)
             prisma.invoice.aggregate({
@@ -185,6 +186,11 @@ export async function GET(request: Request) {
                 link: `/dashboard/support/${n.id}`,
                 actions: n.status !== "RESOLVED" ? ["view", "resolve"] : ["view"],
             }))),
+             // Total Revenue (PAID invoices last month)
+            prisma.invoice.aggregate({
+                where: { status: "PAID",isDeleted:false },
+                _sum: { totalAmount: true },
+            }),
         ]);
 
         // Calculate Total Revenue
@@ -263,6 +269,7 @@ export async function GET(request: Request) {
             success: true,
             data: {
                 overview: {
+                    allRevenue: { amount: allRevenue._sum.totalAmount || 0 },
                     totalRevenue: { amount: revenueThisMonth, change: revenueChange },
                     warehouseUtilization: { percentage: utilization, change: utilizationChange },
                     activeClients: { count: activeClients, newThisMonth: newClientsThisMonth },

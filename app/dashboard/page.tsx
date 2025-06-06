@@ -281,6 +281,7 @@ export default async function DashboardPage({
   }
 
   const { overview, revenueChart, analytics, recentActivities, notifications } = result.data;
+  console.log(result)
 
   return (
     <div className="flex flex-col gap-6 px-4 md:px-6 py-6">
@@ -307,8 +308,9 @@ export default async function DashboardPage({
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
                   <CardTitle className="text-sm font-medium ">Total Revenue</CardTitle>
+                 
                   <div className="text-2xl font-bold  mt-2">
-                    ₹{overview.totalRevenue.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    ₹{overview?.allRevenue?.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </div>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-full">

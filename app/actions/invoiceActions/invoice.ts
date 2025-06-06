@@ -105,26 +105,17 @@ export async function createInvoice(formData: FormData) {
         date: new Date(data.date),
         amount: data.amount,
         tax: data.tax,
+        agreementId: data.agreementId,
         totalAmount: data.totalAmount,
         dueDate: new Date(data.dueDate),
         status: "PENDING",
-        agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined,
+       // agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined,
         documentUrl: data.documentUrl
       },
     });
 
     // Optionally update the agreement or perform any other action
-    if (agreement) {
-
-      await prisma.agreement.update({
-        where: { id: agreement.id },
-        data: {
-          invoice: {
-            connect: { id: invoice.id },
-          },
-        },
-      });
-    }
+  
 
     revalidatePath("/dashboard/invoices");
     return {
@@ -416,13 +407,7 @@ export async function deleteInvoice(id: string) {
       data: { isDeleted: true },
     });
 
-    // Unlink from agreement if applicable
-    if (invoice.agreement) {
-      await prisma.agreement.update({
-        where: { id: invoice.agreement.id },
-        data: { invoiceId: null },
-      });
-    }
+   
 
     revalidatePath("/dashboard/invoices");
     return { success: true, message: "Invoice deleted successfully" };
