@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getServerAuth } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
+import { Prisma, Status } from "@prisma/client";
 
 
 // Validation schema for creating an agreement
@@ -393,7 +393,7 @@ export async function deleteAgreement(id: string) {
     }
     await prisma.agreement.update({
       where: { id },
-      data: { isDeleted: true },
+      data: { isDeleted: true, status: Status.INACTIVE },
     });
     revalidatePath('/agreements');
     return { success: true };
