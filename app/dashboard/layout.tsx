@@ -173,7 +173,7 @@ export default function DashboardLayout({
               {/* <Package className="h-6 w-6 text-white" /> */}
               <Image
                 src="/logo-wms.png" alt=" "  height={52} width={52}/>
-              <span className='text-lg text-gray-700'>WMS</span>
+              <span className='text-sm text-gray-700'>SCPL Warehouse</span>
             </Link>
           </SidebarHeader>
           <SidebarContent>

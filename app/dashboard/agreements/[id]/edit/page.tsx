@@ -132,7 +132,7 @@ export default function EditAgreementPage() {
       });
 
       // 🔄 Upload the document to Cloudinary
-      let documentUrl: string | null = null;
+       let documentUrl: string | null = agreement?.documentUrl;
       const fileInput = form.querySelector<HTMLInputElement>('input[name="document"]');
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
@@ -430,9 +430,23 @@ export default function EditAgreementPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
               <Label htmlFor="document">Upload Agreement Document</Label>
-              <Input className='p-2' id="document" name="document" type="file" accept=".pdf,.doc,.docx,.jpg,.png" />
+              <Input
+                className="p-2"
+                id="document"
+                name="document"
+                type="file"
+                accept=".pdf,.doc,.docx,.jpg,.png"
+              />
+              {agreement.documentUrl && (
+                <p className="text-sm text-gray-500">
+                  Current document:{' '}
+                  <a href={agreement.documentUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                    View
+                  </a>
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}

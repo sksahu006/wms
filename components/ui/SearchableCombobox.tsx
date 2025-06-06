@@ -121,7 +121,7 @@ export function SearchableCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-black/10 text-white" align="start">
+      <PopoverContent className="w-full p-0  text-black" align="start">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder={searchPlaceholder}
@@ -140,7 +140,7 @@ export function SearchableCombobox({
                   onValueChange(item.id);
                   setOpen(false);
                 }}
-                className='text-white'
+                className='text-black'
               >
                 <Check
                   className={cn(

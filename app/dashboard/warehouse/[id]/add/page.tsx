@@ -121,6 +121,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                   id="spaceCode"
                   name="spaceCode"
                   placeholder="WH-X-000"
+                      className="placeholder:text-gray-300 shadow-md"
                   required
                 />
               </div>
@@ -130,6 +131,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                   id="spaceName"
                   name="spaceName"
                   placeholder="Storage Unit X-000"
+                    className="placeholder:text-gray-300 shadow-md"
                 />
               </div>
             </div>
@@ -139,7 +141,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                 <Label htmlFor="spaceType">Space Type</Label>
                 <Select name="spaceType" required>
                   <SelectTrigger id="spaceType">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue      className="placeholder:text-gray-300 shadow-md" placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="REGULAR">Regular Storage</SelectItem>
@@ -156,7 +158,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                 <Label htmlFor="status">Status</Label>
                 <Select name="status" defaultValue="AVAILABLE" required>
                   <SelectTrigger id="status">
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue     className="placeholder:text-gray-300 shadow-md" placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="AVAILABLE">Available</SelectItem>
@@ -176,6 +178,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                   name="size"
                   type="number"
                   placeholder="500"
+                      className="placeholder:text-gray-300 shadow-md"
                   required
                 />
               </div>
@@ -185,6 +188,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                   id="height"
                   name="height"
                   type="number"
+                      className="placeholder:text-gray-300 shadow-md"
                   placeholder="10"
                 />
               </div>
@@ -196,6 +200,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                 <Input
                   id="location"
                   name="location"
+                      className="placeholder:text-gray-300 shadow-md"
                   placeholder="Building A, Floor 1"
                 />
               </div>
@@ -205,6 +210,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
                   id="rate"
                   name="rate"
                   type="number"
+                      className="placeholder:text-gray-300 shadow-md"
                   placeholder="1000"
                 />
               </div>
@@ -215,6 +221,7 @@ export default function AddWarehouseSpacePage({ params }: { params: { id: string
               <Textarea
                 id="description"
                 name="description"
+                    className="placeholder:text-gray-300 shadow-md"
                 placeholder="Detailed description of the space"
               />
             </div>
