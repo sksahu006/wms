@@ -167,10 +167,10 @@ model Space {
 }
 
 model Agreement {
-  id                    String    @id @default(cuid())
-  spaceId               String
-  userId                String
-  invoiceId             String?   @unique
+  id      String @id @default(cuid())
+  spaceId String
+  userId  String
+
   clientName            String?
   contactPerson         String
   spaceType             SpaceType
@@ -190,14 +190,15 @@ model Agreement {
   createdAt             DateTime  @default(now())
   isDeleted             Boolean?  @default(false)
 
-  space   Space    @relation(fields: [spaceId], references: [id])
-  user    User     @relation(fields: [userId], references: [id])
-  invoice Invoice? @relation(name: "AgreementToInvoice", fields: [invoiceId], references: [id])
+  space    Space     @relation(fields: [spaceId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  invoices Invoice[] @relation("AgreementToInvoice")
 }
 
 model Invoice {
   id            String        @id @default(cuid())
   invoiceNumber String        @unique
+  agreementId   String?
   clientId      String
   spaceId       String
   date          DateTime      @default(now())
@@ -213,7 +214,7 @@ model Invoice {
 
   client    User       @relation("InvoiceClient", fields: [clientId], references: [id])
   space     Space      @relation("InvoiceSpace", fields: [spaceId], references: [id])
-  agreement Agreement? @relation(name: "AgreementToInvoice") // Matches above name, no fields/references
+  agreement Agreement? @relation("AgreementToInvoice", fields: [agreementId], references: [id])
 }
 
 model Support {
