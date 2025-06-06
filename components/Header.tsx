@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Package, Menu, X } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,8 +13,9 @@ export default function Header() {
       <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 text-gray-900 dark:text-white">
-          <Package className="h-6 w-6 text-blue-600" />
-          <span className="text-lg font-semibold">WMS</span>
+          <Image
+            src="/logowms.jpeg" alt=" " height={52} width={52} />
+          <span className="text-sm font-semibold">SCPL Warehouse</span>
         </Link>
 
         {/* Desktop Navigation */}

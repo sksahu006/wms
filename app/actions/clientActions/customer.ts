@@ -7,6 +7,7 @@ import { Prisma, Role, Status } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import bcrypt from "bcryptjs";
 import { ClientDetails } from "@/lib/types";
+import { getServerAuth } from "@/lib/auth";
 
 // Schema for form validation
 const UpdateSchema = z.object({
@@ -252,6 +253,47 @@ export async function getClients(
   } catch (error) {
     console.error("Error fetching clients:", error);
     return { success: false, error: "Failed to fetch clients" };
+  }
+}
+export async function getClientById(id: string) {
+  try {
+    const session = await getServerAuth();
+    if (!session || session.user.role !== 'ADMIN') {
+      throw new Error('Unauthorized: Only admins can view client details');
+    }
+
+    const client = await prisma.user.findUnique({
+      where: { id, isDeleted: false, status: 'PENDING' },
+      select: {
+        id: true,
+        name: true,
+        contactName: true,
+        position: true,
+        email: true,
+        phone: true,
+        address: true,
+        status: true,
+        businessType: true,
+        taxId: true,
+        requirements: true,
+        businessLicense: true,
+        taxCertificate: true,
+        created: true,
+        companyName: true,
+      },
+    });
+
+    if (!client) {
+      throw new Error('Client not found or not pending');
+    }
+
+    return { success: true, data: client };
+  } catch (error) {
+    console.error('Get client error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch client',
+    };
   }
 }
 

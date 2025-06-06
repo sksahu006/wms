@@ -7,7 +7,7 @@ import { useInView } from "react-intersection-observer";
 import { ArrowRight, Package, Truck, Users, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
-import homelogoimage from "../public/wmsi1.png";
+import homelogoimage from "../public/homephoto.jpeg";
 import sliderbottom from "../public/slider_bottom.png";
 import Image from "next/image";
 import bgshape from "../public/choose_bg_shape01.png";

@@ -112,7 +112,17 @@ export default function AddInvoiceForm() {
             const mapped = usersResult.data.map((user) => ({
                 id: user.id,
                 label: user.name || user.id,
-                agreements: user.agreements || [],
+                agreements: (user.agreements || []).map((agreement: any) => ({
+                    spaceId: agreement.spaceId,
+                    status: agreement.status,
+                    id: agreement.id,
+                    createdAt: agreement.createdAt,
+                    userId: agreement.userId,
+                    invoiceId: agreement.invoiceId ?? null,
+                    clientName: agreement.clientName ?? null,
+                    contactPerson: agreement.contactPerson,
+                    remarks: agreement.remarks ?? null,
+                })),
             }));
             setUserOptions(mapped);
             return mapped;

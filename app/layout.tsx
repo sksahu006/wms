@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "support system",
   ],
     icons: {
-    icon: "/logowms.jpeg",               // default favicon
+    icon: "/logo-wms.png",               // default favicon
     
   },
   
