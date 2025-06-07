@@ -520,6 +520,7 @@ export async function getSpaces({ page = 1, pageSize = 10, search = "", SpaceSta
       ? { clientId: { equals: clientId } }
       : {};
     const where = {
+      isDeleted: false, // Ensure we only fetch non-deleted spaces
       ...searchCondition,
       ...statusCondition,
       ...clientIdCondition
