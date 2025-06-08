@@ -57,29 +57,6 @@ export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,i
     const [isAllocateDialogOpen, setIsAllocateDialogOpen] = useState(false);
     const [clientId, setClientId] = useState<string>("");
 
-    // const handleAllocate = async (formData: FormData) => {
-    //     setIsLoading(true);
-    //     formData.append("spaceId", space.id);
-    //     const result = await allocateSpace(formData);
-    //     setIsLoading(false);
-
-    //     if (result.success) {
-    //         setIsAllocateDialogOpen(false);
-    //         toast({
-    //             title: "Space Allocated",
-    //             description: result.message,
-    //         });
-    //         router.push("/dashboard/warehouse");
-    //     } else {
-    //         console.log(result.error)
-    //         toast({
-    //             title: "Error",
-    //             description: result.error,
-    //             variant: "destructive",
-    //         });
-    //     }
-    // };
-
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">

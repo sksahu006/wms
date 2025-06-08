@@ -59,9 +59,6 @@ export async function createSpace({
   }
 }
 
-
-
-
 const getSpacesByUserIdSchema = z.object({
   userId: z.string().cuid(),
   page: z.number().int().positive().default(1),
@@ -240,23 +237,50 @@ export async function deleteSpace(spaceId: string) {
   try {
     const space = await prisma.space.findUnique({
       where: { id: spaceId },
+      include: {
+        agreements: true,
+        supports: true,
+      },
     });
 
     if (!space) {
       return { success: false, error: 'Space not found' };
     }
 
-    // Check if space is occupied before deletion
+    if (space.isDeleted) {
+      return { success: false, error: 'Space is already deleted' };
+    }
+
     if (space.status === 'OCCUPIED') {
       return { success: false, error: 'Cannot delete an occupied space' };
     }
 
+    if (space.clientId) {
+      return { success: false, error: 'Cannot delete space assigned to a client' };
+    }
+
+    if (space.agreements.length > 0) {
+      return {
+        success: false,
+        error: 'Cannot delete space — agreements are still associated with it',
+      };
+    }
+
+    if (space.supports.length > 0) {
+      return {
+        success: false,
+        error: 'Cannot delete space — supports are still associated with it',
+      };
+    }
+
+    // Safe to delete the space
     const deletedSpace = await prisma.space.delete({
       where: { id: spaceId },
     });
 
     revalidatePath(`/dashboard/warehouse/${deletedSpace.warehouseId}`);
     return { success: true, data: deletedSpace };
+
   } catch (error) {
     console.error('Delete space error:', error);
     return { success: false, error: 'Failed to delete space' };

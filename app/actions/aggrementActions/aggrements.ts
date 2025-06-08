@@ -391,9 +391,8 @@ export async function deleteAgreement(id: string) {
         },
       });
     }
-    await prisma.agreement.update({
+    await prisma.agreement.delete({
       where: { id },
-      data: { isDeleted: true, status: Status.INACTIVE },
     });
     revalidatePath('/agreements');
     return { success: true };

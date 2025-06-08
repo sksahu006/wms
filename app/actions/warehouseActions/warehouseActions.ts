@@ -210,9 +210,9 @@ export async function deleteWarehouse(id: string) {
     }
 
     // Soft delete the warehouse
-    await prisma.warehouse.update({
+    await prisma.warehouse.delete({
       where: { id },
-      data: { isDeleted: true },
+      // data: { isDeleted: true },
     });
 
     // Soft delete associated spaces (if any)

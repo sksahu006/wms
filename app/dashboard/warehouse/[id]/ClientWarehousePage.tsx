@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DeleteSpaceButton from "@/components/DeleteSpaceButton";
 
 interface Props {
   warehouseId: string;
@@ -298,7 +299,7 @@ function SpaceTable({
                     {space.expiryDate ? new Date(space.expiryDate).toLocaleDateString() : "—"}
                   </TableCell>
                 )}
-                <TableCell className="text-right">
+                {/* <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -311,25 +312,22 @@ function SpaceTable({
                       <DropdownMenuItem>
                         <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>View details</Link>
                       </DropdownMenuItem>
-                      {/* <DropdownMenuItem>
-                        <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}/edit`}>Edit space</Link>
-                      </DropdownMenuItem> */}
+                      <DropdownMenuItem>
+                       <DeleteSpaceButton spaceId={space.id} warehouseId={warehouseId} />
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      {/* {space.status === "AVAILABLE" ? (
-                        <DropdownMenuItem className="text-green-600">
-                          <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>Allocate space</Link>
-                        </DropdownMenuItem>
-                      ) : (
-                        <>
-                          <DropdownMenuItem>View agreement</DropdownMenuItem>
-                          <DropdownMenuItem>Extend lease</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">Terminate lease</DropdownMenuItem>
-                        </>
-                      )} */}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                </TableCell> */}
+                <TableCell className="text-right space-x-2">
+                  <Link href={`/dashboard/warehouse/${warehouseId}/${space.id}`}>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </Link>
+                  <DeleteSpaceButton spaceId={space.id} warehouseId={warehouseId} />
                 </TableCell>
+
               </TableRow>
             ))
           )}

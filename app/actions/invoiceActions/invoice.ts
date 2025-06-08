@@ -402,9 +402,9 @@ export async function deleteInvoice(id: string) {
     // }
 
     // Soft delete the invoice
-    await prisma.invoice.update({
+    await prisma.invoice.delete({
       where: { id: validatedId },
-      data: { isDeleted: true },
+      // data: { isDeleted: true },
     });
 
    

@@ -17,6 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { getClients, getPendingClientsCount } from '@/app/actions/clientActions/customer';
 import { cn } from '@/lib/utils';
+import DeleteUserButton from '@/components/DeleteUserButton';
 
 export default async function ClientsPage({
   searchParams,
@@ -64,7 +65,7 @@ export default async function ClientsPage({
               Add Client
             </Link>
           </Button>
-           <Button asChild>
+          <Button asChild>
             <Link href="/dashboard/adminactions">
               <View className="mr-2 h-4 w-4" />
               View Admin
@@ -134,7 +135,7 @@ export default async function ClientsPage({
                     </TableCell>
                     <TableCell>{client?.spaces?.length || 0}</TableCell>
                     <TableCell>{new Date(client.created).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
+                    {/* <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -149,20 +150,16 @@ export default async function ClientsPage({
                               View details
                             </Link>
                           </DropdownMenuItem>
-                          {/* <DropdownMenuItem>Edit client</DropdownMenuItem> */}
-                          <DropdownMenuSeparator />
-                          {/* <DropdownMenuItem>View invoices</DropdownMenuItem>
-                          <DropdownMenuItem>View agreements</DropdownMenuItem> */}
-                          <DropdownMenuSeparator />
-                          {/* {client.status === "PENDING" ? (
-                            <DropdownMenuItem className="text-green-600">Approve client</DropdownMenuItem>
-                          ) : client.status === "ACTIVE" ? (
-                            <DropdownMenuItem className="text-yellow-600">Deactivate client</DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem className="text-green-600">Activate client</DropdownMenuItem>
-                          )} */}
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </TableCell> */}
+                    <TableCell className="text-right flex gap-2 justify-end">
+                      <Link href={`/dashboard/clients/${client.id}`} passHref>
+                        <Button variant="outline" size="sm">
+                          View details
+                        </Button>
+                      </Link>
+                      <DeleteUserButton userId={client.id} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -173,7 +170,7 @@ export default async function ClientsPage({
           {/* Pagination Controls */}
           {pagination.total > 0 && (
             <div className="mt-4 flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm dark:text-zinc-50 text-gray-700">
                 Showing {(pagination.page - 1) * pagination.pageSize + 1} to{' '}
                 {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total} clients
               </div>

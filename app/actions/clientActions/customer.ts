@@ -653,6 +653,7 @@ export async function updateClient(data: {
 
       },
     });
+    revalidatePath('/dashboard/clients');
 
     return { success: true, client: updatedClient };
   } catch (error) {
@@ -675,5 +676,46 @@ export async function getPendingClientsCount() {
   } catch (error) {
     console.error(error);
     return { success: false, error: "Failed to fetch pending clients count" };
+  }
+}
+
+export async function deleteUser(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        agreements: true,
+        spaces: true,
+        invoices: true,
+      },
+    });
+
+    if (!user) {
+      return { success: false, error: 'User not found' };
+    }
+
+    if (user.agreements.length > 0) {
+      return { success: false, error: 'Cannot delete user with existing agreements' };
+    }
+
+    if (user.spaces.length > 0) {
+      return { success: false, error: 'Cannot delete user with associated spaces' };
+    }
+
+    if (user.invoices.length > 0) {
+      return { success: false, error: 'Cannot delete user with existing invoices' };
+    }
+
+    // Safe to delete
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    revalidatePath('/dashboard/clients'); 
+    revalidatePath('/dashboard/clients/pending'); 
+    return { success: true };
+  } catch (error) {
+    console.error('Delete user error:', error);
+    return { success: false, error: 'Failed to delete user' };
   }
 }

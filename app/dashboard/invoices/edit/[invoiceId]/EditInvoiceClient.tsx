@@ -135,14 +135,14 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
 
     <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
-          {invoice.status === "PAID" ? (
+          {/* {invoice.status === "PAID" ? (
             <div>
               <Input id="status" value="PAID" disabled />
               <p className="text-sm text-muted-foreground">
                 Paid invoices cannot be changed to unpaid status.
               </p>
             </div>
-          ) : (
+          ) : ( */}
             <>
               <Select value={status} onValueChange={setStatus} name="status">
                 <SelectTrigger id="status">
@@ -156,7 +156,7 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
               </Select>
               <input type="hidden" name="status" value={status} />
             </>
-          )}
+          {/* )} */}
         </div>
 
         <div className="space-y-2">

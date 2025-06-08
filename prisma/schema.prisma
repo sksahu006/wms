@@ -232,7 +232,7 @@ model Support {
 
   clientId String
   client   User   @relation(fields: [clientId], references: [id])
-  space    Space? @relation(fields: [spaceId], references: [id])
+  space    Space? @relation(fields: [spaceId], references: [id], onDelete: Cascade)
 }
 
 model ResetToken {
