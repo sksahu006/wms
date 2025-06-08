@@ -33,13 +33,36 @@ type Filters = Record<string, any>;
 // Utility function to build date filter
 function buildDateFilter(startDate?: string, endDate?: string) {
     if (!startDate || !endDate) return {};
+   try {
+        // Parse input dates
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-    return {
-        createdAt: {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
+        // Validate dates
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new Error("Invalid date format for startDate or endDate");
         }
-    };
+
+        // Ensure startDate is at the beginning of the day (00:00:00.000Z)
+        start.setUTCHours(0, 0, 0, 0);
+        const startISOString = start.toISOString();
+
+        // Ensure endDate is at the end of the day (23:59:59.999Z)
+        end.setUTCHours(23, 59, 59, 999);
+        const endISOString = end.toISOString();
+
+        return {
+            createdAt: {
+                gte: startISOString,
+                lte: endISOString,
+            },
+        };
+    } catch (error) {
+        console.error("Error parsing dates in buildDateFilter:", error);
+        return {};
+    }
+
+  
 }
 
 // Utility function to safely get array filters

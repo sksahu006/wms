@@ -136,7 +136,7 @@ export default async function ClientSpacesPage({
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className='bg-blue-600'>
                   <TableHead>ID</TableHead>
                   <TableHead>Space Name</TableHead>
                   <TableHead>Type</TableHead>

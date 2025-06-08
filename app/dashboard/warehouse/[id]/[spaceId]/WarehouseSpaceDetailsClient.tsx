@@ -221,7 +221,7 @@ export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,i
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-4">
+                {/* <Card className="md:col-span-4">
                     <CardHeader>
                         <CardTitle>Space Activity</CardTitle>
                     </CardHeader>
@@ -261,7 +261,7 @@ export default function WarehouseSpaceDetailsClient({ space ,id}: { space: any,i
                             <Link href="/dashboard/warehouse">Back to List</Link>
                         </Button>
                     </CardFooter>
-                </Card>
+                </Card> */}
             </div>
         </div>
     );

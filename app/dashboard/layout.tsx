@@ -213,10 +213,10 @@ export default function DashboardLayout({
                 <DropdownMenuContent className="w-56   " align="end" forceMount>
                   <DropdownMenuLabel className="font-normal ">
                     <div className="flex flex-col space-y-2">
-                      <p className="text-sm font-medium leading-none text-white">
+                      <p className="text-sm font-medium leading-none text-gray-900">
                         {session?.user?.name || (isAdmin ? 'Admin User' : 'Client User')}
                       </p>
-                      <p className="text-[10px] leading-none text-muted-foreground">
+                      <p className="text-[10px] leading-none text-black">
                         {session?.user?.email || (isAdmin ? 'admin@wms.com' : 'client@example.com')}
                       </p>
                     </div>

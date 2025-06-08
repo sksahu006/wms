@@ -87,7 +87,7 @@ export default function RegisterPage() {
             Client Registration
           </h1>
           <p className="text-sm text-muted-foreground">
-            Register your company to access our warehouse management system
+            Register SCPL warehouse to access our warehouse management system
           </p>
         </div>
 

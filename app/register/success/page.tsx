@@ -36,13 +36,11 @@ export default function RegistrationSuccessPage() {
               Your registration has been submitted successfully
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-4 text-white">
-            <p>
+          <CardContent className="text-center space-y-4 text-black">
+            <p className="text-black">
               Your application is now pending approval by our administrators. This process typically takes 1-2 business days.
             </p>
-            <p>
-              Once approved, you will receive an email with your login credentials and vendor code.
-            </p>
+           
             <div className="rounded-md bg-muted p-4 mt-4">
               <p className="text-sm font-medium">What happens next?</p>
               <ol className="text-sm text-left list-decimal pl-4 mt-2 space-y-1">

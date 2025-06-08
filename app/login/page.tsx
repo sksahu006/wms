@@ -123,7 +123,7 @@ export default function SignInPage() {
             <Package className="h-8 w-8" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Sign In</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm ">
             Access your warehouse management account
           </p>
         </div>
@@ -166,7 +166,7 @@ export default function SignInPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm ">
                 <Link
                   href="/forgot-password"
                   className="underline underline-offset-4 hover:text-primary"
@@ -183,7 +183,7 @@ export default function SignInPage() {
             <span className="w-full border-t border-muted" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
+            <span className="bg-background px-2 ">
               Or continue with
             </span>
           </div>
@@ -213,7 +213,7 @@ export default function SignInPage() {
           Continue with Google
         </Button>
 
-        <p className="px-8 text-center text-sm text-muted-foreground">
+        <p className="px-8 text-center text-sm ">
           Don’t have an account?{" "}
           <Link
             href="/register"

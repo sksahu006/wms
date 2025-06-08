@@ -86,7 +86,7 @@ function Field({
 }) {
   return (
     <div className={cn("space-y-1", className)}>
-      <label className="block font-semibold text-muted-foreground">{label}</label>
+      <label className="block font-semibold ">{label}</label>
       {typeof value === "string" || typeof value === "number" ? (
         <p className="text-sm">{value}</p>
       ) : (
