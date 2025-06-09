@@ -142,11 +142,11 @@ You will receive an email once your account has been reviewed and verified by ou
 If you have any questions in the meantime, feel free to reach out.
 
 Best regards,  
-The [Your Company Name] Team
+The SCPL warehouse Team
 `;
     const html = `
 <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 8px;">
-  <h2 style="color: #2c3e50;">👋 Welcome to [Your Company Name]</h2>
+  <h2 style="color: #2c3e50;">👋 Welcome to SCPL warehouse</h2>
   <p style="font-size: 16px; color: #555;">
     Thank you for registering with us. Your account has been <strong>successfully created</strong> and is currently <strong>pending approval</strong>.
   </p>
@@ -159,7 +159,7 @@ The [Your Company Name] Team
   <hr style="margin: 20px 0;" />
   <p style="font-size: 14px; color: #999;">
     Best regards,<br/>
-    The [Your Company Name] Team
+    The SCPL warehouse Team
   </p>
 </div>
 `;
@@ -331,7 +331,7 @@ You can now log in using your registered email: ${email}
 We're excited to have you on board. If you have any questions, feel free to reach out.
 
 Best regards,  
-The [Your Company Name] Team
+The SCPL warehouse Team
 `;
 
     const verifiedHtml = `
@@ -347,7 +347,7 @@ The [Your Company Name] Team
     We're excited to have you with us! If you have any questions, feel free to reply to this email.
   </p>
   <hr style="margin: 20px 0;" />
-  <p style="font-size: 14px; color: #999;">Best regards,<br/>The [Your Company Name] Team</p>
+  <p style="font-size: 14px; color: #999;">Best regards,<br/>The SCPL warehouse Team</p>
 </div>
 `;
 
@@ -359,19 +359,19 @@ We appreciate your interest in joining us. However, after careful review, we reg
 If you believe this was a mistake or would like further clarification, feel free to contact our support team.
 
 Best regards,  
-The [Your Company Name] Team
+The SCPL warehouse Team
 `;
     const rejectedHtml = `
 <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 8px;">
   <h2 style="color: #e74c3c;">⚠️ Registration Request Update</h2>
   <p style="font-size: 16px; color: #555;">
-    Thank you for your interest in joining <strong>[Your Company Name]</strong>. After careful review, we regret to inform you that your registration request has been <strong>rejected</strong>.
+    Thank you for your interest in joining <strong>SCPL warehouse</strong>. After careful review, we regret to inform you that your registration request has been <strong>rejected</strong>.
   </p>
   <p style="font-size: 16px; color: #555;">
     If you feel this was a mistake or would like to reapply, please don't hesitate to get in touch with us.
   </p>
   <hr style="margin: 20px 0;" />
-  <p style="font-size: 14px; color: #999;">Best regards,<br/>The [Your Company Name] Team</p>
+  <p style="font-size: 14px; color: #999;">Best regards,<br/>The SCPL warehouse Team</p>
 </div>
 `;
 

@@ -157,7 +157,7 @@ export default function EditClientPage() {
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
-                  <SelectContent className="text-gray-100">
+                  <SelectContent className="text-gray-900">
                     <SelectItem value="retail">Retail</SelectItem>
                     <SelectItem value="manufacturing">Manufacturing</SelectItem>
                     <SelectItem value="distribution">Distribution</SelectItem>

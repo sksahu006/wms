@@ -171,9 +171,9 @@ export default function PendingClientsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="">
-                            <DropdownMenuLabel className="text-white">Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel className="text-gray-800">Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/clients/pending/${client.id}`} className="text-white">
+                              <Link href={`/dashboard/clients/pending/${client.id}`} className="text-gray-800">
                                 View details
                               </Link>
                             </DropdownMenuItem>
