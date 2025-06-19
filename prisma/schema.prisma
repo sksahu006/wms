@@ -77,6 +77,10 @@ model User {
   requirements    String?
   businessLicense String?
   taxCertificate  String?
+  openingBalance  Int?    @default(0)
+  billedAmount    Int?    @default(0)
+  receivedAmount  Int?    @default(0)
+  balanceAmount   Int?    @default(0)
 
   accounts   Account[]
   sessions   Session[]

@@ -103,9 +103,13 @@ export default async function ClientsPage({
                 <TableRow className='bg-blue-900' >
                   <TableHead className='text-white'>ID</TableHead>
                   <TableHead className='text-white'>Company</TableHead>
-                  <TableHead className='text-white'>Contact</TableHead>
+                  <TableHead className='text-white whitespace-nowrap'>Contact</TableHead>
                   <TableHead className='text-white'>Status</TableHead>
                   <TableHead className='text-white'>Spaces</TableHead>
+                  <TableHead className='text-white whitespace-nowrap'>Opening</TableHead>
+                  <TableHead className='text-white whitespace-nowrap'>Billed</TableHead>
+                  <TableHead className='text-white whitespace-nowrap'>Received</TableHead>
+                  <TableHead className='text-white whitespace-nowrap'>Balance</TableHead>
                   <TableHead className='text-white'>Joined</TableHead>
                   <TableHead className='text-white text-right'>Actions</TableHead>
                 </TableRow>
@@ -121,8 +125,8 @@ export default async function ClientsPage({
                       <div className="text-sm text-[#390E67] dark:text-[#0DFFD3]">{client.email || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
-                      <div>{client.contactName || 'N/A'}</div>
-                      <div className="text-sm text-orange-600 dark:text-blue-900">{client.phone || 'N/A'}</div>
+                      <div className='whitespace-nowrap'>{client.contactName || 'N/A'}</div>
+                      <div className="text-sm text-orange-600 dark:text-blue-900 whitespace-nowrap">{client.phone || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -134,6 +138,10 @@ export default async function ClientsPage({
                       </Badge>
                     </TableCell>
                     <TableCell>{client?.spaces?.length || 0}</TableCell>
+                    <TableCell>{client?.openingBalance || 0}</TableCell>
+                    <TableCell>{client?.billedAmount || 0}</TableCell>
+                    <TableCell>{client?.receivedAmount || 0}</TableCell>
+                    <TableCell>{client?.balanceAmount || 0}</TableCell>
                     <TableCell>{new Date(client.created).toLocaleDateString()}</TableCell>
                     {/* <TableCell className="text-right">
                       <DropdownMenu>

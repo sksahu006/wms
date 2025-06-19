@@ -55,7 +55,7 @@ export default function EditClientPage() {
     const formData = new FormData(e.target as HTMLFormElement)
     const updatedClient = {
       id,
-      companyName : formData.get("companyName") as string,
+      companyName: formData.get("companyName") as string,
       name: formData.get("contactName") as string,
       position: formData.get("position") as string,
       email: formData.get("email") as string,
@@ -65,6 +65,10 @@ export default function EditClientPage() {
       taxId: formData.get("taxId") as string,
       status: formData.get("status") as string,
       requirements: formData.get("notes") as string,
+      openingBalance: parseFloat(formData.get("openingBalance") as string) || 0,
+      billedAmount: parseFloat(formData.get("billedAmount") as string) || 0,
+      receivedAmount: parseFloat(formData.get("receivedAmount") as string) || 0,
+      balanceAmount: parseFloat(formData.get("balanceAmount") as string) || 0,
     }
 
     try {
@@ -120,40 +124,90 @@ export default function EditClientPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
-              <Input id="companyName" name="companyName"  className="shadow-md" defaultValue={client?.companyName ?? ""} />
+              <Input id="companyName" name="companyName" className="shadow-md" defaultValue={client?.companyName ?? ""} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="contactName">Contact Person</Label>
-                <Input id="contactName" name="contactName"  className="shadow-md" defaultValue={client?.contact ?? ""} />
+                <Input id="contactName" name="contactName" className="shadow-md" defaultValue={client?.contact ?? ""} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="position">Position</Label>
-                <Input id="position" name="position"  className="shadow-md" defaultValue={client?.position ?? ""} />
+                <Input id="position" name="position" className="shadow-md" defaultValue={client?.position ?? ""} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email"  className="shadow-md" defaultValue={client?.email ?? ""} />
+                <Input id="email" name="email" type="email" className="shadow-md" defaultValue={client?.email ?? ""} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" name="phone"  className="shadow-md" defaultValue={client?.phone ?? ""} />
+                <Input id="phone" name="phone" className="shadow-md" defaultValue={client?.phone ?? ""} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="openingBalance">Opening Balance</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="openingBalance"
+                  name="openingBalance"
+                  placeholder="Opening balance"
+                  type="text"
+                  defaultValue={client?.openingBalance ?? ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="billedAmount">Billed Amount</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="billedAmount"
+                  name="billedAmount"
+                  placeholder="Billed amount"
+                  type="text"
+                  defaultValue={client?.billedAmount ?? ""}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="receivedAmount">Received Amount</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="receivedAmount"
+                  name="receivedAmount"
+                  placeholder="Received amount"
+                  type="text"
+                  defaultValue={client?.receivedAmount ?? ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="balanceAmount">Balance Amount</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="balanceAmount"
+                  name="balanceAmount"
+                  placeholder="Balance amount"
+                  type="text"
+                  defaultValue={client?.balanceAmount ?? ""}
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="address">Business Address</Label>
-              <Textarea id="address" name="address"  className="shadow-md" defaultValue={client?.address ?? ""} />
+              <Textarea id="address" name="address" className="shadow-md" defaultValue={client?.address ?? ""} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="businessType">Business Type</Label>
-                <Select name="businessType"  defaultValue={client?.businessType || "retail"} required>
+                <Select name="businessType" defaultValue={client?.businessType || "retail"} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -168,13 +222,13 @@ export default function EditClientPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="taxId">Tax ID / Business Number</Label>
-                <Input id="taxId" name="taxId" className="text-gray-900 shadow-md"  defaultValue={(client?.taxId) ?? ""} />
+                <Input id="taxId" name="taxId" className="text-gray-900 shadow-md" defaultValue={(client?.taxId) ?? ""} />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select name="status"   defaultValue={client?.status ?? "ACTIVE"} required>
+              <Select name="status" defaultValue={client?.status ?? "ACTIVE"} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -191,7 +245,7 @@ export default function EditClientPage() {
               <Textarea
                 id="notes"
                 name="notes"
-                 className="shadow-md" defaultValue={client?.requirements ?? ""}
+                className="shadow-md" defaultValue={client?.requirements ?? ""}
                 placeholder="Additional notes about this client"
               />
             </div>
@@ -218,8 +272,8 @@ export default function EditClientPage() {
               type="submit"
               disabled={isLoading}
               className={`border-none text-white ${isLoading
-                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600'
+                ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600'
                 }`}
             >
               {isLoading ? "Updating..." : "Update Client"}

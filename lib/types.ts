@@ -12,6 +12,10 @@ export type ClientDetails = {
     businessType: string | null;
     taxId: string | null;
     requirements?: string | null;
+    openingBalance: number | null;
+    billedAmount: number | null;
+    receivedAmount: number | null;
+    balanceAmount: number | null;
   };
   export enum SpaceStatus {
     AVAILABLE = "AVAILABLE",

@@ -86,7 +86,7 @@ export default function AddClientPage() {
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
               <Input
-               className="placeholder:text-gray-500 shadow-md"
+                className="placeholder:text-gray-500 shadow-md"
                 id="companyName"
                 name="companyName"
                 placeholder="Enter company name"
@@ -137,6 +137,56 @@ export default function AddClientPage() {
                   name="phone"
                   placeholder="+1 (555) 123-4567"
                   required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="openingBalance">Opening Balance</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="openingBalance"
+                  name="openingBalance"
+                  placeholder="Opening balance"
+                  type="number"
+                  defaultValue={0}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="billedAmount">Billed Amount</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="billedAmount"
+                  name="billedAmount"
+                  placeholder="Billed amount"
+                  type="number"
+                  defaultValue={0}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="receivedAmount">Received Amount</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="receivedAmount"
+                  name="receivedAmount"
+                  placeholder="Received amount"
+                  type="number"
+                  defaultValue={0}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="balanceAmount">Balance Amount</Label>
+                <Input
+                  className="placeholder:text-gray-500 shadow-md"
+                  id="balanceAmount"
+                  name="balanceAmount"
+                  placeholder="Balance amount"
+                  type="number"
+                  defaultValue={0}
                 />
               </div>
             </div>
@@ -233,8 +283,8 @@ export default function AddClientPage() {
               type="submit"
               disabled={isLoading}
               className={`border-none text-white ${isLoading
-                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600'
+                ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600'
                 }`}
             >
               {isLoading ? "Adding..." : "Add Client"}

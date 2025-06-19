@@ -26,7 +26,10 @@ const UpdateSchema = z.object({
   taxCertificate: z.string().optional(),
   isActive: z.boolean().optional(),
   status: z.enum(["ACTIVE", "INACTIVE", "PENDING"]).optional(),
-
+  openingBalance: z.number().optional(),
+  billedAmount: z.number().optional(),
+  receivedAmount: z.number().optional(),
+  balanceAmount: z.number().optional(),
 });
 
 // Schema for form validation
@@ -42,6 +45,10 @@ const RegisterSchema = z.object({
   requirements: z.string().min(1, "Storage requirements are required"),
   businessLicense: z.string().nullable(), // Allow null for optional fields
   taxCertificate: z.string().nullable(), // Allow null for optional fields
+  openingBalance: z.number().optional(),
+  billedAmount: z.number().optional(),
+  receivedAmount: z.number().optional(),
+  balanceAmount: z.number().optional(),
 });
 type SpaceStatusString = "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" | "RESERVED";
 
@@ -68,6 +75,10 @@ export async function registerUser(formData: FormData) {
     const taxId = formData.get("taxId") as string;
     const requirements = formData.get("requirements") as string;
     const password = formData.get("password") as string;
+    const openingBalance = formData.get("openingBalance") as string;
+    const billedAmount = formData.get("billedAmount") as string;
+    const receivedAmount = formData.get("receivedAmount") as string;
+    const balanceAmount = formData.get("balanceAmount") as string;
     // Commenting out file extraction for now
     // const businessLicenseFile = formData.get("businessLicense") as File | null;
     // const taxCertificateFile = formData.get("taxCertificate") as File | null;
@@ -85,6 +96,10 @@ export async function registerUser(formData: FormData) {
       requirements,
       businessLicense: null, // Set after upload
       taxCertificate: null, // Set after upload
+      openingBalance: parseFloat(openingBalance) || 0,
+      billedAmount: parseFloat(billedAmount) || 0,
+      receivedAmount: parseFloat(receivedAmount) || 0,
+      balanceAmount: parseFloat(balanceAmount) || 0,
     });
 
     // Log validated data for debugging
@@ -129,6 +144,10 @@ export async function registerUser(formData: FormData) {
         taxCertificate: null,
         role: "CUSTOMER",
         emailVerified: null, // Set emailVerified to null (not verified)
+        openingBalance: parseFloat(openingBalance),
+        billedAmount: parseFloat(billedAmount),
+        receivedAmount: parseFloat(receivedAmount),
+        balanceAmount: parseFloat(balanceAmount),
       },
     });
 
@@ -225,6 +244,10 @@ export async function getClients(
         businessType: true,
         created: true,
         spaces: true,
+        openingBalance: true,
+        billedAmount: true,
+        receivedAmount: true,
+        balanceAmount: true,
       },
       skip,
       take: pageSize,
@@ -596,6 +619,10 @@ export async function getClientDetails(clientId: string): Promise<{
       businessType: user.businessType,
       taxId: user.taxId,
       requirements: user.requirements, // or `remarks` if that's more appropriate
+      openingBalance: user.openingBalance,
+      billedAmount: user.billedAmount,
+      receivedAmount: user.receivedAmount,
+      balanceAmount: user.balanceAmount,
     };
 
     return { success: true, client };
@@ -616,6 +643,10 @@ export async function updateClient(data: {
   taxId: string;
   status: string;
   requirements?: string;
+  openingBalance?: number;
+  billedAmount?: number;
+  receivedAmount?: number;
+  balanceAmount?: number;
 }) {
   try {
     // Validate input data
@@ -633,7 +664,10 @@ export async function updateClient(data: {
       taxId,
       status,
       requirements,
-
+      openingBalance,
+      billedAmount,
+      receivedAmount,
+      balanceAmount
     } = validatedData;
 
     // Perform database update (assumes Prisma is set up with a `client` model)
@@ -650,7 +684,10 @@ export async function updateClient(data: {
         taxId,
         status,
         requirements,
-
+        openingBalance,
+        billedAmount,
+        receivedAmount,
+        balanceAmount
       },
     });
     revalidatePath('/dashboard/clients');
@@ -711,8 +748,8 @@ export async function deleteUser(userId: string) {
       where: { id: userId },
     });
 
-    revalidatePath('/dashboard/clients'); 
-    revalidatePath('/dashboard/clients/pending'); 
+    revalidatePath('/dashboard/clients');
+    revalidatePath('/dashboard/clients/pending');
     return { success: true };
   } catch (error) {
     console.error('Delete user error:', error);

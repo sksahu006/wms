@@ -138,6 +138,34 @@ export default async function ClientDetailsPage({ params }: { params: { id: stri
               </div>
             </div>
 
+            <div className="pt-2">
+              <h3 className="text-sm font-medium mb-2">Balance Details</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-600">Opening Balance:</span>
+                  <p>{client?.openingBalance}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Billed Amount</span>
+                  <p>{client?.billedAmount}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <h3 className="text-sm font-medium mb-2">Received Amount</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-600">Received Amount</span>
+                  <p>{client?.receivedAmount}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Balance Amount</span>
+                  <p>{client?.balanceAmount}</p>
+                </div>
+              </div>
+            </div>
+
             {client?.requirements && (
               <div className="pt-2">
                 <h3 className="text-sm font-medium mb-2">Notes</h3>
