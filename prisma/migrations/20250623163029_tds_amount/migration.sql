@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Invoice" ADD COLUMN     "tds" INTEGER NOT NULL DEFAULT 0;

@@ -423,7 +423,7 @@ export default function EditAgreementPage() {
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                <SelectContent className='text-white'>
+                <SelectContent>
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="ACTIVE">Active</SelectItem>
                   <SelectItem value="INACTIVE">Inactive</SelectItem>

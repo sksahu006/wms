@@ -42,7 +42,7 @@ export default async function InvoicesPage({
     return <div>Error: {result.error || "No data available"}</div>;
   }
 
-  const { invoices, stats, totalPages, totalItems } = result.data;
+  const { invoices, stats, totalPages, totalItems, customer } = result.data;
 
   // Format stats for display
   const invoiceStats = [
@@ -69,6 +69,28 @@ export default async function InvoicesPage({
       value: `₹${stats.overdue.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
       description: `${stats.overdue.count} invoices`,
       icon: <XCircle className="h-5 w-5 text-red-600" />,
+    },
+  ];
+  const customerStats = [
+    {
+      title: "Opening Balance",
+      value: `₹${customer?.openingBalance?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      icon: <XCircle className="h-5 w-5 text-red-600" />,
+    },
+    {
+      title: "Billed Amount",
+      value: `₹${customer?.billedAmount?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      icon: <FileText className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      title: "Received Amount",
+      value: `₹${customer?.receivedAmount?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      icon: <CheckCircle2 className="h-5 w-5 text-green-600" />,
+    },
+    {
+      title: "Balance Amount",
+      value: `₹${customer?.balanceAmount?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      icon: <Clock className="h-5 w-5 text-amber-600" />,
     },
   ];
 
@@ -102,6 +124,23 @@ export default async function InvoicesPage({
           </Card>
         ))}
       </div>
+
+      {session && session.user.role === "CUSTOMER" && <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {customerStats.map((stat, index) => (
+          <Card
+            key={index}
+            className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              {stat.icon}
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>}
 
       <Card>
         <CardHeader>
@@ -214,8 +253,8 @@ export default async function InvoicesPage({
                     disabled={page === 1}
                     asChild
                     className={`border-none text-white ${page === 1
-                        ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                      ? 'bg-gradient-to-r from-purple-300 to-pink-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
                       }`}
                   >
                     <Link
@@ -233,8 +272,8 @@ export default async function InvoicesPage({
                     disabled={page >= totalPages}
                     asChild
                     className={`border-none text-white ${page >= totalPages
-                        ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      ? 'bg-gradient-to-r from-green-300 to-blue-300 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
                       }`}
                   >
                     <Link

@@ -324,6 +324,7 @@ interface InvoiceResponse {
     date: Date;
     documentUrl?: string | null;
     dueDate: Date;
+    tds?: number | null;
     status: InvoiceStatus;
     client: { id: string; name: string | null };
     space: { id: string; spaceCode: string };
@@ -739,6 +740,10 @@ export default function InvoiceDetailsPage() {
                     <div className="flex justify-between">
                       <p className="text-gray-600 dark:text-gray-400">Tax ({invoice.tax > 0 ? ((invoice.tax / invoice.amount) * 100).toFixed(2) : '0'}%)</p>
                       <p className="text-gray-800 dark:text-gray-200">₹{invoice.tax.toFixed(2)}</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-gray-800 dark:text-gray-200">₹{(invoice.tds ?? 0).toFixed(2)}</p>
+                      <p className="text-gray-800 dark:text-gray-200">₹{invoice.tds?.toFixed(2)}</p>
                     </div>
                     <div className="border-t pt-4 flex justify-between">
                       <p className="text-gray-800 dark:text-gray-200 font-semibold">Total</p>

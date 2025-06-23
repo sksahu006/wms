@@ -18,12 +18,13 @@ const createInvoiceSchema = z.object({
   dueDate: z.string().datetime({ message: "Invalid due date format" }),
   agreementId: z.string().cuid("Invalid agreement ID").optional(),
   documentUrl: z.string().optional(),
+  tds: z.number().nonnegative("TDS must be non-negative").optional(),
 });
 
 // Schema for updating an invoice
 const updateInvoiceSchema = z.object({
   id: z.string().cuid("Invalid invoice ID"),
- invoiceNumber: z.string().min(1, "Invoice number is required").optional(),
+  invoiceNumber: z.string().min(1, "Invoice number is required").optional(),
   clientId: z.string().cuid("Invalid client ID").optional(),
   spaceId: z.string().cuid("Invalid space ID").optional(),
   date: z.string().datetime({ message: "Invalid date format" }).optional(),
@@ -33,6 +34,7 @@ const updateInvoiceSchema = z.object({
   dueDate: z.string().datetime({ message: "Invalid due date format" }).optional(),
   status: z.enum(["PAID", "PENDING", "OVERDUE"]).optional(),
   documentUrl: z.string().optional(),
+  tds: z.number().nonnegative("TDS must be non-negative").optional(),
 });
 
 // Schema for deleting an invoice
@@ -54,12 +56,13 @@ export async function createInvoice(formData: FormData) {
       dueDate: formData.get("dueDate"),
       agreementId: formData.get("agreementId"), // Assuming agreementId is part of the form data
       documentUrl: formData.get("documentUrl"),
+      tds: formData.get("tds"),
     });
 
     // Validate totalAmount
-    if (Math.abs(data.totalAmount - (data.amount + data.tax)) > 0.01) {
-      throw new Error("Total amount must equal amount + tax");
-    }
+    // if (Math.abs(data.totalAmount - (data.amount + data.tax)) > 0.01) {
+    //   throw new Error("Total amount must equal amount + tax");
+    // }
 
     // Check if client exists
     const client = await prisma.user.findUnique({
@@ -109,13 +112,14 @@ export async function createInvoice(formData: FormData) {
         totalAmount: data.totalAmount,
         dueDate: new Date(data.dueDate),
         status: "PENDING",
-       // agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined,
-        documentUrl: data.documentUrl
+        // agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined,
+        documentUrl: data.documentUrl,
+        tds: data.tds
       },
     });
 
     // Optionally update the agreement or perform any other action
-  
+
 
     revalidatePath("/dashboard/invoices");
     return {
@@ -137,7 +141,7 @@ export async function createInvoice(formData: FormData) {
 export async function getInvoice(id: string) {
   try {
     const invoice = await prisma.invoice.findUnique({
-      where: { id: id,isDeleted: false },
+      where: { id: id, isDeleted: false },
       include: {
         client: { select: { id: true, name: true } },
         space: { select: { id: true, spaceCode: true } },
@@ -206,12 +210,9 @@ export async function getInvoices({
 
     // 4. Build secure query conditions
     const where: any = {
-       isDeleted: false,
-      // For customers, only show their own invoices
+      isDeleted: false,
       ...(user.role === 'CUSTOMER' && { clientId: user.id }),
-      // For admins, allow filtering by clientId if provided
       ...(user.role === 'ADMIN' && validated.clientId && { clientId: validated.clientId }),
-      // Common filters
       ...(validated.spaceId && { spaceId: validated.spaceId }),
       ...(validated.search && {
         OR: [
@@ -222,7 +223,7 @@ export async function getInvoices({
       ...(validated.status && { status: validated.status }),
     }
 
-    // 5. Execute queries
+    // 5. Execute invoice queries
     const [invoices, total, stats] = await Promise.all([
       prisma.invoice.findMany({
         where,
@@ -265,6 +266,26 @@ export async function getInvoices({
       invoiceStats.total.count += count
     })
 
+    // 7. Optionally fetch client details if user is a CUSTOMER
+    let customerDetails = null
+    if (user.role === 'CUSTOMER') {
+      customerDetails = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          billedAmount: true,
+          receivedAmount: true,
+          balanceAmount: true,
+          openingBalance: true,
+        },
+      })
+    }
+
+    // 8. Return success response
     return {
       success: true,
       data: {
@@ -274,6 +295,7 @@ export async function getInvoices({
         totalPages: Math.ceil(total / validated.limit),
         totalItems: total,
         stats: invoiceStats,
+        ...(customerDetails && { customer: customerDetails }),
       },
     }
   } catch (error) {
@@ -300,18 +322,19 @@ export async function updateInvoice(formData: FormData) {
       dueDate: formData.get("dueDate"),
       status: formData.get("status"),
       documentUrl: formData.get("documentUrl"),
+      tds: formData.get("tds"),
     });
 
     // Validate totalAmount if provided
-    if (data.amount !== undefined && data.tax !== undefined && data.totalAmount !== undefined) {
-      if (Math.abs(data.totalAmount - (data.amount + data.tax)) > 0.01) {
-        throw new Error("Total amount must equal amount + tax");
-      }
-    }
+    // if (data.amount !== undefined && data.tax !== undefined && data.totalAmount !== undefined) {
+    //   if (Math.abs(data.totalAmount - (data.amount + data.tax)) > 0.01) {
+    //     throw new Error("Total amount must equal amount + tax");
+    //   }
+    // }
 
     // Check if invoice exists
     const existingInvoice = await prisma.invoice.findUnique({
-      where: { id: data.id, isDeleted: false  },
+      where: { id: data.id, isDeleted: false },
     });
     if (!existingInvoice) {
       throw new Error("Invoice not found");
@@ -359,7 +382,8 @@ export async function updateInvoice(formData: FormData) {
         totalAmount: data.totalAmount,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         status: data.status,
-        documentUrl: data.documentUrl
+        documentUrl: data.documentUrl,
+        tds: data.tds,
       },
     });
 
@@ -407,7 +431,7 @@ export async function deleteInvoice(id: string) {
       // data: { isDeleted: true },
     });
 
-   
+
 
     revalidatePath("/dashboard/invoices");
     return { success: true, message: "Invoice deleted successfully" };
@@ -430,20 +454,20 @@ export async function markInvoiceAsPaid(id: string) {
     const invoice = await prisma.invoice.findUnique({
       where: { id: validatedId },
     });
-    
+
     if (!invoice) {
       throw new Error("Invoice not found");
     }
 
     // Update the invoice status
     const updatedInvoice = await prisma.invoice.update({
-      where: { id: validatedId ,isDeleted: false},
+      where: { id: validatedId, isDeleted: false },
       data: { status: "PAID" },
     });
 
     revalidatePath(`/dashboard/invoices/${validatedId}`);
     revalidatePath("/dashboard/invoices");
-    
+
     return {
       success: true,
       data: updatedInvoice,

@@ -38,6 +38,7 @@ const formSchema = z.object({
     amount: z.number().positive("Amount must be positive"),
     tax: z.number().nonnegative("Tax must be non-negative"),
     totalAmount: z.number().positive("Total amount must be positive"),
+    tds: z.number().nonnegative("TDS must be non-negative").optional(),
     dueDate: z
         .string()
         .refine(value => !isNaN(Date.parse(value)), "Invalid due date format")
@@ -371,6 +372,25 @@ export default function AddInvoiceForm() {
                 </div>
 
                 {/* Total amount full width */}
+                <FormField
+                    control={form.control}
+                    name="tds"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>TDS</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="number"
+
+                                    placeholder="1100.00"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="totalAmount"

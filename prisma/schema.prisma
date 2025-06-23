@@ -215,6 +215,7 @@ model Invoice {
   status        InvoiceStatus @default(PENDING)
   documentUrl   String?
   isDeleted     Boolean?      @default(false)
+  tds           Int?           @default(0)
 
   client    User       @relation("InvoiceClient", fields: [clientId], references: [id])
   space     Space      @relation("InvoiceSpace", fields: [spaceId], references: [id])

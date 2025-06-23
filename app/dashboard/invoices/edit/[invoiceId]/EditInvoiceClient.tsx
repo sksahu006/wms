@@ -23,69 +23,70 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
   const [file, setFile] = useState<File | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-  const formData = new FormData(event.currentTarget);
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
 
-  // Append fixed fields
-  formData.append("id", invoice.id);
-  formData.append("invoiceNumber", invoice.invoiceNumber);
-  formData.append("clientId", invoice.client.id);
-  formData.append("spaceId", invoice.space.id);
+    // Append fixed fields
+    formData.append("id", invoice.id);
+    formData.append("invoiceNumber", invoice.invoiceNumber);
+    formData.append("clientId", invoice.client.id);
+    formData.append("spaceId", invoice.space.id);
+    formData.append("tds", invoice.tds);
 
-  // Handle date
-  formData.append("date", invoice.date ? new Date(invoice.date).toISOString() : new Date().toISOString());
+    // Handle date
+    formData.append("date", invoice.date ? new Date(invoice.date).toISOString() : new Date().toISOString());
 
-  // Fix due date format
-  const dueDateInput = formData.get("dueDate") as string;
-  if (dueDateInput) {
-    const dueDate = new Date(`${dueDateInput}T00:00:00Z`);
-    formData.delete("dueDate");
-    formData.append("dueDate", dueDate.toISOString());
-  }
-
-  // Handle amount, tax, totalAmount
-  const amount = parseFloat(formData.get("amount") as string);
-  if (invoice.tax) {
-    const tax = invoice.tax;
-    formData.append("tax", tax.toString());
-    formData.append("totalAmount", (amount + tax).toString());
-  } else {
-    formData.append("totalAmount", amount.toString());
-  }
-
-  // Handle documentUrl
-  if (file) {
-    try {
-      const uploadedUrl = await handleFileUpload(file);
-      if (uploadedUrl) {
-        formData.append("documentUrl", uploadedUrl);
-      } else {
-        formData.append("documentUrl", invoice.documentUrl || ""); // Fallback to existing or empty string
-      }
-    } catch (err) {
-      toast.error("Failed to upload document");
-      return;
+    // Fix due date format
+    const dueDateInput = formData.get("dueDate") as string;
+    if (dueDateInput) {
+      const dueDate = new Date(`${dueDateInput}T00:00:00Z`);
+      formData.delete("dueDate");
+      formData.append("dueDate", dueDate.toISOString());
     }
-  } else {
-    formData.append("documentUrl", invoice.documentUrl || ""); // Use existing documentUrl or empty string
-  }
 
-  // Submit update
-  startTransition(async () => {
-    try {
-      console.log([...formData.entries()]); // Debug FormData contents
-      const result = await updateInvoice(formData);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      toast.success("Invoice updated successfully!");
-      router.push("/dashboard/invoices");
-    } catch (error) {
-      console.error(error);
-      toast.error(`Failed to update invoice: ${error instanceof Error ? error.message : "Unknown error"}`);
+    // Handle amount, tax, totalAmount
+    const amount = parseFloat(formData.get("amount") as string);
+    if (invoice.tax) {
+      const tax = invoice.tax;
+      formData.append("tax", tax.toString());
+      formData.append("totalAmount", (amount + tax).toString());
+    } else {
+      formData.append("totalAmount", amount.toString());
     }
-  });
-}
+
+    // Handle documentUrl
+    if (file) {
+      try {
+        const uploadedUrl = await handleFileUpload(file);
+        if (uploadedUrl) {
+          formData.append("documentUrl", uploadedUrl);
+        } else {
+          formData.append("documentUrl", invoice.documentUrl || ""); // Fallback to existing or empty string
+        }
+      } catch (err) {
+        toast.error("Failed to upload document");
+        return;
+      }
+    } else {
+      formData.append("documentUrl", invoice.documentUrl || ""); // Use existing documentUrl or empty string
+    }
+
+    // Submit update
+    startTransition(async () => {
+      try {
+        console.log([...formData.entries()]); // Debug FormData contents
+        const result = await updateInvoice(formData);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        toast.success("Invoice updated successfully!");
+        router.push("/dashboard/invoices");
+      } catch (error) {
+        console.error(error);
+        toast.error(`Failed to update invoice: ${error instanceof Error ? error.message : "Unknown error"}`);
+      }
+    });
+  }
   return (
     <div className="max-w-xl mx-auto py-10">
       <h1 className="text-2xl font-semibold mb-6">Edit Invoice</h1>
@@ -107,6 +108,16 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
         </div>
 
         {/* Editable Fields */}
+        <div className="space-y-2">
+          <Label htmlFor="tds">TDS</Label>
+          <Input
+            id="tds"
+            name="tds"
+            defaultValue={invoice.tds}
+            type="number"
+          // required
+          />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="amount">Amount</Label>
           <Input
@@ -133,7 +144,7 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
           />
         </div>
 
-    <div className="space-y-2">
+        <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
           {/* {invoice.status === "PAID" ? (
             <div>
@@ -143,19 +154,19 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
               </p>
             </div>
           ) : ( */}
-            <>
-              <Select value={status} onValueChange={setStatus} name="status">
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="PAID">Paid</SelectItem>
-                  {/* <SelectItem value="CANCELLED">Cancelled</SelectItem> */}
-                </SelectContent>
-              </Select>
-              <input type="hidden" name="status" value={status} />
-            </>
+          <>
+            <Select value={status} onValueChange={setStatus} name="status">
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="PAID">Paid</SelectItem>
+                {/* <SelectItem value="CANCELLED">Cancelled</SelectItem> */}
+              </SelectContent>
+            </Select>
+            <input type="hidden" name="status" value={status} />
+          </>
           {/* )} */}
         </div>
 
