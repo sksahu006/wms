@@ -25,12 +25,10 @@ import { getSpacesByAgreement } from "@/app/actions/aggrementActions/aggrements"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { handleFileUpload } from "@/lib/handleFileUpload";
 
-// Zod schema for form validation
 const formSchema = z.object({
     invoiceNumber: z
         .string()
-        .min(1, "Invoice number is required")
-       ,
+        .min(1, "Invoice number is required"),
     clientId: z.string().cuid("Please select a valid client"),
     spaceId: z.string().cuid("Please select a valid space"),
     date: z
@@ -44,16 +42,7 @@ const formSchema = z.object({
         .string()
         .refine(value => !isNaN(Date.parse(value)), "Invalid due date format")
         .transform(value => new Date(value).toISOString()), // Convert to proper ISO string
-}).refine(
-    (data) => Math.abs(data.totalAmount - (data.amount + data.tax)) < 0.01,
-    {
-        message: "Total amount must equal amount + tax",
-        path: ["totalAmount"],
-    }
-);
-
-
-
+});
 
 export default function AddInvoiceForm() {
     const router = useRouter();
@@ -348,7 +337,7 @@ export default function AddInvoiceForm() {
                                 <FormControl>
                                     <Input
                                         type="number"
-                                       
+
                                         placeholder="1000.00"
                                         min={0}
                                         {...field}
@@ -369,7 +358,7 @@ export default function AddInvoiceForm() {
                                 <FormControl>
                                     <Input
                                         type="number"
-                                      
+
                                         placeholder="100.00"
                                         {...field}
                                         onChange={(e) => field.onChange(parseFloat(e.target.value))}
@@ -391,7 +380,7 @@ export default function AddInvoiceForm() {
                             <FormControl>
                                 <Input
                                     type="number"
-                                   
+
                                     placeholder="1100.00"
                                     {...field}
                                     onChange={(e) => field.onChange(parseFloat(e.target.value))}
@@ -438,8 +427,8 @@ export default function AddInvoiceForm() {
                         type="submit"
                         disabled={isSubmitting}
                         className={`border-none text-white flex items-center ${isSubmitting
-                                ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600'
+                            ? 'bg-gradient-to-r from-gray-500 to-gray-600 opacity-50 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600'
                             }`}
                     >
                         {isSubmitting ? (
@@ -458,8 +447,8 @@ export default function AddInvoiceForm() {
                         onClick={() => router.push("/dashboard/invoices")}
                         disabled={isSubmitting}
                         className={`border-none text-white ${isSubmitting
-                                ? 'bg-gradient-to-r from-gray-300 to-gray-400 opacity-50 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700'
+                            ? 'bg-gradient-to-r from-gray-300 to-gray-400 opacity-50 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700'
                             }`}
                     >
                         Cancel
@@ -471,4 +460,3 @@ export default function AddInvoiceForm() {
     );
 }
 
- 

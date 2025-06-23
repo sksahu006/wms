@@ -232,7 +232,7 @@ export default function EditClientPage() {
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                <SelectContent className="text-gray-100">
+                <SelectContent >
                   <SelectItem value="ACTIVE">Active</SelectItem>
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="INACTIVE">Inactive</SelectItem>
