@@ -56,7 +56,7 @@ export async function createInvoice(formData: FormData) {
       dueDate: formData.get("dueDate"),
       agreementId: formData.get("agreementId"), // Assuming agreementId is part of the form data
       documentUrl: formData.get("documentUrl"),
-      tds: formData.get("tds"),
+      tds: parseFloat(formData.get("tds") as string),
     });
 
     // Validate totalAmount
@@ -114,7 +114,7 @@ export async function createInvoice(formData: FormData) {
         status: "PENDING",
         // agreement: data.agreementId ? { connect: { id: data.agreementId } } : undefined,
         documentUrl: data.documentUrl,
-        tds: data.tds
+        tds: Number(data.tds)
       },
     });
 
@@ -322,7 +322,7 @@ export async function updateInvoice(formData: FormData) {
       dueDate: formData.get("dueDate"),
       status: formData.get("status"),
       documentUrl: formData.get("documentUrl"),
-      tds: formData.get("tds"),
+      tds: parseFloat(formData.get("tds") as string),
     });
 
     // Validate totalAmount if provided
@@ -383,7 +383,7 @@ export async function updateInvoice(formData: FormData) {
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         status: data.status,
         documentUrl: data.documentUrl,
-        tds: data.tds,
+        tds: Number(data.tds),
       },
     });
 
