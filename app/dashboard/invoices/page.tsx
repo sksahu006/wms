@@ -107,7 +107,7 @@ export default async function InvoicesPage({
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {session && session.user.role === "ADMIN" && <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {invoiceStats.map((stat, index) => (
           <Card
             key={index}
@@ -123,7 +123,7 @@ export default async function InvoicesPage({
             </CardContent>
           </Card>
         ))}
-      </div>
+      </div>}
 
       {session && session.user.role === "CUSTOMER" && <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {customerStats.map((stat, index) => (
