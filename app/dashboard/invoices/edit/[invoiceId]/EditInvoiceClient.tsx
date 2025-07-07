@@ -49,7 +49,7 @@ export default function EditInvoicePageClient({ invoice }: { invoice: any }) {
     if (invoice.tax) {
       const tax = invoice.tax;
       formData.append("tax", tax.toString());
-      formData.append("totalAmount", (amount + tax).toString());
+      formData.append("totalAmount", (amount ).toString());
     } else {
       formData.append("totalAmount", amount.toString());
     }
