@@ -202,7 +202,7 @@ export default function Home() {
 
         {/* New Section: Why Choose Us */}
         <section className=" relative w-full py-12 md:py-24 lg:py-32">
-        <div className=" hidden lg:block absolute   lg:bottom-[-70px]  left-0 w-full z-0 pointer-events-none">
+          <div className=" hidden lg:block absolute   lg:bottom-[-70px]  left-0 w-full z-0 pointer-events-none">
             <Image
               src={bgshape}
               alt="Background shape top"
@@ -292,13 +292,63 @@ export default function Home() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="outline" asChild>
+                {/* <Button variant="outline" asChild>
                   <Link href="/contact">Contact Sales</Link>
-                </Button>
+                </Button> */}
               </div>
             </motion.div>
           </div>
         </section>
+        <footer className="bg-white text-gray-800 px-6 py-12">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            {/* Column 1: Logo + Description */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <img src="/logowms.jpeg" alt="Logo" className="h-10" />
+                <h2 className="text-lg font-bold">SCPL Warehouse</h2>
+              </div>
+              <p className="text-sm leading-relaxed">
+                The Company is a leading construction company involved in the construction of works
+                with Railways & Highways having bridges, industrial buildings, Railway Track works
+                projects and works at Visakhapatnam Steel Plant & onshore works.
+              </p>
+            </div>
+
+            {/* Column 2: Quick Links */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2 text-sm">
+                {[ "about", "services","contact Us"].map(link => (
+                  <li key={link}>
+                    <Link href={`${link}`} className="hover:text-purple-700 capitalize">{link}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Column 3: Get in Touch */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white bg-blue-800 px-3 py-1 inline-block rounded">Get in Touch</h3>
+              <p className="text-sm bg-purple-100 p-3 rounded">
+                Regd. Office: OU-522, 5th Floor, Esplanade Commercial Development Unit No.32,721,
+                Rasulgarh, Bhubaneswar – 751 010, Khurda
+              </p>
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-800">📞</span>
+                  <span>0674-2548394</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-800">✉️</span>
+                  <span>info@shivamcondev.com</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </footer>
+
       </main>
     </div>
   );
