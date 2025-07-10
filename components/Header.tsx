@@ -14,8 +14,13 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 text-gray-900 dark:text-white">
           <Image
-            src="/logowms.jpeg" alt=" " height={52} width={52} />
-          <span className="text-sm font-semibold">SCPL Warehouse</span>
+            src="/logowms.jpeg" alt=" " height={65} width={65} />
+         <div className="flex flex-col leading-none">
+  <span className="text-[20px] font-semibold block">SCPL</span>
+  <span className="text-sm">Warehouse</span>
+</div>
+          {/* <span className="text-[20px] font-semibold">SCPL</span>
+          <span>Warehouse</span> */}
         </Link>
 
         {/* Desktop Navigation */}

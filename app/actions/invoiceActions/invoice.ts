@@ -231,7 +231,7 @@ export async function getInvoices({
         take: validated.limit,
         orderBy: { createdAt: "desc" },
         include: {
-          client: { select: { id: true, name: true } },
+          client: { select: { id: true, name: true,companyName:true } },
           space: { select: { id: true, spaceCode: true } },
         },
       }),

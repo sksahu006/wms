@@ -168,11 +168,11 @@ export default function DashboardLayout({
     <SidebarProvider>
       <div className="flex min-h-screen ">
         <Sidebar className='border-r-2 border-gray-300 shadow-md'>
-          <SidebarHeader className="flex h-14 items-center border-b px-4 bg-white shadow-md">
+          <SidebarHeader className="flex h-14 items-center border-b px-2 bg-white shadow-md">
             <Link href={isAdmin ? '/dashboard' : '/dashboard/spaces'} className="flex items-center gap-2 font-semibold">
               {/* <Package className="h-6 w-6 text-white" /> */}
               <Image
-                src="/logo-wms.png" alt=" "  height={52} width={52}/>
+                src="/logo-wms.png" alt=" "  height={62} width={62}/>
               <span className='text-sm text-gray-700'>SCPL Warehouse</span>
             </Link>
           </SidebarHeader>

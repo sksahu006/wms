@@ -107,40 +107,77 @@ export default async function InvoicesPage({
         )}
       </div>
 
-      {session && session.user.role === "ADMIN" && <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {invoiceStats.map((stat, index) => (
-          <Card
-            key={index}
-            className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              {stat.icon}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>}
+      {session && session.user.role === "ADMIN" ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {invoiceStats.map((stat, index) => (
+            <Card
+              key={index}
+              className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                {stat.icon}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : session && session.user.role === "CUSTOMER" ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            ...invoiceStats.filter(
+              (stat) =>
+                stat.title === "Total Invoices" ||
+                stat.title === "Paid" ||
+                stat.title === "Pending"
+            ),
+            ...customerStats.filter((stat) => stat.title === "Opening Balance"),
+          ].map((stat, index) => (
+            <Card
+              key={index}
+              className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                {stat.icon}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
 
-      {session && session.user.role === "CUSTOMER" && <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {customerStats.map((stat, index) => (
-          <Card
-            key={index}
-            className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              {stat.icon}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {invoiceStats
+            .filter(
+              (stat) =>
+                stat.title === "Total Invoices" ||
+                stat.title === "Paid" ||
+                stat.title === "Pending"
+            )
+            .map((stat, index) => (
+              <Card
+                key={index}
+                className="border border-black bg-blue-900 text-white dark:bg-gradient-to-br dark:from-blue-900 dark:to-blue-300"
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                  {stat.icon}
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground">{stat.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+        </div>
+      )}
+
 
       <Card>
         <CardHeader>
@@ -169,10 +206,10 @@ export default async function InvoicesPage({
                       <TableRow key={invoice.id}>
                         <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
                         <TableCell>
-                          <div>{invoice.client.name || invoice.client.id}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {new Date(invoice.date).toLocaleDateString("en-IN", { dateStyle: "medium" })}
-                          </div>
+                          <div className="text-gray-700">{(invoice.client.companyName)}</div>
+                          {/* <div className="text-xs text-gray-500">
+                            {(invoice.client.companyName)}
+                          </div> */}
                         </TableCell>
                         <TableCell>
                           ₹{invoice.totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
