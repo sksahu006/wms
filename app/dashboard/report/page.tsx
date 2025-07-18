@@ -488,7 +488,7 @@ const ReportPage: React.FC = () => {
                 rows = reportData;
                 break;
             case "AGREEMENT_STATUS":
-                headers = ["id", "status", "monthlyRentAmount", "rentStartDate", "clientName", "spaceCode", "spaceType", "warehouseName"];
+                headers = ["id", "status", "monthlyRentAmount","rentEndDate", "rentStartDate", "clientName", "spaceCode", "spaceType", "warehouseName"];
                 rows = reportData;
                 break;
             case "SUPPORT_TICKET":
@@ -616,7 +616,7 @@ const ReportPage: React.FC = () => {
                 rows = reportData;
                 break;
             case "AGREEMENT_STATUS":
-                headers = ["id", "status", "monthlyRentAmount", "rentStartDate", "clientName", "spaceCode", "spaceType", "warehouseName"];
+                headers = ["id", "status", "monthlyRentAmount","rentEndDate", "rentStartDate", "clientName", "spaceCode", "spaceType", "warehouseName"];
                 rows = reportData;
                 break;
             case "SUPPORT_TICKET":
@@ -668,6 +668,8 @@ const ReportPage: React.FC = () => {
                                                     ? `₹${row.totalAmount}`
                                                     : reportType === "AGREEMENT_STATUS" && header === "monthlyRentAmount"
                                                         ? `₹${row.monthlyRentAmount}`
+                                                    : reportType === "AGREEMENT_STATUS" && header === "rentEndDate"
+                                                        ? `${row.rentEndDate}`
                                                         : reportType === "AGREEMENT_STATUS" && header === "rentStartDate"
                                                             ? new Date(row.rentStartDate).toLocaleDateString()
                                                             : reportType === "INVOICE_AGING" && header === "totalAmount"

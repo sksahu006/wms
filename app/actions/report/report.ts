@@ -204,7 +204,7 @@ class ReportHandlers {
             id: agreement.id,
             status: agreement.status,
             monthlyRentAmount: agreement.monthlyRentAmount,
-          rentEndDate: new Date(new Date().setMonth(new Date().getMonth() + (agreement.agreementPeriod ?? 0)))
+          rentEndDate: new Date(new Date().setMonth(new Date().getMonth() + (agreement.agreementPeriod ?? 0))).toLocaleDateString("en-US")
 ,
             rentStartDate: agreement.rentStartDate,
             clientName: agreement.user.name,
