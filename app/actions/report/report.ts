@@ -189,6 +189,8 @@ class ReportHandlers {
                 status: true,
                 monthlyRentAmount: true,
                 rentStartDate: true,
+               agreementPeriod: true,
+               
                 user: { select: { name: true } },
                 space: {
                     select: {
@@ -202,6 +204,8 @@ class ReportHandlers {
             id: agreement.id,
             status: agreement.status,
             monthlyRentAmount: agreement.monthlyRentAmount,
+          rentEndDate: new Date(new Date().setMonth(new Date().getMonth() + (agreement.agreementPeriod ?? 0)))
+,
             rentStartDate: agreement.rentStartDate,
             clientName: agreement.user.name,
             spaceCode: agreement.space.spaceCode,
